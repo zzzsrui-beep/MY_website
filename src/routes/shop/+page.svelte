@@ -12,7 +12,7 @@
 	let { data } = $props();
 
 	// 动态过滤：排除已在顶级导航中出现的 category（如 ACCESSORIES）
-	// 这样当您在 PocketBase 导航中添加新的 category 链接时，子选项会自动排除
+	// 这样当您在 CMS 导航中添加新的 category 链接时，子选项会自动排除
 	const categories = $derived([
 		{ name: 'ALL', slug: 'ALL' },
 		...data.categories

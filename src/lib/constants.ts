@@ -119,8 +119,8 @@ export const LAYOUT = {
 } as const;
 
 // =============================================================================
-// DEFAULTS - 默认值 (当 PocketBase global_settings 不可用时的 Fallback)
-// 实际业务配置应通过 data.settings 从 PocketBase 获取
+// DEFAULTS - 默认值 (当 CMS 设置不可用时的 Fallback)
+// 实际业务配置应通过 data.settings 从 CMS 获取
 // =============================================================================
 export const DEFAULTS = {
 	siteName: 'ELEMENTHIC',
@@ -143,7 +143,7 @@ export const STRIPE = {
 } as const;
 
 // =============================================================================
-// CONTENT IMAGES - 统一的图片 Fallback (实际由 PocketBase ui_assets/global_settings 管理)
+// CONTENT IMAGES - 统一的图片 Fallback (实际由 CMS assets/settings 管理)
 // =============================================================================
 export const CONTENT_IMAGES = {
 	// 空状态图片
@@ -175,7 +175,7 @@ export const CONTENT_IMAGES = {
 export const STORAGE_KEYS = {
 	CART: 'vanflow_cart',
 	WISHLIST: 'vanflow_wishlist'
-	// Note: Auth state is now managed by PocketBase authStore, not localStorage
+	// Note: Auth state is handled by frontend store in shell mode
 } as const;
 
 // =============================================================================

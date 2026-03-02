@@ -7,7 +7,6 @@
 	import Drawer from './ui/Drawer.svelte';
 	import FreeShippingProgress from './ui/FreeShippingProgress.svelte';
 	import { TRANSITIONS } from '$lib/constants';
-	import { auth } from '$lib/stores/auth.svelte';
 
 	const cart = useCart();
 
@@ -58,9 +57,10 @@
 			</button>
 		</div>
 	{:else}
-		<div class="flex flex-col gap-8">
-			{#each cart.items as item (item.cartItemId)}
-				<div class="flex gap-4">
+			<div class="flex flex-col gap-8">
+				{#each cart.items as item (item.cartItemId || `${item.id}-${item.variantId || 'base'}`)}
+					{@const itemKey = item.cartItemId || `${item.id}-${item.variantId || 'base'}`}
+					<div class="flex gap-4">
 					<OrderItemThumbnail
 						src={item.image || ''}
 						alt={item.title || 'Product Image'}
@@ -78,7 +78,7 @@
 								<button
 									class={quantityBtnClass}
 									aria-label="Decrease quantity"
-									onclick={() => cart.updateQuantity(item.cartItemId, -1)}>-</button
+									onclick={() => cart.updateQuantity(itemKey, -1)}>-</button
 								>
 								<span class="text-[10px] font-sans w-6 text-center text-primary dark:text-white"
 									>{item.quantity}</span
@@ -86,13 +86,13 @@
 								<button
 									class={quantityBtnClass}
 									aria-label="Increase quantity"
-									onclick={() => cart.updateQuantity(item.cartItemId, 1)}>+</button
+									onclick={() => cart.updateQuantity(itemKey, 1)}>+</button
 								>
-							</div>
-							<button
-								class="text-[10px] font-sans uppercase tracking-[0.15em] text-black no-underline hover:underline underline-offset-2"
-								onclick={() => cart.removeItem(item.cartItemId)}>Remove</button
-							>
+								</div>
+								<button
+									class="text-[10px] font-sans uppercase tracking-[0.15em] text-black no-underline hover:underline underline-offset-2"
+									onclick={() => cart.removeItem(itemKey)}>Remove</button
+								>
 						</div>
 					</div>
 				</div>
@@ -111,19 +111,15 @@
 			>
 		</div>
 
-		<button
-			class="w-full border border-primary dark:border-white text-primary dark:text-white py-4 text-[11px] font-sans font-bold uppercase tracking-widest hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-primary {TRANSITIONS.colors}"
-			disabled={cart.items.length === 0}
-			onclick={() => {
-				close();
-				if (auth.isAuthenticated) {
+			<button
+				class="w-full border border-primary dark:border-white text-primary dark:text-white py-4 text-[11px] font-sans font-bold uppercase tracking-widest hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-primary {TRANSITIONS.colors}"
+				disabled={cart.items.length === 0}
+				onclick={() => {
+					close();
 					goto('/checkout');
-				} else {
-					goto('/account?redirect=/checkout');
-				}
-			}}
-		>
-			Checkout
-		</button>
+				}}
+			>
+				Checkout
+			</button>
 	{/snippet}
 </Drawer>

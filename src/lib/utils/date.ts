@@ -1,4 +1,4 @@
-export function parsePocketBaseDate(input: unknown): Date | null {
+export function parseBackendDate(input: unknown): Date | null {
 	if (input == null) return null;
 	if (input instanceof Date) {
 		return Number.isNaN(input.getTime()) ? null : input;
@@ -7,7 +7,7 @@ export function parsePocketBaseDate(input: unknown): Date | null {
 	const raw = String(input).trim();
 	if (!raw) return null;
 
-	// PocketBase commonly returns: "YYYY-MM-DD HH:mm:ss.SSSZ" (note the space).
+	// Some backends return: "YYYY-MM-DD HH:mm:ss.SSSZ" (note the space).
 	let normalized = raw.replace(' ', 'T');
 
 	// If timezone is missing, assume UTC.

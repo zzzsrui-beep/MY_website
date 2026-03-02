@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { OrderSummary } from '$lib/types';
 	import { ArrowUpRight } from 'lucide-svelte';
-	import { parsePocketBaseDate } from '$lib/utils/date';
+	import { parseBackendDate } from '$lib/utils/date';
 	import { getOrderStatusColor } from '$lib/utils/order-status';
 	import { formatCurrency } from '$lib/utils/price';
 
@@ -16,7 +16,7 @@
 		})
 	);
 
-	const safeDate = $derived.by(() => parsePocketBaseDate(order.date));
+	const safeDate = $derived.by(() => parseBackendDate(order.date));
 </script>
 
 <a

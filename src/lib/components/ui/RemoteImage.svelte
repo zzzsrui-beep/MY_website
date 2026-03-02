@@ -23,7 +23,7 @@
 		style?: string;
 		priority?: boolean; // If true, loading="eager" and fetchpriority="high"
 		aspectRatio?: string; // e.g., "3/4" or "16/9" for aspect-ratio CSS
-		thumb?: string; // PocketBase thumbnail format e.g. "100x100"
+		thumb?: string; // Thumbnail query value, e.g. "100x100"
 	}
 
 	let {

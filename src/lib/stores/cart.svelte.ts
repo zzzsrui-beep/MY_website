@@ -1,18 +1,8 @@
-import { createQuery, createMutation, useQueryClient } from '@tanstack/svelte-query';
-import { fetchCart, addToCartAPI, updateCartItemAPI, removeFromCartAPI } from '$lib/api/cart';
-import { formatCurrency as formatCurrencyUtil, parsePrice } from '$lib/utils/price';
+import { browser } from '$app/environment';
 import type { Product, CartItem } from '$lib/types';
 import { DEFAULTS, STORAGE_KEYS } from '$lib/constants';
-import { queryKeys } from '$lib/keys';
-import { auth } from './auth.svelte';
-import { createOptimisticQueryHelpers } from './query-optimistic';
-import { browser } from '$app/environment';
+import { formatCurrency as formatCurrencyUtil, parsePrice } from '$lib/utils/price';
 
-// =============================================================================
-// Cart Hook (TanStack Query) - Refactored for Simplicity
-// =============================================================================
-
-// Currency Config
 let currencyConfig = $state({ code: DEFAULTS.currencyCode as string, locale: 'en-US' });
 
 export function setCurrencyConfig(code: string, locale: string = 'en-US') {
@@ -26,135 +16,41 @@ function formatCurrency(amount: number): string {
 	});
 }
 
-// Guest Cart Persistence
-function getGuestCart(): CartItem[] {
+function loadCart(): CartItem[] {
 	if (!browser) return [];
 	try {
 		const stored = localStorage.getItem(STORAGE_KEYS.CART);
-		return stored ? JSON.parse(stored) : [];
+		return stored ? (JSON.parse(stored) as CartItem[]) : [];
 	} catch {
 		return [];
 	}
 }
 
-function saveGuestCart(items: CartItem[]) {
-	if (browser) localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(items));
+function persistCart(items: CartItem[]) {
+	if (!browser) return;
+	localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(items));
 }
 
-type CartItemIdentity = Pick<CartItem, 'id' | 'variantId'>;
+let rawItems = $state<CartItem[]>(loadCart());
 
-function isSameCartItem(item: CartItemIdentity, target: CartItemIdentity): boolean {
-	return item.id === target.id && item.variantId === target.variantId;
+function normalizeItems(items: CartItem[]): CartItem[] {
+	return items.map((item) => ({
+		...item,
+		price: parsePrice(item.price),
+		cartItemId: `${item.id}-${item.variantId || 'base'}`
+	}));
 }
 
-function mergeCartItemQuantity(items: CartItem[], newItem: CartItem): CartItem[] {
-	const next = [...items];
-	const index = next.findIndex((item) => isSameCartItem(item, newItem));
+const items = $derived(normalizeItems(rawItems));
+const count = $derived(items.reduce((acc, item) => acc + item.quantity, 0));
+const subtotal = $derived(items.reduce((acc, item) => acc + (item.price ?? 0) * item.quantity, 0));
 
-	if (index > -1) {
-		next[index] = {
-			...next[index],
-			quantity: next[index].quantity + newItem.quantity
-		};
-	} else {
-		next.push(newItem);
-	}
-
-	return next;
-}
-
-function removeCartItemByIdentity(items: CartItem[], target: CartItemIdentity): CartItem[] {
-	return items.filter((item) => !isSameCartItem(item, target));
-}
-
-function setCartItemQuantityByIdentity(
-	items: CartItem[],
-	target: CartItemIdentity,
-	quantity: number
-): CartItem[] {
-	return items.map((item) => (isSameCartItem(item, target) ? { ...item, quantity } : item));
+function updateRawItems(updater: (current: CartItem[]) => CartItem[]) {
+	rawItems = updater(rawItems);
+	persistCart(rawItems);
 }
 
 export function useCart() {
-	const client = useQueryClient();
-	const cartKey = queryKeys.cart();
-	const { performOptimisticUpdate, commonMutationOptions } = createOptimisticQueryHelpers<CartItem>(
-		client,
-		cartKey
-	);
-
-	// 1. Query
-	const query = createQuery<CartItem[]>(() => ({
-		queryKey: cartKey,
-		queryFn: async () => (auth.isAuthenticated ? fetchCart() : getGuestCart())
-		// initialData: [], // Removed to force fetch on mount
-	}));
-
-	// Derived State
-	const items = $derived(
-		query.data?.map((item: CartItem) => ({
-			...item,
-			price: parsePrice(item.price), // Ensure price is always a number
-			cartItemId: `${item.id}-${item.variantId || 'base'}`
-		})) || []
-	);
-
-	const count = $derived(items.reduce((acc, item) => acc + item.quantity, 0));
-	const subtotal = $derived(items.reduce((acc, item) => acc + item.price * item.quantity, 0));
-
-	// 2. Mutations
-	// Add Item
-	const addMutation = createMutation(() => ({
-		...commonMutationOptions,
-		mutationFn: async (newItem: CartItem) => {
-			if (auth.isAuthenticated) return addToCartAPI(newItem);
-
-			const next = mergeCartItemQuantity(getGuestCart(), newItem);
-			saveGuestCart(next);
-			return { success: true, items: next };
-		},
-		onMutate: (newItem) => performOptimisticUpdate((old) => mergeCartItemQuantity(old, newItem))
-	}));
-
-	// Remove Item
-	const removeMutation = createMutation(() => ({
-		...commonMutationOptions,
-		mutationFn: async ({ id, variantId }: { id: string; variantId?: string }) => {
-			if (auth.isAuthenticated) return removeFromCartAPI(id, variantId);
-
-			const next = removeCartItemByIdentity(getGuestCart(), { id, variantId });
-			saveGuestCart(next);
-			return { success: true, items: next };
-		},
-		onMutate: ({ id, variantId }) =>
-			performOptimisticUpdate((old) => removeCartItemByIdentity(old, { id, variantId }))
-	}));
-
-	// Update Quantity
-	const updateMutation = createMutation(() => ({
-		...commonMutationOptions,
-		mutationFn: async ({
-			id,
-			variantId,
-			quantity
-		}: {
-			id: string;
-			variantId?: string;
-			quantity: number;
-		}) => {
-			if (auth.isAuthenticated) return updateCartItemAPI(id, variantId, quantity);
-
-			const next = setCartItemQuantityByIdentity(getGuestCart(), { id, variantId }, quantity);
-			saveGuestCart(next);
-			return { success: true, items: next };
-		},
-		onMutate: ({ id, variantId, quantity }) =>
-			performOptimisticUpdate((old) =>
-				setCartItemQuantityByIdentity(old, { id, variantId }, quantity)
-			)
-	}));
-
-	// 3. Interface
 	return {
 		get items() {
 			return items;
@@ -178,50 +74,88 @@ export function useCart() {
 			return currencyConfig.code;
 		},
 		get isLoading() {
-			return query.isLoading;
+			return false;
 		},
 
 		addItem(product: Product, color: string, size: string) {
 			const variant = product.variants?.find((v) => v.color === color && v.size === size);
-			const priceVal = parsePrice(product.price) || parsePrice(product.priceValue);
-			const imageUrl = variant?.image ?? product.image ?? product.images?.[0] ?? '';
-
-			addMutation.mutate({
+			const nextItem: CartItem = {
 				id: product.id,
 				variantId: variant?.id,
 				quantity: 1,
 				title: product.title,
-				price: priceVal,
-				image: imageUrl,
-				slug: product.id,
+				price: parsePrice(product.price) || parsePrice(product.priceValue),
+				image: variant?.image ?? product.image,
+				slug: product.slug,
 				color,
 				size,
 				stripePriceId: product.stripePriceId
+			};
+
+			updateRawItems((current) => {
+				const index = current.findIndex(
+					(item) => item.id === nextItem.id && item.variantId === nextItem.variantId
+				);
+				if (index === -1) {
+					return [...current, nextItem];
+				}
+				const merged = [...current];
+				merged[index] = {
+					...merged[index],
+					quantity: merged[index].quantity + 1
+				};
+				return merged;
 			});
 		},
 
 		addRawItem(item: CartItem) {
-			addMutation.mutate(item);
+			const safeItem: CartItem = {
+				...item,
+				quantity: Math.max(1, Number(item.quantity || 1)),
+				price: parsePrice(item.price)
+			};
+			updateRawItems((current) => {
+				const index = current.findIndex(
+					(existing) => existing.id === safeItem.id && existing.variantId === safeItem.variantId
+				);
+				if (index === -1) return [...current, safeItem];
+				const merged = [...current];
+				merged[index] = {
+					...merged[index],
+					quantity: merged[index].quantity + safeItem.quantity
+				};
+				return merged;
+			});
 		},
 
 		removeItem(cartItemId: string) {
-			const item = items.find((i) => i.cartItemId === cartItemId);
-			if (item) removeMutation.mutate({ id: item.id, variantId: item.variantId });
+			updateRawItems((current) =>
+				normalizeItems(current).filter((item) => item.cartItemId !== cartItemId)
+			);
 		},
 
 		updateQuantity(cartItemId: string, delta: number) {
-			const item = items.find((i) => i.cartItemId === cartItemId);
-			if (!item) return;
-
-			const newQty = item.quantity + delta;
-			newQty <= 0
-				? removeMutation.mutate({ id: item.id, variantId: item.variantId })
-				: updateMutation.mutate({ id: item.id, variantId: item.variantId, quantity: newQty });
+			updateRawItems((current) => {
+				const normalized = normalizeItems(current);
+				const target = normalized.find((item) => item.cartItemId === cartItemId);
+				if (!target) return current;
+				const nextQty = target.quantity + delta;
+				if (nextQty <= 0) {
+					return normalized
+						.filter((item) => item.cartItemId !== cartItemId)
+						.map(({ cartItemId: _cartItemId, ...rest }) => rest);
+				}
+				return normalized.map(({ cartItemId: _cartItemId, ...rest }) =>
+					rest.id === target.id && rest.variantId === target.variantId
+						? { ...rest, quantity: nextQty }
+						: rest
+				);
+			});
 		},
 
 		clear() {
-			if (!auth.isAuthenticated) saveGuestCart([]);
-			client.setQueryData(cartKey, []);
+			rawItems = [];
+			persistCart([]);
 		}
 	};
 }

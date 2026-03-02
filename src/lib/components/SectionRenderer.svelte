@@ -29,7 +29,7 @@
 {:else if section.type === 'cta_banner'}
 	<CtaBanner {section} />
 {:else if section.type === 'category_grid'}
-	<!-- 首页大入口：使用 PocketBase 配置的图片 -->
+	<!-- 首页大入口：使用 CMS 配置的图片 -->
 	<HeroCategories assets={homeAssets} />
 {:else if section.type === 'product_grid'}
 	<ProductGrid {section} products={featuredProducts} />

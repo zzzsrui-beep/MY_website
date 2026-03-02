@@ -4,6 +4,7 @@ node_modules/
 /.svelte-kit
 /build
 /package
+/dist
 
 # OS
 .DS_Store
@@ -25,38 +26,6 @@ pnpm-debug.log*
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
-
-# Test Artifacts
-playwright-report/
-test-results/
-blob-report/
-/playwright/.cache/
-coverage/
-
-# PocketBase (Local development)
-pb_data/
-pocketbase
-
-# Stripe CLI (binary)
-stripe
-
-# n8n workflow exports (may contain secrets/PII)
-Stripe Order.json
-Elementhic Stripe Order.json
-Elementhic Stripe Order-*.json
-
-# Disabled server files
-*.disabled
-
-# Backups
-.specify/backups/
-
-# AI Agents & Spec Kit
-.claude/
-.specify/temp/
-.specify/**/*.bak
-.agent/cache/
-.agent/temp/
 
 # Python
 __pycache__/

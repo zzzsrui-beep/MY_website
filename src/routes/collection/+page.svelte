@@ -1,15 +1,14 @@
 <script lang="ts">
 	import ProductListGrid from '$lib/components/shop/ProductListGrid.svelte';
 	import RemoteImage from '$lib/components/ui/RemoteImage.svelte';
-	import { getFileUrl } from '$lib/utils/image';
+	import { resolveAssetUrl } from '$lib/utils/image';
 	import logo from '$lib/assets/logo.svg';
 
 	let { data } = $props();
 
-	type PBRecord = {
+	type CollectionImageRecord = {
 		position: string;
 		image: string;
-		collectionId: string;
 		id: string;
 		link?: string;
 		title?: string;
@@ -17,16 +16,16 @@
 
 	// 优先使用 collection_images 集合中的图片
 	let leftRecord = $derived(
-		data.collectionImages?.find((img: PBRecord) => img.position === 'left')
+		data.collectionImages?.find((img: CollectionImageRecord) => img.position === 'left')
 	);
 	let rightRecord = $derived(
-		data.collectionImages?.find((img: PBRecord) => img.position === 'right')
+		data.collectionImages?.find((img: CollectionImageRecord) => img.position === 'right')
 	);
 
-	// 辅助函数：构建图片 URL（支持 PB 直连或 R2 CDN）
-	const getImageUrl = (record: PBRecord | undefined) => {
+	// 辅助函数：构建图片 URL（支持绝对 URL、CDN、Payload 媒体路径）
+	const getImageUrl = (record: CollectionImageRecord | undefined) => {
 		if (!record || !record.image) return '';
-		return getFileUrl(record.collectionId, record.id, record.image);
+		return resolveAssetUrl(record.image);
 	};
 
 	let heroImageLeft = $derived(getImageUrl(leftRecord));
@@ -66,7 +65,7 @@
 	<title>Collections | {data.settings.siteName}</title>
 </svelte:head>
 
-<div class="relative w-full min-h-screen bg-background-light dark:bg-background-dark">
+<div class="relative w-full min-h-screen bg-black">
 	<!-- BRANDING LAYER: 单一元素，通过 class 切换定位模式 -->
 	<div
 		class="left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-30 text-center will-change-transform backface-hidden {isLanded
@@ -85,7 +84,7 @@
 	<!-- HERO SECTION: Split Screen -->
 	<div class="relative w-full h-screen flex flex-col md:flex-row z-0">
 		{#each heroPanels as panel (panel.id)}
-			<a href={panel.link} class="flex-1 block bg-background-light dark:bg-primary overflow-hidden">
+			<a href={panel.link} class="flex-1 block bg-black overflow-hidden">
 				{#if panel.image}
 					<RemoteImage
 						src={panel.image}
@@ -100,11 +99,9 @@
 	</div>
 
 	<!-- PRODUCT GRID SECTION -->
-	<div
-		class="relative z-20 pt-[27.5vh] pb-12 px-4 md:px-6 bg-background-light dark:bg-background-dark"
-	>
+	<div class="relative z-20 pt-[27.5vh] pb-12 px-4 md:px-6 bg-black">
 		<div class="mb-[calc(3rem+2.5vh)] text-center">
-			<span class="text-[20px] font-medium tracking-[0.1em] uppercase text-primary dark:text-white"
+			<span class="text-[20px] font-medium tracking-[0.1em] uppercase text-white"
 				>Shop Now</span
 			>
 		</div>

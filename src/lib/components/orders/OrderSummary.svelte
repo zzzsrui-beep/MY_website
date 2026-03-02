@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { OrderDetail } from '$lib/types';
 	import { CheckCircle, Truck, XCircle, Clock } from 'lucide-svelte';
-	import { parsePocketBaseDate } from '$lib/utils/date';
+	import { parseBackendDate } from '$lib/utils/date';
 	import { getOrderStatusColor } from '$lib/utils/order-status';
 
 	let { order } = $props<{ order: OrderDetail }>();
@@ -12,7 +12,7 @@
 		timeStyle: 'short'
 	});
 
-	const safeDate = $derived.by(() => parsePocketBaseDate(order.date));
+	const safeDate = $derived.by(() => parseBackendDate(order.date));
 
 	function getStatusIcon(status: string) {
 		switch (status) {

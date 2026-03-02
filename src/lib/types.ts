@@ -1,12 +1,4 @@
 import { z } from 'zod';
-import type {
-	GlobalSettingsResponse,
-	NavigationResponse,
-	PagesResponse,
-	UiSectionsResponse,
-	UiAssetsResponse,
-	CouponsResponse
-} from './pocketbase-types';
 
 // =============================================================================
 // Core Zod Schemas & Types
@@ -16,8 +8,6 @@ import type {
 export const CategorySchema = z.object({
 	// Base fields
 	id: z.string(),
-	collectionId: z.string(),
-	collectionName: z.string(),
 
 	title: z.string(),
 	name: z.string().optional(),
@@ -38,15 +28,13 @@ export type Category = z.infer<typeof CategorySchema>;
 // --- Product Variant ---
 export const ProductVariantSchema = z.object({
 	id: z.string(),
-	collectionId: z.string(),
-	collectionName: z.string(),
 
 	product: z.string(),
 	color: z.string(),
 	colorSwatch: z.string().optional(),
 	size: z.string(),
 	sku: z.string(),
-	stockStatus: z.enum(['in_stock', 'low_stock', 'out_of_stock']).optional(),
+	stockStatus: z.string().optional(),
 	galleryImages: z.array(z.string()).optional(),
 
 	// Mapped
@@ -59,8 +47,6 @@ export type ProductVariant = z.infer<typeof ProductVariantSchema>;
 export const ProductSchema = z.object({
 	// Base Identity
 	id: z.string(),
-	collectionId: z.string(),
-	collectionName: z.string(),
 
 	// Core Data
 	title: z.string(),
@@ -82,8 +68,8 @@ export const ProductSchema = z.object({
 	// Status Flags
 	isFeature: z.boolean(),
 	hasVariants: z.boolean(),
-	stockStatus: z.enum(['in_stock', 'low_stock', 'out_of_stock']).default('in_stock'),
-	gender: z.enum(['mens', 'womens', 'unisex']).default('unisex'),
+	stockStatus: z.string().default('in_stock'),
+	gender: z.string().default('unisex'),
 
 	stripePriceId: z.string().optional(),
 	tag: z.string().optional()
@@ -94,7 +80,10 @@ export type Product = z.infer<typeof ProductSchema>;
 // Site / Content Types
 // =============================================================================
 
-export type GlobalSettings = Omit<GlobalSettingsResponse, 'icon'> & {
+export interface GlobalSettings {
+	id: string;
+	created?: string;
+	updated?: string;
 	storyImage?: string;
 	aboutHeroImage?: string;
 	aboutSectionImage?: string;
@@ -105,21 +94,34 @@ export type GlobalSettings = Omit<GlobalSettingsResponse, 'icon'> & {
 	currencySymbol: string;
 	siteName: string;
 	maintenanceMode: boolean;
-};
+	[key: string]: unknown;
+}
 
-export type NavItem = NavigationResponse & {
+export interface NavItem {
+	id: string;
+	label: string;
+	url: string;
+	location?: string;
+	order?: number;
+	parent?: string;
 	isVisible: boolean;
 	children?: NavItem[];
-};
+	[key: string]: unknown;
+}
 
-export type Page = Omit<PagesResponse, 'hero_image' | 'og_image'> & {
+export interface Page {
+	id: string;
+	slug: string;
+	title: string;
+	content?: string;
 	metaDescription: string;
 	ogImage?: string;
 	heroImage?: string;
 	// Legacy support
 	hero_image?: string;
 	og_image?: string;
-};
+	[key: string]: unknown;
+}
 
 export type SectionType =
 	| 'hero'
@@ -144,26 +146,35 @@ export interface UISectionSettings {
 	[key: string]: unknown;
 }
 
-export type UISection = Omit<UiSectionsResponse<UISectionSettings>, 'image' | 'video' | 'type'> & {
-	pageId: string;
-	type: SectionType;
+export interface UISection {
+	id: string;
+	pageId?: string;
+	type: SectionType | string;
+	heading?: string;
+	subheading?: string;
+	content?: string;
+	settings?: UISectionSettings;
 	imageUrl?: string;
 	videoUrl?: string;
 	imageGallery?: string[];
 	videoGallery?: string[];
-	sortOrder: number;
-	isActive: boolean;
+	sortOrder?: number;
+	isActive?: boolean;
 	scheduleStart?: string;
 	scheduleEnd?: string;
 	image?: string[];
 	video?: string;
-};
+	[key: string]: unknown;
+}
 
-export type UIAsset = Omit<UiAssetsResponse, 'image'> & {
+export interface UIAsset {
+	id: string;
+	key?: string;
 	url: string;
 	altText?: string;
 	image?: string;
-};
+	[key: string]: unknown;
+}
 
 // =============================================================================
 // Commerce / Order Types
@@ -224,13 +235,15 @@ export interface Order {
 	notes?: string;
 }
 
-export type Coupon = Omit<CouponsResponse, 'type'> & {
+export interface Coupon {
+	id: string;
 	type: 'percentage' | 'fixed_amount';
 	expire_date?: string;
 	min_order_amount?: number;
 	usage_limit?: number;
 	usage_count?: number;
-};
+	[key: string]: unknown;
+}
 
 // =============================================================================
 // Cart & List Types (Zod Enhanced)

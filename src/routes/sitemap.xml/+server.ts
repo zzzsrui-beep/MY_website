@@ -1,76 +1,64 @@
-import { getProducts } from '$lib/server/products';
-import { getNavigation } from '$lib/server/site';
+import { getSiteLayoutData } from '$lib/cms';
+import { frontendProducts } from '$lib/mock';
 
-export async function GET({ url }: { url: URL }) {
+export async function GET({ url, fetch }: { url: URL; fetch: typeof globalThis.fetch }) {
 	const origin = url.origin;
+	const staticPages = ['', '/shop', '/collection', '/account', '/checkout', '/contact', '/wishlist'];
+	const { headerNav } = await getSiteLayoutData(fetch);
 
-	// 1. Fetch data
-	const [products, navItems] = await Promise.all([getProducts(), getNavigation()]);
-
-	// 2. Define static pages
-	const staticPages = ['', '/shop', '/collection', '/account', '/checkout'];
-
-	// 3. Build XML
 	const sitemap = `
         <?xml version="1.0" encoding="UTF-8" ?>
         <urlset
             xmlns="https://www.sitemaps.org/schemas/sitemap/0.9"
-            xmlns:xhtml="https://www.w3.org/1999/xhtml"
-            xmlns:mobile="https://www.google.com/schemas/sitemap-mobile/1.0"
-            xmlns:news="https://www.google.com/schemas/sitemap-news/0.9"
             xmlns:image="https://www.google.com/schemas/sitemap-image/1.1"
-            xmlns:video="https://www.google.com/schemas/sitemap-video/1.1"
         >
-            <!-- Static Pages -->
             ${staticPages
-							.map(
-								(page) => `
+					.map(
+						(page) => `
                 <url>
                     <loc>${origin}${page}</loc>
                     <changefreq>weekly</changefreq>
                     <priority>${page === '' ? '1.0' : '0.8'}</priority>
                 </url>
             `
-							)
-							.join('')}
+					)
+					.join('')}
 
-            <!-- Products -->
-            ${products
-							.map(
-								(product) => `
+            ${frontendProducts
+					.map(
+						(product) => `
                 <url>
                     <loc>${origin}/shop/${product.id}</loc>
                     <lastmod>${new Date().toISOString()}</lastmod>
-                    <changefreq>daily</changefreq>
-                    <priority>0.9</priority>
+                    <changefreq>weekly</changefreq>
+                    <priority>0.7</priority>
                     ${
-											product.image
-												? `
+							product.image
+								? `
                         <image:image>
                             <image:loc>${product.image}</image:loc>
                             <image:title>${product.title}</image:title>
                         </image:image>
                     `
-												: ''
-										}
+								: ''
+						}
                 </url>
             `
-							)
-							.join('')}
+					)
+					.join('')}
 
-            <!-- Categories (From Navigation) -->
-            ${navItems
-							.filter((nav) => nav.url.startsWith('/shop'))
-							.map(
-								(nav) => `
+            ${headerNav
+					.filter((nav) => nav.url.startsWith('/shop'))
+					.map(
+						(nav) => `
                 <url>
                     <loc>${origin}${nav.url}</loc>
                     <changefreq>weekly</changefreq>
-                    <priority>0.7</priority>
+                    <priority>0.6</priority>
                 </url>
             `
-							)
-							.join('')}
+					)
+					.join('')}
         </urlset>`.trim();
 
 	return new Response(sitemap, {

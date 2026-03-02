@@ -1,50 +1,33 @@
-import { createQuery, createMutation, useQueryClient } from '@tanstack/svelte-query';
-import { fetchWishlist, addToWishlistAPI, removeFromWishlistAPI } from '$lib/api/wishlist';
+import { browser } from '$app/environment';
+import { STORAGE_KEYS } from '$lib/constants';
 import { parsePrice } from '$lib/utils/price';
-import type { Product } from '$lib/types';
-import type { WishlistItem } from '$lib/types';
-import { queryKeys } from '$lib/keys';
-import { auth } from './auth.svelte';
-import { createOptimisticQueryHelpers } from './query-optimistic';
+import type { Product, WishlistItem } from '$lib/types';
 
-// =============================================================================
-// Wishlist Hook (TanStack Query)
-// =============================================================================
+function loadWishlist(): WishlistItem[] {
+	if (!browser) return [];
+	try {
+		const stored = localStorage.getItem(STORAGE_KEYS.WISHLIST);
+		return stored ? (JSON.parse(stored) as WishlistItem[]) : [];
+	} catch {
+		return [];
+	}
+}
+
+function persistWishlist(items: WishlistItem[]) {
+	if (!browser) return;
+	localStorage.setItem(STORAGE_KEYS.WISHLIST, JSON.stringify(items));
+}
+
+let rawItems = $state<WishlistItem[]>(loadWishlist());
+const items = $derived(rawItems);
+const count = $derived(items.length);
+
+function updateItems(updater: (current: WishlistItem[]) => WishlistItem[]) {
+	rawItems = updater(rawItems);
+	persistWishlist(rawItems);
+}
 
 export function useWishlist() {
-	const client = useQueryClient();
-	const wishlistKey = queryKeys.wishlist();
-	const { performOptimisticUpdate, commonMutationOptions } =
-		createOptimisticQueryHelpers<WishlistItem>(client, wishlistKey);
-
-	// 1. Query
-	const query = createQuery<WishlistItem[]>(() => ({
-		queryKey: wishlistKey,
-		queryFn: fetchWishlist,
-		enabled: auth.isAuthenticated,
-		initialData: []
-	}));
-
-	const items = $derived(query.data || []);
-	const count = $derived(items.length);
-
-	// 2. Mutations
-	const addMutation = createMutation(() => ({
-		...commonMutationOptions,
-		mutationFn: addToWishlistAPI,
-		onMutate: (newItem: WishlistItem) =>
-			performOptimisticUpdate((old) => {
-				if (old.some((i) => i.id === newItem.id)) return old;
-				return [...old, newItem];
-			})
-	}));
-
-	const removeMutation = createMutation(() => ({
-		...commonMutationOptions,
-		mutationFn: (id: string) => removeFromWishlistAPI(id),
-		onMutate: (id: string) => performOptimisticUpdate((old) => old.filter((i) => i.id !== id))
-	}));
-
 	return {
 		get items() {
 			return items;
@@ -53,36 +36,38 @@ export function useWishlist() {
 			return count;
 		},
 		get isLoading() {
-			return query.isLoading;
+			return false;
 		},
 
 		toggle(product: Product) {
-			const exists = items.some((i) => i.id === product.id);
+			const exists = items.some((item) => item.id === product.id);
 			if (exists) {
-				removeMutation.mutate(product.id);
-			} else {
-				const newItem: WishlistItem = {
-					id: product.id,
-					title: product.title,
-					price: parsePrice(product.price),
-					image: product.image,
-					slug: product.id,
-					stripePriceId: product.stripePriceId
-				};
-				addMutation.mutate(newItem);
+				updateItems((current) => current.filter((item) => item.id !== product.id));
+				return;
 			}
+
+			const nextItem: WishlistItem = {
+				id: product.id,
+				title: product.title,
+				price: parsePrice(product.price),
+				image: product.image,
+				slug: product.slug,
+				stripePriceId: product.stripePriceId
+			};
+			updateItems((current) => [...current, nextItem]);
 		},
 
 		has(id: string) {
-			return items.some((i) => i.id === id);
+			return items.some((item) => item.id === id);
 		},
 
 		remove(id: string) {
-			removeMutation.mutate(id);
+			updateItems((current) => current.filter((item) => item.id !== id));
 		},
 
 		clearLocal() {
-			client.setQueryData(wishlistKey, []);
+			rawItems = [];
+			persistWishlist([]);
 		}
 	};
 }

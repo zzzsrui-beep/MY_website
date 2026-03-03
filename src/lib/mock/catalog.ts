@@ -4,26 +4,26 @@ const makePriceLabel = (value: number) => `$${value.toFixed(2)}`;
 
 export const frontendCategories: Category[] = [
 	{
-		id: 'cat-mens',
-		title: 'Mens',
-		name: 'Mens',
-		slug: 'mens',
+		id: 'cat-plushies',
+		title: 'Plushies',
+		name: 'Plushies',
+		slug: 'plushies',
 		isVisible: true,
 		sortOrder: 1
 	},
 	{
-		id: 'cat-womens',
-		title: 'Womens',
-		name: 'Womens',
-		slug: 'womens',
+		id: 'cat-stationery',
+		title: 'Stationery',
+		name: 'Stationery',
+		slug: 'stationery',
 		isVisible: true,
 		sortOrder: 2
 	},
 	{
-		id: 'cat-accessories',
-		title: 'Accessories',
-		name: 'Accessories',
-		slug: 'accessories',
+		id: 'cat-lifestyle',
+		title: 'Lifestyle',
+		name: 'Lifestyle',
+		slug: 'lifestyle',
 		isVisible: true,
 		sortOrder: 3
 	}
@@ -31,190 +31,115 @@ export const frontendCategories: Category[] = [
 
 export const frontendProducts: Product[] = [
 	{
-		id: 'obsidian-trench',
-		slug: 'obsidian-trench',
-		title: 'Obsidian Trench',
-		description: 'Structured long coat with clean tailoring.',
-		priceValue: 420,
-		price: makePriceLabel(420),
-		image:
-			'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop',
+		id: 'giant-panda-plush',
+		slug: 'giant-panda-plush',
+		title: 'Giant Huggable Panda',
+		description: 'A super soft, oversized panda plush perfect for cuddling. Made with premium marshmallow fluff.',
+		priceValue: 45,
+		price: makePriceLabel(45),
+		image: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=1200&auto=format&fit=crop',
 		images: [
-			'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop',
-			'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200&auto=format&fit=crop'
+			'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=1200&auto=format&fit=crop'
 		],
 		attributes: {
-			colors: ['Black', 'Stone'],
-			sizes: ['S', 'M', 'L'],
-			details: ['Double-breasted closure', 'Soft lining'],
-			material: 'Wool blend',
-			care: 'Dry clean only',
-			shipping: 'Ships in 1-2 business days'
+			material: '100% Polyester Fluff',
+			care: 'Spot clean only'
 		},
-		variants: [
-			{
-				id: 'v-obsidian-black-s',
-				product: 'obsidian-trench',
-				color: 'Black',
-				colorSwatch: '#111111',
-				size: 'S',
-				sku: 'OBS-BLK-S',
-				stockQuantity: 4,
-				stockStatus: 'in_stock',
-				image:
-					'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop',
-				galleryImages: [
-					'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop',
-					'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200&auto=format&fit=crop'
-				]
-			},
-			{
-				id: 'v-obsidian-black-m',
-				product: 'obsidian-trench',
-				color: 'Black',
-				colorSwatch: '#111111',
-				size: 'M',
-				sku: 'OBS-BLK-M',
-				stockQuantity: 7,
-				stockStatus: 'in_stock',
-				image:
-					'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop',
-				galleryImages: [
-					'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop'
-				]
-			}
-		],
+		variants: [],
 		categories: [frontendCategories[0]],
-		categoryIds: ['cat-mens'],
+		categoryIds: ['cat-plushies'],
 		isFeature: true,
-		hasVariants: true,
+		hasVariants: false,
 		stockStatus: 'in_stock',
-		gender: 'mens',
-		tag: 'New'
-	},
-	{
-		id: 'ivory-knit',
-		slug: 'ivory-knit',
-		title: 'Ivory Knit Set',
-		description: 'Soft layering knit for transitional weather.',
-		priceValue: 260,
-		price: makePriceLabel(260),
-		image:
-			'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop'
-		],
-		attributes: {
-			colors: ['Ivory'],
-			sizes: ['XS', 'S', 'M'],
-			details: ['Relaxed knit silhouette'],
-			material: 'Merino wool blend',
-			care: 'Hand wash cold'
-		},
-		variants: [
-			{
-				id: 'v-ivory-knit-s',
-				product: 'ivory-knit',
-				color: 'Ivory',
-				colorSwatch: '#F2EFE8',
-				size: 'S',
-				sku: 'IVR-S',
-				stockQuantity: 8,
-				stockStatus: 'in_stock',
-				image:
-					'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop',
-				galleryImages: [
-					'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop'
-				]
-			}
-		],
-		categories: [frontendCategories[1]],
-		categoryIds: ['cat-womens'],
-		isFeature: true,
-		hasVariants: true,
-		stockStatus: 'in_stock',
-		gender: 'womens',
+		gender: 'unisex',
 		tag: 'Bestseller'
 	},
-	{
-		id: 'city-hoodie',
-		slug: 'city-hoodie',
-		title: 'City Hoodie',
-		description: 'Heavyweight cotton hoodie with relaxed cut.',
-		priceValue: 180,
-		price: makePriceLabel(180),
-		image:
-			'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?q=80&w=1200&auto=format&fit=crop',
+    {
+		id: 'panda-notebook-set',
+		slug: 'panda-notebook-set',
+		title: 'Bamboo Forest Notebook Set',
+		description: 'Set of 3 A5 notebooks with adorable panda illustrations. Dotted, lined, and blank pages.',
+		priceValue: 18,
+		price: makePriceLabel(18),
+		image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=1200&auto=format&fit=crop',
 		images: [
-			'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?q=80&w=1200&auto=format&fit=crop'
+			'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=1200&auto=format&fit=crop'
 		],
-		attributes: { colors: ['Graphite'], sizes: ['S', 'M', 'L', 'XL'] },
-		variants: [],
-		categories: [frontendCategories[0]],
-		categoryIds: ['cat-mens'],
-		isFeature: false,
-		hasVariants: false,
-		stockStatus: 'in_stock',
-		gender: 'mens'
-	},
-	{
-		id: 'silk-slip',
-		slug: 'silk-slip',
-		title: 'Silk Slip Dress',
-		description: 'Fluid silhouette in washed silk blend.',
-		priceValue: 340,
-		price: makePriceLabel(340),
-		image:
-			'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop'
-		],
-		attributes: { colors: ['Midnight'], sizes: ['XS', 'S', 'M'] },
+		attributes: {
+			details: ['100 gsm paper', 'Eco-friendly']
+		},
 		variants: [],
 		categories: [frontendCategories[1]],
-		categoryIds: ['cat-womens'],
-		isFeature: false,
-		hasVariants: false,
-		stockStatus: 'in_stock',
-		gender: 'womens'
-	},
-	{
-		id: 'leather-tote',
-		slug: 'leather-tote',
-		title: 'Leather Tote',
-		description: 'Everyday tote with reinforced base.',
-		priceValue: 230,
-		price: makePriceLabel(230),
-		image:
-			'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop'
-		],
-		attributes: { colors: ['Brown'], sizes: ['O/S'] },
-		variants: [],
-		categories: [frontendCategories[2]],
-		categoryIds: ['cat-accessories'],
+		categoryIds: ['cat-stationery'],
 		isFeature: true,
 		hasVariants: false,
 		stockStatus: 'in_stock',
 		gender: 'unisex'
 	},
-	{
-		id: 'minimal-sneaker',
-		slug: 'minimal-sneaker',
-		title: 'Minimal Sneaker',
-		description: 'Clean low-top with premium leather upper.',
-		priceValue: 210,
-		price: makePriceLabel(210),
-		image:
-			'https://images.unsplash.com/photo-1491553895911-0055eca6402d?q=80&w=1200&auto=format&fit=crop',
+    {
+		id: 'panda-ceramic-mug',
+		slug: 'panda-ceramic-mug',
+		title: 'Chubby Panda Ceramic Mug',
+		description: 'Start your morning with a smile. This 12oz ceramic mug features a 3D panda face.',
+		priceValue: 22,
+		price: makePriceLabel(22),
+		image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=1200&auto=format&fit=crop',
 		images: [
-			'https://images.unsplash.com/photo-1491553895911-0055eca6402d?q=80&w=1200&auto=format&fit=crop'
+			'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=1200&auto=format&fit=crop'
 		],
-		attributes: { colors: ['White'], sizes: ['40', '41', '42', '43'] },
+		attributes: {
+			material: 'Ceramic',
+			care: 'Microwave and dishwasher safe'
+		},
 		variants: [],
 		categories: [frontendCategories[2]],
-		categoryIds: ['cat-accessories'],
+		categoryIds: ['cat-lifestyle'],
+		isFeature: false,
+		hasVariants: false,
+		stockStatus: 'in_stock',
+		gender: 'unisex'
+	},
+    {
+		id: 'panda-keychain',
+		slug: 'panda-keychain',
+		title: 'Enamel Panda Keychain',
+		description: 'A cute little enamel keychain to accompany your keys or backpack.',
+		priceValue: 12,
+		price: makePriceLabel(12),
+		image: 'https://images.unsplash.com/photo-1620063238128-4081cde3bd88?q=80&w=1200&auto=format&fit=crop',
+		images: [
+			'https://images.unsplash.com/photo-1620063238128-4081cde3bd88?q=80&w=1200&auto=format&fit=crop'
+		],
+		attributes: {
+			material: 'Enamel & Zinc Alloy'
+		},
+		variants: [],
+		categories: [frontendCategories[2]],
+		categoryIds: ['cat-lifestyle'],
+		isFeature: true,
+		hasVariants: false,
+		stockStatus: 'in_stock',
+		gender: 'unisex',
+        tag: 'New'
+	},
+	{
+		id: 'bamboo-tote-bag',
+		slug: 'bamboo-tote-bag',
+		title: 'Bamboo Canvas Tote Bag',
+		description: 'Everyday reusable canvas tote bag with a minimalist bamboo and panda print.',
+		priceValue: 25,
+		price: makePriceLabel(25),
+		image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop',
+		images: [
+			'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop'
+		],
+		attributes: {
+			material: '100% Organic Cotton',
+			care: 'Machine wash cold'
+		},
+		variants: [],
+		categories: [frontendCategories[2]],
+		categoryIds: ['cat-lifestyle'],
 		isFeature: false,
 		hasVariants: false,
 		stockStatus: 'in_stock',

@@ -32,10 +32,10 @@
 	let heroImageRight = $derived(getImageUrl(rightRecord));
 
 	// 动态获取链接和标题
-	let leftLink = $derived(leftRecord?.link || '/shop?gender=womens');
-	let rightLink = $derived(rightRecord?.link || '/shop?gender=mens');
-	let leftTitle = $derived(leftRecord?.title || 'Shop Woman > New Arrivals');
-	let rightTitle = $derived(rightRecord?.title || 'Shop Man');
+	let leftLink = $derived(leftRecord?.link || '/shop?category=plushies');
+	let rightLink = $derived(rightRecord?.link || '/shop?category=stationery');
+	let leftTitle = $derived(leftRecord?.title || 'Shop Plushies > New Arrivals');
+	let rightTitle = $derived(rightRecord?.title || 'Shop Stationery');
 	let heroPanels = $derived([
 		{
 			id: 'left',

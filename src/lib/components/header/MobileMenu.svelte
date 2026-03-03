@@ -36,7 +36,7 @@
 			}));
 		}
 
-		if (parent === 'mens' || parent === 'womens') {
+		if (parent === 'plushies' || parent === 'stationery') {
 			const slugs = [
 				...new Set(
 					frontendProducts
@@ -62,7 +62,7 @@
 	function getSubmenuUrl(parentLabel: string, categorySlug: string) {
 		const parent = parentLabel.toLowerCase();
 
-		if (parent === 'mens' || parent === 'womens') {
+		if (parent === 'plushies' || parent === 'stationery') {
 			return `/shop?gender=${parent}&category=${encodeURIComponent(categorySlug)}`;
 		}
 

@@ -18,19 +18,19 @@
 	// 首页三大入口配置
 	let categories = $derived([
 		{
-			name: 'MENS',
-			link: '/shop?gender=mens',
-			image: getImageUrl('hero_category_mens')
+			name: 'PLUSHIES',
+			link: '/shop?category=plushies',
+			image: getImageUrl('hero_category_plushies')
 		},
 		{
-			name: 'WOMENS',
-			link: '/shop?gender=womens',
-			image: getImageUrl('hero_category_womens')
+			name: 'STATIONERY',
+			link: '/shop?category=stationery',
+			image: getImageUrl('hero_category_stationery')
 		},
 		{
-			name: 'ACCESSORIES',
-			link: '/shop?category=accessories',
-			image: getImageUrl('hero_category_accessories')
+			name: 'LIFESTYLE',
+			link: '/shop?category=lifestyle',
+			image: getImageUrl('hero_category_lifestyle')
 		}
 	]);
 </script>

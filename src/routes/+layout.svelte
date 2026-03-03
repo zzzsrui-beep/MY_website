@@ -70,7 +70,7 @@
 	}
 
 	import type { NavItem } from '$lib/types';
-	const HIDDEN_HEADER_NAV_LABELS = new Set(['mens', 'womens', 'accessories']);
+	const HIDDEN_HEADER_NAV_LABELS = new Set(['plushies', 'stationery', 'lifestyle']);
 	const HEADER_NAV_PRIORITY: Record<string, number> = {
 		collection: 1,
 		shop: 2,

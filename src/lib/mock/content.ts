@@ -3,19 +3,19 @@ import type { Page, UIAsset, UISection } from '$lib/types';
 
 export const frontendHomeAssets: UIAsset[] = [
 	{
-		id: 'asset-mens',
-		key: 'hero_category_mens',
-		url: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=1200&auto=format&fit=crop'
+		id: 'asset-plushies',
+		key: 'hero_category_plushies',
+		url: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=1200&auto=format&fit=crop'
 	},
 	{
-		id: 'asset-womens',
-		key: 'hero_category_womens',
-		url: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=1200&auto=format&fit=crop'
+		id: 'asset-stationery',
+		key: 'hero_category_stationery',
+		url: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=1200&auto=format&fit=crop'
 	},
 	{
-		id: 'asset-accessories',
-		key: 'hero_category_accessories',
-		url: 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?q=80&w=1200&auto=format&fit=crop'
+		id: 'asset-lifestyle',
+		key: 'hero_category_lifestyle',
+		url: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=1200&auto=format&fit=crop'
 	}
 ];
 
@@ -24,17 +24,17 @@ export const frontendCollectionImages = [
 		id: 'collection-left',
 		position: 'left',
 		image:
-			'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop',
-		link: '/shop?gender=womens',
-		title: 'Shop Woman > New Arrivals'
+			'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=1200&auto=format&fit=crop',
+		link: '/shop?category=plushies',
+		title: 'Shop Plushies > New Arrivals'
 	},
 	{
 		id: 'collection-right',
 		position: 'right',
 		image:
-			'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop',
-		link: '/shop?gender=mens',
-		title: 'Shop Man'
+			'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=1200&auto=format&fit=crop',
+		link: '/shop?category=stationery',
+		title: 'Shop Stationery'
 	}
 ];
 
@@ -42,24 +42,24 @@ export const frontendPages: Record<string, Page> = {
 	home: {
 		id: 'page-home',
 		slug: 'home',
-		title: 'Modern Essentials',
-		metaDescription: 'Curated pieces built for everyday luxury.',
+		title: 'Panda Wonderland',
+		metaDescription: 'Cute and playful panda cultural creative products.',
 		ogImage: CONTENT_IMAGES.OG_DEFAULT,
 		content: ''
 	},
 	shop: {
 		id: 'page-shop',
 		slug: 'shop',
-		title: 'Shop',
-		metaDescription: 'Explore the full catalog.',
+		title: 'Panda Shop',
+		metaDescription: 'Explore the full panda catalog.',
 		ogImage: CONTENT_IMAGES.OG_DEFAULT,
 		content: ''
 	},
 	collection: {
 		id: 'page-collection',
 		slug: 'collection',
-		title: 'Collection',
-		metaDescription: 'Visual curation of our newest arrivals.',
+		title: 'Panda Collection',
+		metaDescription: 'Visual curation of our newest panda arrivals.',
 		ogImage: CONTENT_IMAGES.OG_DEFAULT,
 		content: ''
 	},
@@ -75,11 +75,11 @@ export const frontendPages: Record<string, Page> = {
 	about: {
 		id: 'page-about',
 		slug: 'about',
-		title: 'About',
-		metaDescription: 'Design-first wardrobe essentials.',
+		title: 'About Us',
+		metaDescription: 'Spreading joy with cute pandas.',
 		ogImage: CONTENT_IMAGES.ABOUT_HERO,
 		content:
-			'<p>We are running in frontend-only mode. This project now focuses on UI structure and style, ready for a new backend integration later.</p>'
+			'<p>We are dedicated to bringing you the most adorable panda-themed lifestyle and cultural products.</p>'
 	}
 };
 
@@ -88,22 +88,22 @@ export const frontendSections: Record<string, UISection[]> = {
 		{
 			id: 'home-hero',
 			type: 'hero',
-			heading: 'PANDASHOP',
-			subheading: '',
-			imageUrl: CONTENT_IMAGES.HOME_HERO,
+			heading: 'PANDA CREATIVE',
+			subheading: 'Welcome to the Bamboo Forest',
+			imageUrl: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=1600&auto=format&fit=crop',
 			sortOrder: 1,
 			isActive: true,
 			settings: {
 				actions: [
-					{ text: 'Shop Mens', link: '/shop?gender=mens' },
-					{ text: 'Shop Womens', link: '/shop?gender=womens' }
+					{ text: 'Shop Plushies', link: '/shop?category=plushies' },
+					{ text: 'Shop Stationery', link: '/shop?category=stationery' }
 				]
 			}
 		},
 		{
 			id: 'home-categories',
 			type: 'category_grid',
-			heading: 'Categories',
+			heading: 'Our Collections',
 			sortOrder: 2,
 			isActive: true,
 			settings: {}
@@ -111,8 +111,8 @@ export const frontendSections: Record<string, UISection[]> = {
 		{
 			id: 'home-products',
 			type: 'product_grid',
-			heading: 'Featured Selection',
-			subheading: 'Curated Edit',
+			heading: 'Panda Favorites',
+			subheading: 'Most Loved',
 			sortOrder: 3,
 			isActive: true,
 			settings: {
@@ -122,26 +122,26 @@ export const frontendSections: Record<string, UISection[]> = {
 		{
 			id: 'home-story',
 			type: 'feature_split',
-			heading: 'Built For Quiet Confidence',
+			heading: 'Designed For Joy',
 			content:
-				'<p>Tailored silhouettes, restrained palettes, and premium fabrics define our direction.</p>',
-			imageUrl: CONTENT_IMAGES.HOME_STORY,
+				'<p>Every piece is crafted to bring a smile to your face. From soft plushies to beautifully illustrated stationery.</p>',
+			imageUrl: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=1200&auto=format&fit=crop',
 			sortOrder: 4,
 			isActive: true,
 			settings: {
-				actions: [{ text: 'Read About', link: '/about' }]
+				actions: [{ text: 'Read Our Story', link: '/about' }]
 			}
 		},
 		{
 			id: 'home-cta',
 			type: 'cta_banner',
-			heading: 'Stay In The Loop',
-			subheading: 'Members Access',
-			content: '<p>Get early access to drops and seasonal edits.</p>',
+			heading: 'Join the Panda Club',
+			subheading: 'Exclusive Perks',
+			content: '<p>Get early access to new blind boxes and special plushie drops.</p>',
 			sortOrder: 5,
 			isActive: true,
 			settings: {
-				actions: [{ text: 'Contact Us', link: '/contact' }]
+				actions: [{ text: 'Sign Up', link: '/account' }]
 			}
 		}
 	],
@@ -149,10 +149,10 @@ export const frontendSections: Record<string, UISection[]> = {
 		{
 			id: 'shop-hero',
 			type: 'hero',
-			heading: 'Shop',
-			subheading: 'All Products',
+			heading: 'Shop All Pandas',
+			subheading: 'Find your new friend',
 			imageUrl:
-				'https://images.unsplash.com/photo-1462396240927-52058a6a84ec?q=80&w=1600&auto=format&fit=crop',
+				'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=1600&auto=format&fit=crop',
 			sortOrder: 1,
 			isActive: true,
 			settings: {

@@ -123,11 +123,11 @@ export const LAYOUT = {
 // 实际业务配置应通过 data.settings 从 CMS 获取
 // =============================================================================
 export const DEFAULTS = {
-	siteName: 'ELEMENTHIC',
+	siteName: 'PANDA CREATIVE',
 	currencySymbol: '$',
 	currencyCode: 'USD',
 	freeShippingThreshold: 300,
-	demoEmail: 'demo@vanflow.com'
+	demoEmail: 'demo@pandacreative.com'
 } as const;
 
 // =============================================================================
@@ -148,25 +148,25 @@ export const STRIPE = {
 export const CONTENT_IMAGES = {
 	// 空状态图片
 	WISHLIST_EMPTY:
-		'https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=2000&auto=format&fit=crop',
+		'https://images.unsplash.com/photo-1598439210625-5067c578f3f6?q=80&w=2000&auto=format&fit=crop',
 	CART_EMPTY:
-		'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=2000&auto=format&fit=crop',
+		'https://images.unsplash.com/photo-1598439210625-5067c578f3f6?q=80&w=2000&auto=format&fit=crop',
 
 	// About 页面
 	ABOUT_HERO:
-		'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2000&auto=format&fit=crop',
+		'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=2000&auto=format&fit=crop',
 	ABOUT_SECTION:
-		'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=2000&auto=format&fit=crop',
+		'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=2000&auto=format&fit=crop',
 
 	// 首页
 	HOME_HERO:
-		'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2000&auto=format&fit=crop',
+		'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=2000&auto=format&fit=crop',
 	HOME_STORY:
-		'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2000&auto=format&fit=crop',
+		'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=2000&auto=format&fit=crop',
 
 	// SEO / Open Graph
 	OG_DEFAULT:
-		'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200&auto=format&fit=crop'
+		'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=1200&auto=format&fit=crop'
 } as const;
 
 // =============================================================================
@@ -186,7 +186,7 @@ export const PLACEHOLDER_IMAGE = 'https://placehold.co/600x800/1a1a1a/1a1a1a?tex
 // =============================================================================
 // SHOP FILTERS
 // =============================================================================
-export const SHOP_CATEGORIES = ['ALL', 'TOPS', 'BOTTOMS', 'KNITWEAR', 'FOOTWEAR'] as const;
+export const SHOP_CATEGORIES = ['ALL', 'PLUSHIES', 'STATIONERY', 'LIFESTYLE'] as const;
 
 export const SORT_OPTIONS = [
 	'Featured',

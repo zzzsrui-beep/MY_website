@@ -131,18 +131,6 @@ export const DEFAULTS = {
 } as const;
 
 // =============================================================================
-// STRIPE - Stripe 支付相关常量
-// =============================================================================
-export const STRIPE = {
-	/** Stripe 最小收费金额 (分) */
-	MIN_CHARGE_CENTS: 50,
-	/** 支持的国家代码 */
-	ALLOWED_COUNTRIES: ['US', 'CA', 'GB', 'AU', 'DE', 'FR', 'JP'] as const,
-	/** 支持的货币 */
-	SUPPORTED_CURRENCIES: ['USD', 'EUR', 'GBP', 'CAD'] as const
-} as const;
-
-// =============================================================================
 // CONTENT IMAGES - 统一的图片 Fallback (实际由 CMS assets/settings 管理)
 // =============================================================================
 export const CONTENT_IMAGES = {
@@ -176,41 +164,4 @@ export const STORAGE_KEYS = {
 	CART: 'vanflow_cart',
 	WISHLIST: 'vanflow_wishlist'
 	// Note: Auth state is handled by frontend store in shell mode
-} as const;
-
-// =============================================================================
-// PLACEHOLDER
-// =============================================================================
-export const PLACEHOLDER_IMAGE = 'https://placehold.co/600x800/1a1a1a/1a1a1a?text=%20';
-
-// =============================================================================
-// SHOP FILTERS
-// =============================================================================
-export const SHOP_CATEGORIES = ['ALL', 'PLUSHIES', 'STATIONERY', 'LIFESTYLE'] as const;
-
-export const SORT_OPTIONS = [
-	'Featured',
-	'Newest',
-	'Price: Low to High',
-	'Price: High to Low'
-] as const;
-
-// =============================================================================
-// VALIDATION - URL Slug 验证
-// =============================================================================
-/** Regex for valid URL slugs: lowercase alphanumeric with hyphens */
-export const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-
-/** Check if a string is a valid URL slug */
-export function isValidSlug(slug: string | undefined | null): boolean {
-	return !!slug && SLUG_REGEX.test(slug);
-}
-
-// =============================================================================
-// STOCK STATUS - 库存状态常量
-// =============================================================================
-export const STOCK_STATUS = {
-	IN_STOCK: 'in_stock',
-	OUT_OF_STOCK: 'out_of_stock',
-	LOW_STOCK: 'low_stock'
 } as const;

@@ -15,22 +15,6 @@ export function parsePrice(priceString: string | number | undefined | null): num
 }
 
 /**
- * 将价格字符串转换为分 (Stripe 所需格式)
- * ".00" → 9900
- */
-export function priceToCents(priceString: string): number {
-	return Math.round(parsePrice(priceString) * 100);
-}
-
-/**
- * 将分转换为美元
- * 9900 → 99.00
- */
-export function centsToDollars(cents: number): number {
-	return cents / 100;
-}
-
-/**
  * 格式化货币显示 (统一版本)
  * @param amount - 金额数值
  * @param options - 格式化选项
@@ -54,13 +38,11 @@ export function formatCurrency(
 			style: 'currency',
 			currency: currency.toUpperCase()
 		}).format(value);
-	} catch {
-		// Fallback to USD if currency code is invalid
-		return new Intl.NumberFormat(locale, {
-			style: 'currency',
-			currency: 'USD'
-		}).format(value);
+		} catch {
+			// Fallback to USD if currency code is invalid
+			return new Intl.NumberFormat(locale, {
+				style: 'currency',
+				currency: 'USD'
+			}).format(value);
+		}
 	}
-}
-
-// formatPrice removed - use formatCurrency instead

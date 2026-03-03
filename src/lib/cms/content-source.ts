@@ -266,6 +266,33 @@ export async function getSectionsBySlugFromCms(fetcher: FetchLike, slug: string)
 	}
 }
 
+export async function getPageWithSectionsFromCms(
+	fetcher: FetchLike,
+	slug: string,
+	fallbackSlug: string
+) {
+	if (slug === fallbackSlug) {
+		const [page, sections] = await Promise.all([
+			getPageBySlugFromCms(fetcher, slug),
+			getSectionsBySlugFromCms(fetcher, slug)
+		]);
+
+		return { page, sections };
+	}
+
+	const [pageBySlug, sectionsBySlug, fallbackPage, fallbackSections] = await Promise.all([
+		getPageBySlugFromCms(fetcher, slug),
+		getSectionsBySlugFromCms(fetcher, slug),
+		getPageBySlugFromCms(fetcher, fallbackSlug),
+		getSectionsBySlugFromCms(fetcher, fallbackSlug)
+	]);
+
+	return {
+		page: pageBySlug || fallbackPage,
+		sections: sectionsBySlug.length ? sectionsBySlug : fallbackSections
+	};
+}
+
 export async function getHomeAssetsFromCms(fetcher: FetchLike) {
 	if (!canUsePayload()) return frontendHomeAssets;
 

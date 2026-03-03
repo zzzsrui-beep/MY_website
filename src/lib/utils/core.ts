@@ -21,14 +21,3 @@ export function isLinkActive(linkHref: string, currentPath: string, currentSearc
 
 	return true;
 }
-
-/**
- * Format date for display
- */
-export function formatDate(dateString: string, locale: string = 'en-US'): string {
-	return new Date(dateString).toLocaleDateString(locale, {
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric'
-	});
-}

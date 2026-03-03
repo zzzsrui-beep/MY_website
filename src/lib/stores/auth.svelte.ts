@@ -40,6 +40,22 @@ function createAuthStore() {
 	let isLoading = $state(false);
 	let error = $state<string | null>(null);
 
+	function createDemoUser(email: string, name?: string): AuthUser {
+		return {
+			id: `frontend-${Date.now()}`,
+			email,
+			name: name || email.split('@')[0],
+			verified: true,
+			isAdmin: false
+		};
+	}
+
+	function setAuthenticatedUser(nextUser: AuthUser) {
+		user = nextUser;
+		isAuthenticated = true;
+		persistUser(nextUser);
+	}
+
 	return {
 		get isAuthenticated() {
 			return isAuthenticated;
@@ -57,16 +73,8 @@ function createAuthStore() {
 		async login(email: string, _password: string): Promise<boolean> {
 			isLoading = true;
 			error = null;
-			const nextUser: AuthUser = {
-				id: `frontend-${Date.now()}`,
-				email,
-				name: email.split('@')[0],
-				verified: true,
-				isAdmin: false
-			};
-			user = nextUser;
-			isAuthenticated = true;
-			persistUser(nextUser);
+			const nextUser = createDemoUser(email);
+			setAuthenticatedUser(nextUser);
 			isLoading = false;
 			return true;
 		},
@@ -78,16 +86,8 @@ function createAuthStore() {
 		async register(email: string, _password: string, name?: string): Promise<boolean> {
 			isLoading = true;
 			error = null;
-			const nextUser: AuthUser = {
-				id: `frontend-${Date.now()}`,
-				email,
-				name: name || email.split('@')[0],
-				verified: true,
-				isAdmin: false
-			};
-			user = nextUser;
-			isAuthenticated = true;
-			persistUser(nextUser);
+			const nextUser = createDemoUser(email, name);
+			setAuthenticatedUser(nextUser);
 			isLoading = false;
 			return true;
 		},

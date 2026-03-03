@@ -5,21 +5,16 @@ import {
 	getProducts,
 	parseCatalogFilters
 } from '$lib/mock';
-import { getPageBySlugFromCms, getSectionsBySlugFromCms } from '$lib/cms';
+import { getPageWithSectionsFromCms } from '$lib/cms';
 
 export const load: PageLoad = async ({ url, fetch }) => {
 	const { categorySlug, gender, pageSlug } = parseCatalogFilters(url, 'collection');
-	const [pageBySlug, sectionsBySlug, fallbackPage, fallbackSections] = await Promise.all([
-		getPageBySlugFromCms(fetch, pageSlug),
-		getSectionsBySlugFromCms(fetch, pageSlug),
-		getPageBySlugFromCms(fetch, 'collection'),
-		getSectionsBySlugFromCms(fetch, 'collection')
-	]);
+	const { page, sections } = await getPageWithSectionsFromCms(fetch, pageSlug, 'collection');
 
 	return {
 		products: getProducts({ categorySlug, gender, isFeatured: true }),
-		page: pageBySlug || fallbackPage,
-		sections: sectionsBySlug.length ? sectionsBySlug : fallbackSections,
+		page,
+		sections,
 		categories: frontendCategories,
 		collectionImages: frontendCollectionImages,
 		filters: {

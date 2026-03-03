@@ -69,7 +69,7 @@
 					</h2>
 					<button
 						onclick={onClose}
-						class="hover:opacity-60 ${TRANSITIONS.opacity} p-2 -mr-2"
+						class="hover:opacity-60 {TRANSITIONS.opacity} p-2 -mr-2"
 						aria-label="Close"
 					>
 						<span class="material-symbols-outlined font-light">close</span>

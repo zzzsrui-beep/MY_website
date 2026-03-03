@@ -4,12 +4,16 @@
 	import type { UISection } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import logo from '$lib/assets/logo.svg';
 
 	interface HeroProps {
 		section: UISection;
 	}
 
 	let { section }: HeroProps = $props();
+	const isPandaShopHeading = $derived(
+		(section.heading || '').trim().toUpperCase() === 'PANDASHOP'
+	);
 
 	// 安全地构造幻灯片列表
 	let slides = $derived.by(() => {
@@ -86,15 +90,26 @@
 				{section.subheading}
 			</span>
 		{/if}
-		{#if section.heading}
-			<h1
-				class="text-white text-[9.5vw] lg:text-[6.5vw] font-display font-normal tracking-normal mb-2 opacity-95 uppercase whitespace-nowrap leading-tight max-w-full"
-				in:fade={{ delay: 500, duration: 1000 }}
-			>
-				{section.heading}
-			</h1>
-		{/if}
-	</div>
+			{#if section.heading}
+				{#if isPandaShopHeading}
+					<img
+						src={logo}
+						alt={section.heading}
+						class="w-[92vw] lg:w-[78vw] max-w-none h-auto object-contain select-none brightness-0 invert mb-2 opacity-95"
+						loading="eager"
+						decoding="async"
+						in:fade={{ delay: 500, duration: 1000 }}
+					/>
+				{:else}
+					<h1
+						class="text-white text-[9.5vw] lg:text-[6.5vw] font-display font-normal tracking-normal mb-2 opacity-95 uppercase whitespace-nowrap leading-tight max-w-full"
+						in:fade={{ delay: 500, duration: 1000 }}
+					>
+						{section.heading}
+					</h1>
+				{/if}
+			{/if}
+		</div>
 
 	<!-- Bottom Actions -->
 	<div

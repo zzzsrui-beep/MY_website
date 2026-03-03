@@ -88,8 +88,8 @@ export const frontendSections: Record<string, UISection[]> = {
 		{
 			id: 'home-hero',
 			type: 'hero',
-			heading: 'ELEMENTHIC',
-			subheading: 'New Season',
+			heading: 'PANDASHOP',
+			subheading: '',
 			imageUrl: CONTENT_IMAGES.HOME_HERO,
 			sortOrder: 1,
 			isActive: true,

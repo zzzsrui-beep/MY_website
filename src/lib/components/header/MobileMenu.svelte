@@ -2,8 +2,8 @@
 	import type { NavItem } from '$lib/types';
 	import { fly, slide } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
-	import { SHOP_CATEGORIES } from '$lib/constants';
 	import { useCart } from '$lib/stores/cart.svelte';
+	import { frontendCategories, frontendProducts } from '$lib/mock';
 
 	const cart = useCart();
 
@@ -23,27 +23,50 @@
 		expandedMenus[label] = !expandedMenus[label];
 	}
 
-	// Define subcategories for common menu items
-	// In a real app, this might come from the backend structure
-	const SUB_CATEGORIES = SHOP_CATEGORIES.filter((c) => c !== 'ALL');
+	const categoryIdToSlug = new Map(
+		frontendCategories.map((category) => [category.id, category.slug])
+	);
 
-	function hasSubmenu(label: string) {
-		const l = label.toLowerCase();
-		return l === 'shop' || l === 'mens' || l === 'womens';
-	}
-
-	function getSubmenuUrl(parentLabel: string, subLabel: string) {
+	function getSubmenuOptions(parentLabel: string) {
 		const parent = parentLabel.toLowerCase();
-		const sub = subLabel.toLowerCase();
-		// Construct filter URL
-		let url = '/shop?';
-
-		if (parent === 'mens' || parent === 'womens') {
-			url += `gender=${parent}&`;
+		if (parent === 'shop') {
+			return frontendCategories.map((category) => ({
+				label: (category.name || category.slug).toUpperCase(),
+				slug: category.slug
+			}));
 		}
 
-		url += `category=${sub}`;
-		return url;
+		if (parent === 'mens' || parent === 'womens') {
+			const slugs = [
+				...new Set(
+					frontendProducts
+						.filter((product) => product.gender === parent)
+						.flatMap((product) => product.categoryIds ?? [])
+						.map((categoryId) => categoryIdToSlug.get(categoryId))
+						.filter((slug): slug is string => Boolean(slug))
+				)
+			];
+
+			return slugs.map((slug) => {
+				const matched = frontendCategories.find((category) => category.slug === slug);
+				return {
+					label: (matched?.name || slug).toUpperCase(),
+					slug
+				};
+			});
+		}
+
+		return [];
+	}
+
+	function getSubmenuUrl(parentLabel: string, categorySlug: string) {
+		const parent = parentLabel.toLowerCase();
+
+		if (parent === 'mens' || parent === 'womens') {
+			return `/shop?gender=${parent}&category=${encodeURIComponent(categorySlug)}`;
+		}
+
+		return `/shop?category=${encodeURIComponent(categorySlug)}`;
 	}
 </script>
 
@@ -58,7 +81,8 @@
 	>
 		{#if navItems && navItems.length > 0}
 			{#each navItems as link (link.url)}
-				{@const hasSub = hasSubmenu(link.label)}
+				{@const submenuOptions = getSubmenuOptions(link.label)}
+				{@const hasSub = submenuOptions.length > 0}
 				{@const isExpanded = expandedMenus[link.label]}
 
 				<div class="border-none">
@@ -104,13 +128,13 @@
 							</a>
 
 							<!-- Sub categories -->
-							{#each SUB_CATEGORIES as sub (sub)}
+							{#each submenuOptions as option (option.slug)}
 								<a
-									href={getSubmenuUrl(link.label, sub)}
+									href={getSubmenuUrl(link.label, option.slug)}
 									onclick={onClose}
 									class="text-primary dark:text-white hover:opacity-70 transition-opacity text-[10px]"
 								>
-									{sub}
+									{option.label}
 								</a>
 							{/each}
 						</div>

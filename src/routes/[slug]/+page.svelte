@@ -1,5 +1,6 @@
 <script lang="ts">
 	import SectionRenderer from '$lib/components/SectionRenderer.svelte';
+	import { sanitizeHtml } from '$lib/utils/sanitize';
 
 	let { data } = $props();
 
@@ -15,6 +16,7 @@
 	let sortedSections = $derived(
 		data.sections ? [...data.sections].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)) : []
 	);
+	let safePageContent = $derived(sanitizeHtml(data.page.content));
 </script>
 
 <svelte:head>
@@ -52,7 +54,7 @@
 						class="prose prose-lg dark:prose-invert max-w-none text-text-main/80 dark:text-white/80 leading-relaxed font-sans"
 					>
 						<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-						{@html data.page.content}
+						{@html safePageContent}
 					</div>
 				{/if}
 			</div>

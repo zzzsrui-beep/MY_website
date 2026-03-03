@@ -5,6 +5,7 @@
 	import HeroCategories from '$lib/components/HeroCategories.svelte';
 	import ProductGrid from '$lib/components/ProductGrid.svelte';
 	import type { UISection, Category, Product, UIAsset } from '$lib/types';
+	import { sanitizeHtml } from '$lib/utils/sanitize';
 
 	interface Props {
 		section: UISection;
@@ -19,6 +20,8 @@
 		featuredProducts = [],
 		homeAssets = []
 	}: Props = $props();
+
+	let safeSectionContent = $derived(sanitizeHtml(section.content));
 </script>
 
 <!-- 根据 section.type 动态渲染对应组件 -->
@@ -49,7 +52,7 @@
 					class="font-display text-2xl md:text-4xl leading-relaxed text-text-main dark:text-white antialiased"
 				>
 					<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-					{@html section.content}
+					{@html safeSectionContent}
 				</div>
 			{/if}
 		</div>

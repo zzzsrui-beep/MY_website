@@ -116,6 +116,16 @@
 		};
 	}
 
+	function getProductSortTimestamp(product: { id: string }) {
+		const candidate =
+			(product as { createdAt?: unknown; updated?: unknown }).createdAt ??
+			(product as { createdAt?: unknown; updated?: unknown }).updated;
+
+		if (typeof candidate !== 'string') return Number.NEGATIVE_INFINITY;
+		const parsed = Date.parse(candidate);
+		return Number.isFinite(parsed) ? parsed : Number.NEGATIVE_INFINITY;
+	}
+
 	let filteredProducts = $derived.by(() => {
 		let items = data.products;
 
@@ -144,8 +154,14 @@
 					return priceA - priceB;
 				case 'Price: High to Low':
 					return priceB - priceA;
-				case 'Newest':
-					return parseInt(b.id) - parseInt(a.id); // Mock newness by ID
+				case 'Newest': {
+					const timeDiff = getProductSortTimestamp(b) - getProductSortTimestamp(a);
+					if (timeDiff !== 0) return timeDiff;
+					return String(b.id).localeCompare(String(a.id), undefined, {
+						numeric: true,
+						sensitivity: 'base'
+					});
+				}
 				default:
 					return 0; // Featured (original order)
 			}

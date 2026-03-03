@@ -8,6 +8,7 @@
 	import { MESSAGES } from '$lib/messages';
 	import { fade } from 'svelte/transition';
 	import { COLORS } from '$lib/constants';
+	import { escapeJsonForHtmlScript, sanitizeHtml } from '$lib/utils/sanitize';
 
 	const cart = useCart();
 	const wishlist = useWishlist();
@@ -204,6 +205,8 @@
 			}
 		})
 	);
+	let safeJsonLd = $derived(escapeJsonForHtmlScript(jsonLd));
+	let safeProductDescription = $derived(sanitizeHtml(product.description));
 
 	// Color Mapping Helper
 	function getColorStyle(colorLabel: string) {
@@ -230,7 +233,7 @@
 	<title>{product.title} | {data.settings.siteName}</title>
 	<meta name="description" content={product.description} />
 	<meta property="og:image" content={product.image} />
-	{@html `<script type="application/ld+json">${jsonLd}</script>`}
+	{@html `<script type="application/ld+json">${safeJsonLd}</script>`}
 </svelte:head>
 
 <div
@@ -410,7 +413,7 @@
 							class="prose prose-sm dark:prose-invert max-w-none text-primary/80 dark:text-white/80 leading-relaxed"
 						>
 							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-							{@html product.description}
+							{@html safeProductDescription}
 						</div>
 					</div>
 

@@ -70,46 +70,74 @@
 	}
 
 	import type { NavItem } from '$lib/types';
+	const HIDDEN_HEADER_NAV_LABELS = new Set(['mens', 'womens', 'accessories']);
+	const HEADER_NAV_PRIORITY: Record<string, number> = {
+		collection: 1,
+		shop: 2,
+		contact: 3
+	};
+
+	function filterHeaderNavItems(items: NavItem[]): NavItem[] {
+		return items.filter((item) => {
+			const label = String(item.label || '').trim().toLowerCase();
+			return !HIDDEN_HEADER_NAV_LABELS.has(label);
+		});
+	}
+
+	function sortHeaderNavItems(items: NavItem[]): NavItem[] {
+		return [...items].sort((a, b) => {
+			const aLabel = String(a.label || '').trim().toLowerCase();
+			const bLabel = String(b.label || '').trim().toLowerCase();
+			const aPriority = HEADER_NAV_PRIORITY[aLabel] ?? Number.MAX_SAFE_INTEGER;
+			const bPriority = HEADER_NAV_PRIORITY[bLabel] ?? Number.MAX_SAFE_INTEGER;
+			if (aPriority !== bPriority) return aPriority - bPriority;
+			return (a.order || 0) - (b.order || 0);
+		});
+	}
 
 	// Fallback navigation if data is missing or sparse
 	let headerNav = $derived.by(() => {
-		if (data.headerNav && data.headerNav.length > 1) {
-			return data.headerNav;
-		}
+		const incomingHeaderNav = Array.isArray(data.headerNav)
+			? sortHeaderNavItems(filterHeaderNavItems(data.headerNav))
+			: [];
+		if (incomingHeaderNav.length > 1) return incomingHeaderNav;
+
 		// Default items if backend navigation is insufficient
 		const defaults: NavItem[] = [
-				{
-					label: 'Shop',
-					url: '/shop',
-					id: 'default-shop',
-					location: 'header',
-					order: 1,
-					isVisible: true
-				} as NavItem,
-				{
-					label: 'Collection',
-					url: '/collection',
-					id: 'default-collection',
-					location: 'header',
-					order: 2,
-					isVisible: true
-				} as NavItem
+			{
+				label: 'Collection',
+				url: '/collection',
+				id: 'default-collection',
+				location: 'header',
+				order: 1,
+				isVisible: true
+			} as NavItem,
+			{
+				label: 'Shop',
+				url: '/shop',
+				id: 'default-shop',
+				location: 'header',
+				order: 2,
+				isVisible: true
+			} as NavItem
 		];
+
 		// If data has at least one item, merge it? Or just override?
 		// Strategy: If data has only 1 item, preprend "Shop" if not present.
-		if (data.headerNav && data.headerNav.length === 1) {
-			const hasShop = data.headerNav.some((n) => n.url === '/shop');
-				const shopItem = {
-					label: 'Shop',
-					url: '/shop',
-					id: 'default-shop-prefix',
-					location: 'header',
-					order: 0,
-					isVisible: true
-				} as NavItem;
-			return hasShop ? data.headerNav : [shopItem, ...data.headerNav];
+		if (incomingHeaderNav.length === 1) {
+			const hasShop = incomingHeaderNav.some((item) => item.url === '/shop');
+			const shopItem = {
+				label: 'Shop',
+				url: '/shop',
+				id: 'default-shop-prefix',
+				location: 'header',
+				order: 0,
+				isVisible: true
+			} as NavItem;
+			return sortHeaderNavItems(hasShop ? incomingHeaderNav : [shopItem, ...incomingHeaderNav]);
 		}
-		return defaults;
+
+		return sortHeaderNavItems(defaults);
 	});
 
 	function toggleCart() {

@@ -1,45 +1,21 @@
 import type { NavItem } from '$lib/types';
 
 export const frontendHeaderNav: NavItem[] = [
-	{ id: 'nav-shop', label: 'Shop', url: '/shop', location: 'header', order: 1, isVisible: true },
-	{
-		id: 'nav-mens',
-		label: 'Mens',
-		url: '/shop?gender=mens',
-		location: 'header',
-		order: 2,
-		isVisible: true
-	},
-	{
-		id: 'nav-womens',
-		label: 'Womens',
-		url: '/shop?gender=womens',
-		location: 'header',
-		order: 3,
-		isVisible: true
-	},
-	{
-		id: 'nav-accessories',
-		label: 'Accessories',
-		url: '/shop?category=accessories',
-		location: 'header',
-		order: 4,
-		isVisible: true
-	},
 	{
 		id: 'nav-collection',
 		label: 'Collection',
 		url: '/collection',
 		location: 'header',
-		order: 5,
+		order: 1,
 		isVisible: true
 	},
+	{ id: 'nav-shop', label: 'Shop', url: '/shop', location: 'header', order: 2, isVisible: true },
 	{
 		id: 'nav-contact',
 		label: 'Contact',
 		url: '/contact',
 		location: 'header',
-		order: 6,
+		order: 3,
 		isVisible: true
 	}
 ];

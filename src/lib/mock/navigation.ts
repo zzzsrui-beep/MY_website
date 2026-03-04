@@ -11,11 +11,19 @@ export const frontendHeaderNav: NavItem[] = [
 	},
 	{ id: 'nav-shop', label: 'Shop', url: '/shop', location: 'header', order: 2, isVisible: true },
 	{
+		id: 'nav-about',
+		label: 'About',
+		url: '/about',
+		location: 'header',
+		order: 3,
+		isVisible: true
+	},
+	{
 		id: 'nav-contact',
 		label: 'Contact',
 		url: '/contact',
 		location: 'header',
-		order: 3,
+		order: 4,
 		isVisible: true
 	}
 ];

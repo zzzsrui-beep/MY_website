@@ -2,26 +2,30 @@
 	import CoverImageLayer from '$lib/components/ui/CoverImageLayer.svelte';
 	import SectionHeadingContent from '$lib/components/ui/SectionHeadingContent.svelte';
 	import type { UISection } from '$lib/types';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	let { section }: { section: UISection } = $props();
+
+	let heading = $derived(i18n.tx(section.heading || ''));
+	let content = $derived(i18n.txHtml(section.content || ''));
 </script>
 
 <section class="grid grid-cols-1 md:grid-cols-2 h-auto md:h-[80vh]">
 	<CoverImageLayer
 		src={section.imageUrl || ''}
-		alt={section.heading || 'Story'}
+		alt={heading || i18n.tx('Story')}
 		containerClass="relative overflow-hidden min-h-[400px] md:min-h-0"
 		imageClassName="w-full h-full object-cover"
 	>
 		<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-			<span class="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold"> Story </span>
+			<span class="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold"> {i18n.tx('Story')} </span>
 		</div>
 	</CoverImageLayer>
 	<div class="bg-white dark:bg-zinc-900 flex flex-col justify-center p-12 md:p-24">
 		<SectionHeadingContent
-			heading={section.heading}
+			heading={heading}
 			headingTag="h2"
-			contentHtml={section.content}
+			contentHtml={content}
 			headingClass="text-3xl md:text-5xl font-display leading-tight mb-8 text-text-main dark:text-white"
 			contentClass="text-sm md:text-base text-primary dark:text-white leading-relaxed tracking-widest mb-10 max-w-md [&>p]:mb-4 last:[&>p]:mb-0"
 		/>
@@ -31,7 +35,7 @@
 				data-sveltekit-preload-data="hover"
 				class="inline-block text-xs font-bold uppercase tracking-widest border border-primary dark:border-white py-4 px-10 hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-primary transition-all self-start"
 			>
-				{section.settings.actions[0].text}
+				{i18n.tx(section.settings.actions[0].text)}
 			</a>
 		{/if}
 	</div>

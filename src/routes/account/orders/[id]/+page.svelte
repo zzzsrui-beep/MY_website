@@ -6,6 +6,7 @@
 	import OrderItemThumbnail from '$lib/components/ui/OrderItemThumbnail.svelte';
 	import { formatCurrency } from '$lib/utils/price';
 	import { fade } from 'svelte/transition';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	let { data } = $props<{ data: PageData }>();
 
@@ -18,7 +19,6 @@
 		);
 		if (rawSum <= 0) return 1;
 		const ratio = data.order.total / rawSum;
-		// Heuristic: if totals are ~100x larger, item prices are likely stored in dollars.
 		return ratio > 20 ? 100 : 1;
 	});
 
@@ -34,23 +34,20 @@
 </script>
 
 <AccountPageShell>
-	<AccountBackLink href="/account/orders" label="Back to History" className="mb-12" />
+	<AccountBackLink href="/account/orders" label={i18n.tx('Back to History')} className="mb-12" />
 
-	<!-- Header & Summary -->
 	<div in:fade={{ duration: 500 }}>
 		<OrderSummary order={data.order} />
 	</div>
 
-	<!-- Items List -->
 	<div class="space-y-12" in:fade={{ delay: 200, duration: 500 }}>
 		<h2 class="font-display text-2xl text-text-main dark:text-white uppercase tracking-[0.05em]">
-			Purchase Details
+			{i18n.tx('Purchase Details')}
 		</h2>
 
 		<div class="flex flex-col gap-10">
 			{#each data.order.items as item (item.id)}
 				<div class="py-8 flex gap-8">
-					<!-- Image -->
 					<div class="w-24 h-32 bg-neutral-100 dark:bg-neutral-800 overflow-hidden shrink-0">
 						{#if item.image}
 							<OrderItemThumbnail
@@ -63,12 +60,11 @@
 							<div
 								class="w-full h-full flex items-center justify-center text-neutral-300 text-[10px] uppercase"
 							>
-								No Img
+								{i18n.tx('No Img')}
 							</div>
 						{/if}
 					</div>
 
-					<!-- Details -->
 					<div class="flex-1 flex flex-col justify-between py-1">
 						<div class="flex justify-between items-start gap-4">
 							<div>
@@ -92,13 +88,12 @@
 			{/each}
 		</div>
 
-		<!-- Totals -->
 		<div class="flex flex-col items-end pt-8">
 			<div class="w-full max-w-xs space-y-4">
 				<div
 					class="flex justify-between items-center text-sm font-sans uppercase tracking-widest text-neutral-500"
 				>
-					<span>Subtotal</span>
+					<span>{i18n.tx('Subtotal')}</span>
 					<span
 						>{formatCurrency(subtotalCents, { currency: data.order.currency, isCents: true })}</span
 					>
@@ -107,7 +102,7 @@
 					<div
 						class="flex justify-between items-center text-sm font-sans uppercase tracking-widest text-neutral-500"
 					>
-						<span>{adjustmentCents > 0 ? 'Tax & Shipping' : 'Discounts'}</span>
+						<span>{adjustmentCents > 0 ? i18n.tx('Tax & Shipping') : i18n.tx('Discounts')}</span>
 						<span
 							>{formatCurrency(adjustmentCents, {
 								currency: data.order.currency,
@@ -120,7 +115,7 @@
 					class="flex justify-between items-center pt-4 border-t border-primary dark:border-white"
 				>
 					<span class="font-bold text-text-main dark:text-white uppercase tracking-widest"
-						>Total</span
+						>{i18n.tx('Total')}</span
 					>
 					<span class="font-display text-2xl text-text-main dark:text-white">
 						{formatCurrency(data.order.total, { currency: data.order.currency, isCents: true })}

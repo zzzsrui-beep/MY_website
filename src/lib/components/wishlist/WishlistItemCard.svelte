@@ -2,6 +2,7 @@
 	import type { WishlistItem } from '$lib/types';
 	import CoverImageLayer from '$lib/components/ui/CoverImageLayer.svelte';
 	import { COLORS, BUTTON_STYLES, TYPOGRAPHY } from '$lib/constants';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	interface Props {
 		item: WishlistItem;
@@ -22,7 +23,7 @@
 		<button
 			onclick={() => onRemove(item.id)}
 			class="absolute top-0 right-0 p-4 {COLORS.textSubtle} hover:text-primary dark:hover:text-white transition-colors z-20 cursor-pointer"
-			aria-label="Remove"
+			aria-label={i18n.tx('Remove')}
 		>
 			<span class="material-symbols-outlined text-lg">close</span>
 		</button>
@@ -34,7 +35,7 @@
 				onclick={() => onMoveToBag(item)}
 				class="w-full h-12 {BUTTON_STYLES.outline} {TYPOGRAPHY.label} cursor-pointer"
 			>
-				Move to Bag
+				{i18n.tx('Move to Bag')}
 			</button>
 		</div>
 	</CoverImageLayer>
@@ -44,7 +45,7 @@
 			<h3 class="text-sm font-bold uppercase tracking-widest {COLORS.text} mb-1">
 				{item.title}
 			</h3>
-			<p class="text-xs text-primary/50 dark:text-white/50 tracking-wider">In Stock</p>
+			<p class="text-xs text-primary/50 dark:text-white/50 tracking-wider">{i18n.tx('In Stock')}</p>
 		</div>
 		<span class="text-sm font-medium tracking-wide">
 			{item.price}

@@ -2,13 +2,13 @@
 	import type { NavItem } from '$lib/types';
 	import { TRANSITIONS } from '$lib/constants';
 	import { MESSAGES } from '$lib/messages';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	interface FooterProps {
 		navItems?: NavItem[];
 		isHome?: boolean;
 		siteSettings?: {
 			siteName: string;
-			// ... other settings if needed
 		};
 	}
 
@@ -24,21 +24,18 @@
 
 		if (!email || !email.includes('@')) {
 			status = 'error';
-			message = MESSAGES.ERROR.PLEASE_ENTER_VALID_EMAIL;
+			message = i18n.tx(MESSAGES.ERROR.PLEASE_ENTER_VALID_EMAIL);
 			return;
 		}
 
 		status = 'loading';
 
-		// 模拟 API 调用 - 实际项目中替换为真实的 newsletter API
 		await new Promise((resolve) => setTimeout(resolve, 800));
 
-		// 成功订阅
 		status = 'success';
-		message = MESSAGES.SUCCESS.SUBSCRIBED;
+		message = i18n.tx(MESSAGES.SUCCESS.SUBSCRIBED);
 		email = '';
 
-		// 3秒后重置状态
 		setTimeout(() => {
 			status = 'idle';
 			message = '';
@@ -56,18 +53,17 @@
 	<div
 		class="w-full max-w-[1600px] mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-end gap-16 lg:gap-0"
 	>
-		<!-- Left: Newsletter -->
 		<div class="w-full max-w-md">
 			<h4 class="text-sm font-serif font-medium mb-0 tracking-wide text-primary dark:text-white">
-				Join the Conversation
+				{i18n.tx('Join the Conversation')}
 			</h4>
 			<form class="relative border-none outline-none" onsubmit={handleSubmit}>
-				<label for="newsletter-email" class="sr-only">Email Address</label>
+				<label for="newsletter-email" class="sr-only">{i18n.tx('Email Address')}</label>
 				<input
 					id="newsletter-email"
 					type="email"
-					placeholder="EMAIL ADDRESS"
-					aria-label="Email Address"
+					placeholder={i18n.tx('Email Address').toUpperCase()}
+					aria-label={i18n.tx('Email Address')}
 					bind:value={email}
 					disabled={status === 'loading'}
 					class="w-full bg-transparent border-b border-primary dark:border-white py-3 pr-10 text-[10px] font-sans uppercase tracking-[0.15em] placeholder:text-primary/60 dark:placeholder:text-white/60 outline-none focus:outline-none focus:ring-0 focus:shadow-none focus:border-primary dark:focus:border-white disabled:opacity-50"
@@ -75,7 +71,7 @@
 				<button
 					type="submit"
 					class="absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer hover:opacity-60 {TRANSITIONS.opacity} disabled:opacity-30"
-					aria-label="Subscribe to newsletter"
+					aria-label={i18n.tx('Sign Up')}
 					disabled={status === 'loading'}
 				>
 					{#if status === 'loading'}
@@ -111,13 +107,12 @@
 			</form>
 		</div>
 
-		<!-- Right: Links -->
 		<div
 			class="flex flex-wrap gap-x-8 gap-y-4 items-center justify-start lg:justify-end text-[10px] font-sans uppercase tracking-[0.15em] text-black"
 		>
 			{#each navItems as link (link.url)}
 				<a href={link.url} class="text-black no-underline hover:underline underline-offset-2">
-					{link.label}
+					{i18n.tx(link.label)}
 				</a>
 			{/each}
 
@@ -126,7 +121,7 @@
 				class="text-black no-underline hover:underline underline-offset-2 cursor-pointer"
 				onclick={openCookieSettings}
 			>
-				COOKIE SETTINGS
+				{i18n.tx('COOKIE SETTINGS')}
 			</button>
 		</div>
 	</div>

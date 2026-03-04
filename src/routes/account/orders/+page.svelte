@@ -6,26 +6,26 @@
 	import AccountBackLink from '$lib/components/account/AccountBackLink.svelte';
 	import { ShoppingBag } from 'lucide-svelte';
 	import { fade, fly } from 'svelte/transition';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	let { data } = $props<{ data: PageData }>();
 </script>
 
 <svelte:head>
-	<title>Order History | Account</title>
+	<title>{i18n.tx('Order History')} | {i18n.tx('Account')}</title>
 </svelte:head>
 
 <AccountPageShell>
-	<!-- Header Navigation -->
 	<div
 		class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16"
 		in:fade={{ duration: 500 }}
 	>
 		<div>
-			<AccountBackLink href="/account" label="Back to Dashboard" className="mb-6" />
+			<AccountBackLink href="/account" label={i18n.tx('Back to Dashboard')} className="mb-6" />
 			<h1
 				class="font-display text-4xl md:text-5xl font-medium text-text-main dark:text-white uppercase tracking-[0.05em]"
 			>
-				Order History
+				{i18n.tx('Order History')}
 			</h1>
 		</div>
 
@@ -33,11 +33,10 @@
 			class="font-sans text-xs font-medium text-text-muted dark:text-neutral-500 uppercase tracking-widest"
 		>
 			{data.orders.length}
-			{data.orders.length === 1 ? 'Order' : 'Orders'}
+			{data.orders.length === 1 ? i18n.tx('Order') : i18n.tx('Orders')}
 		</div>
 	</div>
 
-	<!-- Content -->
 	{#if data.orders.length > 0}
 		<div
 			class="grid grid-cols-1 gap-px bg-neutral-200 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800"
@@ -52,12 +51,13 @@
 			{/each}
 		</div>
 	{:else}
-		<!-- Empty State -->
 		<div class="py-32 border border-dashed border-neutral-300 dark:border-neutral-800" in:fade>
 			<AccountEmptyState
-				title="No orders yet"
-				description="Your collection is currently empty. Explore our latest arrivals to begin your journey."
-				actionLabel="Start Shopping"
+				title={i18n.tx('No orders yet')}
+				description={i18n.tx(
+					'Your collection is currently empty. Explore our latest arrivals to begin your journey.'
+				)}
+				actionLabel={i18n.tx('Start Shopping')}
 				actionHref="/shop"
 				actionVariant="solid"
 			>

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { NavItem } from '$lib/types';
-	import { fly, slide } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import { useCart } from '$lib/stores/cart.svelte';
-	import { frontendCategories, frontendProducts } from '$lib/mock';
+	import { i18n, type LanguageCode } from '$lib/stores/i18n.svelte';
 
 	const cart = useCart();
 
@@ -16,57 +16,8 @@
 
 	let { navItems, onClose, onSearchClick, onCartClick }: Props = $props();
 
-	let expandedMenus = $state<Record<string, boolean>>({});
-
-	function toggleSubmenu(label: string, e?: Event) {
-		if (e) e.preventDefault();
-		expandedMenus[label] = !expandedMenus[label];
-	}
-
-	const categoryIdToSlug = new Map(
-		frontendCategories.map((category) => [category.id, category.slug])
-	);
-
-	function getSubmenuOptions(parentLabel: string) {
-		const parent = parentLabel.toLowerCase();
-		if (parent === 'shop') {
-			return frontendCategories.map((category) => ({
-				label: (category.name || category.slug).toUpperCase(),
-				slug: category.slug
-			}));
-		}
-
-		if (parent === 'plushies' || parent === 'stationery') {
-			const slugs = [
-				...new Set(
-					frontendProducts
-						.filter((product) => product.gender === parent)
-						.flatMap((product) => product.categoryIds ?? [])
-						.map((categoryId) => categoryIdToSlug.get(categoryId))
-						.filter((slug): slug is string => Boolean(slug))
-				)
-			];
-
-			return slugs.map((slug) => {
-				const matched = frontendCategories.find((category) => category.slug === slug);
-				return {
-					label: (matched?.name || slug).toUpperCase(),
-					slug
-				};
-			});
-		}
-
-		return [];
-	}
-
-	function getSubmenuUrl(parentLabel: string, categorySlug: string) {
-		const parent = parentLabel.toLowerCase();
-
-		if (parent === 'plushies' || parent === 'stationery') {
-			return `/shop?gender=${parent}&category=${encodeURIComponent(categorySlug)}`;
-		}
-
-		return `/shop?category=${encodeURIComponent(categorySlug)}`;
+	function selectLanguage(lang: LanguageCode) {
+		i18n.setLanguage(lang);
 	}
 </script>
 
@@ -81,77 +32,25 @@
 	>
 		{#if navItems && navItems.length > 0}
 			{#each navItems as link (link.url)}
-				{@const submenuOptions = getSubmenuOptions(link.label)}
-				{@const hasSub = submenuOptions.length > 0}
-				{@const isExpanded = expandedMenus[link.label]}
-
-				<div class="border-none">
-					<div class="flex items-center justify-between min-h-[40px]">
-						<a
-							href={link.url}
-							onclick={onClose}
-							class="flex-1 py-3 transition-colors active:text-primary/60 dark:active:text-white/60"
-						>
-							{link.label}
-						</a>
-						{#if hasSub}
-							<button
-								onclick={(e) => toggleSubmenu(link.label, e)}
-								class="h-10 w-10 flex items-center justify-center -mr-2 outline-none tap-highlight-transparent"
-								aria-label="Toggle submenu"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									width="16"
-									height="16"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="1"
-									class="transition-transform duration-300 {isExpanded ? 'rotate-45' : ''}"
-								>
-									<path d="M12 4V20M4 12H20" stroke-linecap="square" />
-								</svg>
-							</button>
-						{/if}
-					</div>
-
-					{#if hasSub && isExpanded}
-						<div class="flex flex-col gap-3 pt-2 pb-4" transition:slide={{ duration: 200 }}>
-							<!-- ALL option -->
-							<a
-								href={link.url}
-								onclick={onClose}
-								class="text-primary dark:text-white hover:opacity-70 transition-opacity text-[10px]"
-							>
-								ALL
-							</a>
-
-							<!-- Sub categories -->
-							{#each submenuOptions as option (option.slug)}
-								<a
-									href={getSubmenuUrl(link.label, option.slug)}
-									onclick={onClose}
-									class="text-primary dark:text-white hover:opacity-70 transition-opacity text-[10px]"
-								>
-									{option.label}
-								</a>
-							{/each}
-						</div>
-					{/if}
-				</div>
+				<a
+					href={link.url}
+					onclick={onClose}
+					class="block py-3 hover:text-primary/70"
+				>
+					{i18n.tx(link.label)}
+				</a>
 			{/each}
 		{/if}
 
 		<div class="h-px bg-primary/5 dark:bg-white/5 my-2"></div>
 
-		<a href="/wishlist" onclick={onClose} class="block py-3 hover:text-primary/70">Wishlist</a>
-		<a href="/account" onclick={onClose} class="block py-3 hover:text-primary/70">Account</a>
+		<a href="/wishlist" onclick={onClose} class="block py-3 hover:text-primary/70">{i18n.tx('Wishlist')}</a>
+		<a href="/account" onclick={onClose} class="block py-3 hover:text-primary/70">{i18n.tx('Account')}</a>
 		<button
 			onclick={onSearchClick}
 			class="text-left uppercase tracking-[0.15em] cursor-pointer py-3 w-full hover:text-primary/70"
 		>
-			Search
+			{i18n.tx('Search')}
 		</button>
 		<button
 			onclick={() => {
@@ -160,7 +59,24 @@
 			}}
 			class="text-left uppercase tracking-[0.15em] cursor-pointer py-3 w-full hover:text-primary/70"
 		>
-			Bag ({cart.count})
+			{i18n.tx('Bag')} ({cart.count})
 		</button>
+
+		<div class="h-px bg-primary/5 dark:bg-white/5 my-2"></div>
+
+		<div class="flex items-center gap-2 py-2">
+			<span class="material-symbols-outlined text-[16px]">language</span>
+			{#each i18n.options as option (option.code)}
+				<button
+					onclick={() => selectLanguage(option.code)}
+					class="text-[10px] px-2 py-1 border border-primary/20 dark:border-white/20 {i18n.language ===
+					option.code
+						? 'bg-primary text-white dark:bg-white dark:text-primary'
+						: 'hover:bg-primary/5 dark:hover:bg-white/10'}"
+				>
+					{option.menuLabel}
+				</button>
+			{/each}
+		</div>
 	</nav>
 </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	const COOKIE_CONSENT_KEY = 'cookie_consent';
 	const COOKIE_CONSENT_EVENT = 'cookie-consent-change';
@@ -86,11 +87,12 @@
 	>
 		<div class="w-full max-w-md bg-white p-10 border border-black">
 			<h2 id="cookie-banner-title" class="text-xl font-medium text-black mb-4 tracking-tight">
-				Cookies.
+				{i18n.tx('Cookies.')}
 			</h2>
 			<p id="cookie-banner-desc" class="text-sm text-black mb-10 leading-relaxed">
-				We use cookies to ensure you get the best experience. By continuing to use this site, you
-				consent to our use of cookies.
+				{i18n.tx(
+					'We use cookies to ensure you get the best experience. By continuing to use this site, you consent to our use of cookies.'
+				)}
 			</p>
 
 			<div class="flex flex-col sm:flex-row items-center justify-end gap-4">
@@ -98,13 +100,13 @@
 					class="w-full sm:w-auto px-8 py-3 border border-black bg-transparent text-black text-[10px] font-medium tracking-[0.1em] uppercase hover:bg-black hover:text-white transition-colors duration-200"
 					onclick={decline}
 				>
-					Essential Only
+					{i18n.tx('Essential Only')}
 				</button>
 				<button
 					class="w-full sm:w-auto px-8 py-3 border border-black bg-transparent text-black text-[10px] font-medium tracking-[0.1em] uppercase hover:bg-black hover:text-white transition-colors duration-200"
 					onclick={accept}
 				>
-					Accept
+					{i18n.tx('Accept')}
 				</button>
 			</div>
 		</div>

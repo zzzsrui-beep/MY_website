@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ProductListGrid from '$lib/components/shop/ProductListGrid.svelte';
 	import type { Product, UISection } from '$lib/types';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	interface Props {
 		section: UISection;
@@ -20,13 +21,13 @@
 					<span
 						class="text-xs font-sans font-medium tracking-[0.2em] uppercase text-primary/60 dark:text-white/60 mb-2 block"
 					>
-						{section.subheading}
+						{i18n.tx(section.subheading)}
 					</span>
 				{/if}
 				<h3
 					class="text-2xl md:text-3xl font-display text-text-main dark:text-white uppercase tracking-wider"
 				>
-					{section.heading || 'Featured Products'}
+					{i18n.tx(section.heading || 'Featured Products')}
 				</h3>
 			</div>
 			{#if section.settings?.actions?.[0]}
@@ -35,7 +36,7 @@
 					data-sveltekit-preload-data="hover"
 					class="text-xs font-sans font-semibold uppercase tracking-widest text-primary dark:text-white hover:underline underline-offset-4 decoration-1 transition-all self-start md:self-auto"
 				>
-					{section.settings.actions[0].text || 'View All'}
+					{i18n.tx(section.settings.actions[0].text || 'View All')}
 				</a>
 			{/if}
 		</div>
@@ -49,7 +50,7 @@
 			/>
 		{:else}
 			<div class="text-center py-16 text-primary/50 dark:text-white/50">
-				<p class="text-sm">No products to display</p>
+				<p class="text-sm">{i18n.tx('No products to display')}</p>
 			</div>
 		{/if}
 	</div>

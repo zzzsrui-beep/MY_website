@@ -25,16 +25,16 @@ export const frontendCollectionImages = [
 		position: 'left',
 		image:
 			'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=1200&auto=format&fit=crop',
-		link: '/shop?category=plushies',
-		title: 'Shop Plushies > New Arrivals'
+		link: '/shop?category=plush-toys',
+		title: 'Plush Toys > New Arrivals'
 	},
 	{
 		id: 'collection-right',
 		position: 'right',
 		image:
 			'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=1200&auto=format&fit=crop',
-		link: '/shop?category=stationery',
-		title: 'Shop Stationery'
+		link: '/shop?category=art-pieces',
+		title: 'Art Pieces'
 	}
 ];
 
@@ -95,8 +95,8 @@ export const frontendSections: Record<string, UISection[]> = {
 			isActive: true,
 			settings: {
 				actions: [
-					{ text: 'Shop Plushies', link: '/shop?category=plushies' },
-					{ text: 'Shop Stationery', link: '/shop?category=stationery' }
+					{ text: 'Collection', link: '/collection' },
+					{ text: 'Shop', link: '/shop' }
 				]
 			}
 		},

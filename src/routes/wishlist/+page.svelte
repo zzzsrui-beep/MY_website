@@ -6,17 +6,16 @@
 	import { fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import { COLORS } from '$lib/constants';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	const wishlist = useWishlist();
 	const cart = useCart();
 
 	import type { CartItem, WishlistItem } from '$lib/types';
 
-	// Receive global settings data
 	let { data } = $props();
 
 	function moveToBag(item: WishlistItem) {
-		// Construct CartItem from WishlistItem
 		const cartItem: CartItem = {
 			id: item.id,
 			variantId: item.variantId,
@@ -33,12 +32,11 @@
 </script>
 
 <svelte:head>
-	<title>Wishlist | {data.settings.siteName}</title>
+	<title>{i18n.tx('Wishlist')} | {data.settings.siteName}</title>
 	<meta name="description" content="Your curated collection of saved items." />
 </svelte:head>
 
 <div class="min-h-screen pt-32 pb-20 px-6 md:px-12 {COLORS.bg} overflow-hidden">
-	<!-- Header -->
 	<div
 		class="max-w-[1600px] mx-auto mb-16 md:mb-24 flex flex-col md:flex-row justify-between items-end gap-6"
 	>
@@ -46,27 +44,25 @@
 			<h1
 				class="text-4xl md:text-7xl font-display font-medium uppercase tracking-[0.05em] mb-2 {COLORS.text}"
 			>
-				My Collection
+				{i18n.tx('My Collection')}
 			</h1>
 		</div>
 	</div>
 
 	<div class="max-w-[1600px] mx-auto">
 		{#if wishlist.items.length === 0}
-			<!-- Artistic Empty State -->
 			<div
 				class="relative w-full h-[50vh] flex flex-col items-center justify-center overflow-hidden group"
 				in:fade
 			>
 				<div class="relative z-10 text-center space-y-8">
 					<p class="text-sm md:text-lg font-display uppercase tracking-[0.3em] {COLORS.text}">
-						The canvas is empty
+						{i18n.tx('The canvas is empty')}
 					</p>
-					<Button href="/shop" size="lg">Start Curating</Button>
+					<Button href="/shop" size="lg">{i18n.tx('Start Curating')}</Button>
 				</div>
 			</div>
 		{:else}
-			<!-- Editorial Grid -->
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-16">
 				{#each wishlist.items as product (product.id)}
 					<div in:fade={{ duration: 400 }} animate:flip={{ duration: 400 }}>

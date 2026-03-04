@@ -8,17 +8,16 @@
 	import { fade } from 'svelte/transition';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	let { data } = $props();
 
-	// 动态过滤：排除已在顶级导航中出现的 category（如 ACCESSORIES）
-	// 这样当您在 CMS 导航中添加新的 category 链接时，子选项会自动排除
 	const categories = $derived([
-		{ name: 'ALL', slug: 'ALL' },
+		{ name: i18n.tx('All Products'), slug: 'ALL' },
 		...data.categories
 			.filter((c) => !data.navCategorySlugs.includes(c.slug))
 			.map((c) => ({
-				name: c.name ? c.name.toUpperCase() : 'UNKNOWN',
+				name: i18n.tx(c.name || 'Unknown'),
 				slug: c.slug
 			}))
 	]);
@@ -28,15 +27,12 @@
 	let activeSort = $state('Featured');
 	let isFilterOpen = $state(false);
 
-	// 判断当前是否从顶级导航 category 入口进入（如 accessories）
-	// 如果是，则隐藏子选项栏
 	let isNavLevelCategory = $derived(() => {
 		const currentCategory = $page.url.searchParams.get('category');
 		return currentCategory && data.navCategorySlugs.includes(currentCategory);
 	});
 
-	// 是否显示子选项筛选栏
-	let showCategoryFilter = $derived($page.url.searchParams.has('gender') && !isNavLevelCategory());
+	let showFilterButton = $derived($page.url.searchParams.has('gender') && !isNavLevelCategory());
 
 	function selectCategory(slug: string) {
 		const url = new URL($page.url);
@@ -53,7 +49,7 @@
 		'PRODUCT TYPE': string[];
 		SIZES: string[];
 		COLOR: string[];
-		[key: string]: string[]; // Add index signature to allow string indexing
+		[key: string]: string[];
 	};
 
 	let selectedFilters = $state<FilterState>({
@@ -63,7 +59,6 @@
 		COLOR: []
 	});
 
-	// Mock Data based on image
 	const filterGroups = {
 		PILLAR: ['FEAR OF GOD', 'ESSENTIALS', 'ATHLETICS'],
 		'PRODUCT TYPE': [
@@ -129,22 +124,11 @@
 	let filteredProducts = $derived.by(() => {
 		let items = data.products;
 
-		// 0. Filter by Search
 		if (activeSearch) {
 			const q = activeSearch.toUpperCase();
 			items = items.filter((p) => p.title.toUpperCase().includes(q));
 		}
 
-		// 1. Filter by Category - REMOVED
-		// Backend handles category filtering based on URL param.
-		// We trust data.products contains what we want.
-
-		// 2. Filter by Size (Mock Logic - in real app, check product.variants)
-		// Since we don't have real variant data, we'll just mock it by saying all products have all sizes for now,
-		// OR we just ignore it to prevent empty results, demonstrating the UI interaction.
-		// Let's assume if any size is selected, we filter nothing just to show UI state persists.
-
-		// 3. Sort
 		return [...items].sort((a, b) => {
 			const priceA = parsePrice(a.price);
 			const priceB = parsePrice(b.price);
@@ -163,24 +147,21 @@
 					});
 				}
 				default:
-					return 0; // Featured (original order)
+					return 0;
 			}
 		});
 	});
 
-	// Unified Title Logic: Trust the page record title from CMS
-	const unifiedTitle = $derived(activeSearch ? 'SEARCH RESULTS' : data.page?.title || 'COLLECTION');
+	const unifiedTitle = $derived(
+		activeSearch ? i18n.tx('SEARCH RESULTS') : i18n.tx(data.page?.title || 'Collection')
+	);
 
-	// Pagination Logic
 	let visibleCount = $state(6);
 
-	// Reset visible count when filters change
 	$effect(() => {
-		// Track dependencies
 		void activeCategory;
 		void activeSearch;
 		void activeSort;
-		// Reset
 		visibleCount = 6;
 	});
 
@@ -192,15 +173,14 @@
 </script>
 
 <svelte:head>
-	<title>{data.page?.title || 'Shop'} | {data.settings.siteName}</title>
+	<title>{i18n.tx(data.page?.title || 'Shop')} | {data.settings.siteName}</title>
 	<meta
 		name="description"
 		content={data.page?.metaDescription ||
-			'Explore our curated collection of luxury fashion essentials.'}
+			i18n.tx('Explore our curated collection of luxury fashion essentials.')}
 	/>
 </svelte:head>
 
-<!-- Dynamic CMS Sections (e.g., Hero Banner) -->
 {#if data.sections && data.sections.length > 0}
 	<div class="w-full">
 		{#each data.sections as section (section.id)}
@@ -209,13 +189,30 @@
 	</div>
 {/if}
 
+<section class="w-full px-4 md:px-12 py-6 md:py-8">
+	<div class="mx-auto w-full max-w-[1440px]" in:fade>
+		<div class="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+			{#each categories as category (category.slug)}
+				<button
+					class="inline-flex h-11 min-w-[150px] items-center justify-center border px-4 text-center text-[10px] md:text-[11px] leading-tight tracking-[0.12em] uppercase transition-colors {activeCategory ===
+					category.slug
+						? 'bg-primary text-white border-primary dark:bg-white dark:text-black dark:border-white'
+						: 'text-primary border-primary/70 hover:border-primary hover:bg-primary/5 dark:text-white dark:border-white/70 dark:hover:border-white dark:hover:bg-white/10'}"
+					onclick={() => selectCategory(category.slug)}
+				>
+					{category.name}
+				</button>
+			{/each}
+		</div>
+	</div>
+</section>
+
 <div
 	class="flex flex-col items-center w-full px-4 md:px-12 py-12 {data.sections?.length
 		? ''
 		: 'pt-32'}"
 >
 	<div class="w-full max-w-[1440px] flex flex-col gap-16">
-		<!-- Page Heading & Filters -->
 		<section class="flex flex-col gap-8 items-center text-center">
 			<h2
 				class="text-3xl md:text-5xl font-display font-medium tracking-[0.05em] uppercase leading-tight text-primary dark:text-white mb-4"
@@ -223,36 +220,15 @@
 				{unifiedTitle}
 			</h2>
 
-			<!-- Filter Bar: Only show on GENDER filtered pages (Mens, Womens) -->
-			<!-- 如果当前 category 是顶级导航中定义的（如 accessories），则隐藏子选项栏 -->
-			{#if showCategoryFilter}
+			{#if showFilterButton}
 				<div class="relative w-full" in:fade>
-					<div
-						class="w-full py-4 flex flex-col md:flex-row justify-between items-center gap-4 mt-8"
-					>
-						<div
-							class="hidden md:flex gap-8 overflow-x-auto w-full md:w-auto justify-center md:justify-start px-4 md:px-0 scrollbar-hide"
-						>
-							{#each categories as category (category.slug)}
-								<button
-									class="text-[10px] tracking-[0.1em] pb-1 border-b transition-all duration-300 text-primary dark:text-white {activeCategory ===
-									category.slug
-										? 'border-primary dark:border-white'
-										: 'border-transparent hover:border-primary dark:hover:border-white'}"
-									onclick={() => selectCategory(category.slug)}
-								>
-									{category.name}
-								</button>
-							{/each}
-						</div>
-						<div
-							class="flex items-center text-[10px] tracking-[0.1em] text-primary dark:text-white px-4 md:px-0 ml-auto md:ml-0"
-						>
+					<div class="w-full py-2 flex justify-end px-4 md:px-0">
+						<div class="flex items-center text-[10px] tracking-[0.1em] text-primary dark:text-white">
 							<button
 								class="flex items-baseline gap-2 hover:opacity-60 transition-opacity font-bold"
 								onclick={() => (isFilterOpen = true)}
 							>
-								FILTER
+								{i18n.tx('Filter')}
 								<span class="text-[16px] font-light leading-none">+</span>
 							</button>
 						</div>
@@ -261,7 +237,6 @@
 			{/if}
 		</section>
 
-		<!-- Product Grid -->
 		<section
 			class="grid grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-4 md:gap-x-12 relative min-h-[400px]"
 		>
@@ -271,7 +246,7 @@
 					in:fade
 				>
 					<span class="material-symbols-outlined text-4xl opacity-50">search_off</span>
-					<p class="text-sm uppercase tracking-widest">No products found in this category</p>
+					<p class="text-sm uppercase tracking-widest">{i18n.tx('No products found in this category')}</p>
 				</div>
 			{:else if data.products.length === 0}
 				<div class="col-span-full">
@@ -289,36 +264,32 @@
 			{/if}
 		</section>
 
-		<!-- Load More -->
 		{#if filteredProducts.length > visibleCount}
 			<div class="flex justify-center py-16" in:fade>
 				<button
 					onclick={loadMore}
 					class="text-[10px] font-sans font-medium tracking-[0.15em] border-b border-primary dark:border-white pb-[3px] uppercase hover:opacity-60 transition-opacity"
 				>
-					View More Products
+					{i18n.tx('View More Products')}
 				</button>
 			</div>
 		{/if}
 	</div>
 </div>
 
-<!-- Filter Sidebar -->
-<!-- Filter Sidebar -->
 <Drawer
 	isOpen={isFilterOpen}
 	onClose={() => (isFilterOpen = false)}
-	title="Filter"
+	title={i18n.tx('Filter')}
 	width="w-full md:w-[410px]"
 >
-	<!-- Scrollable Content -->
 	<div class="flex flex-col gap-10 pb-12">
 		{#each Object.entries(filterGroups) as [groupName, options] (groupName)}
 			<div class="space-y-6">
 				<h4
 					class="text-[10px] font-bold tracking-[0.2em] uppercase text-primary/40 dark:text-white/40"
 				>
-					{groupName}
+					{i18n.tx(groupName)}
 				</h4>
 				<div class="grid grid-cols-2 gap-y-5 gap-x-4">
 					{#each options as option (option)}
@@ -338,7 +309,7 @@
 									? 'text-primary dark:text-white'
 									: 'text-primary/40 dark:text-white/40 group-hover:text-primary dark:group-hover:text-white'}"
 							>
-								{option}
+								{i18n.tx(option)}
 							</span>
 						</label>
 					{/each}
@@ -349,9 +320,9 @@
 
 	{#snippet footer()}
 		<div class="grid grid-cols-2 gap-4">
-			<Button variant="outline" size="md" fullWidth onclick={clearFilters}>Clear</Button>
+			<Button variant="outline" size="md" fullWidth onclick={clearFilters}>{i18n.tx('Clear')}</Button>
 			<Button variant="solid" size="md" fullWidth onclick={() => (isFilterOpen = false)}>
-				Apply
+				{i18n.tx('Apply')}
 			</Button>
 		</div>
 	{/snippet}

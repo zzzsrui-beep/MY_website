@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	interface Props {
 		searchQuery: string;
@@ -23,7 +24,7 @@
 				bind:value={searchQuery}
 				class="w-full bg-transparent border-none outline-none text-left pl-0 pr-8 text-[10px] uppercase font-sans font-bold tracking-[0.15em] placeholder:text-primary dark:placeholder:text-white caret-transparent"
 				placeholder=""
-				aria-label="Search"
+				aria-label={i18n.tx('Search')}
 			/>
 			{#if !searchQuery}
 				<div class="absolute left-0 pointer-events-none">
@@ -34,7 +35,7 @@
 		<button
 			type="submit"
 			class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center hover:opacity-70 transition-opacity"
-			aria-label="Submit search"
+			aria-label={i18n.tx('Search')}
 		>
 			<svg
 				width="18"

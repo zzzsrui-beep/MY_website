@@ -2,6 +2,7 @@
 	import ProductListGrid from '$lib/components/shop/ProductListGrid.svelte';
 	import RemoteImage from '$lib/components/ui/RemoteImage.svelte';
 	import { resolveAssetUrl } from '$lib/utils/image';
+	import { i18n } from '$lib/stores/i18n.svelte';
 	import logo from '$lib/assets/logo.svg';
 
 	let { data } = $props();
@@ -14,7 +15,6 @@
 		title?: string;
 	};
 
-	// 优先使用 collection_images 集合中的图片
 	let leftRecord = $derived(
 		data.collectionImages?.find((img: CollectionImageRecord) => img.position === 'left')
 	);
@@ -22,7 +22,6 @@
 		data.collectionImages?.find((img: CollectionImageRecord) => img.position === 'right')
 	);
 
-	// 辅助函数：构建图片 URL（支持绝对 URL、CDN、Payload 媒体路径）
 	const getImageUrl = (record: CollectionImageRecord | undefined) => {
 		if (!record || !record.image) return '';
 		return resolveAssetUrl(record.image);
@@ -31,11 +30,10 @@
 	let heroImageLeft = $derived(getImageUrl(leftRecord));
 	let heroImageRight = $derived(getImageUrl(rightRecord));
 
-	// 动态获取链接和标题
-	let leftLink = $derived(leftRecord?.link || '/shop?category=plushies');
-	let rightLink = $derived(rightRecord?.link || '/shop?category=stationery');
-	let leftTitle = $derived(leftRecord?.title || 'Shop Plushies > New Arrivals');
-	let rightTitle = $derived(rightRecord?.title || 'Shop Stationery');
+	let leftLink = $derived(leftRecord?.link || '/shop?category=plush-toys');
+	let rightLink = $derived(rightRecord?.link || '/shop?category=art-pieces');
+	let leftTitle = $derived(i18n.tx(leftRecord?.title || 'Plush Toys > New Arrivals'));
+	let rightTitle = $derived(i18n.tx(rightRecord?.title || 'Art Pieces'));
 	let heroPanels = $derived([
 		{
 			id: 'left',
@@ -51,22 +49,19 @@
 		}
 	]);
 
-	// 滚动交互逻辑 (Single Element Hybrid)
 	let scrollY = $state(0);
 	let innerHeight = $state(0);
 
-	// 归位条件：scrollY + 0.5ih >= 1.1375ih => scrollY >= 0.6375ih
 	let isLanded = $derived(scrollY >= innerHeight * 0.6375);
 </script>
 
 <svelte:window bind:scrollY bind:innerHeight />
 
 <svelte:head>
-	<title>Collections | {data.settings.siteName}</title>
+	<title>{i18n.tx('Collection')} | {data.settings.siteName}</title>
 </svelte:head>
 
 <div class="relative w-full min-h-screen bg-black">
-	<!-- BRANDING LAYER: 单一元素，通过 class 切换定位模式 -->
 	<div
 		class="left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-30 text-center will-change-transform backface-hidden {isLanded
 			? 'absolute top-[calc(100vh+13.75vh)]'
@@ -81,7 +76,6 @@
 		/>
 	</div>
 
-	<!-- HERO SECTION: Split Screen -->
 	<div class="relative w-full h-screen flex flex-col md:flex-row z-0">
 		{#each heroPanels as panel (panel.id)}
 			<a href={panel.link} class="flex-1 block bg-black overflow-hidden">
@@ -98,11 +92,10 @@
 		{/each}
 	</div>
 
-	<!-- PRODUCT GRID SECTION -->
 	<div class="relative z-20 pt-[27.5vh] pb-12 px-4 md:px-6 bg-black">
 		<div class="mb-[calc(3rem+2.5vh)] text-center">
 			<span class="text-[20px] font-medium tracking-[0.1em] uppercase text-white"
-				>Shop Now</span
+				>{i18n.tx('Shop Now')}</span
 			>
 		</div>
 
@@ -113,3 +106,4 @@
 		/>
 	</div>
 </div>
+

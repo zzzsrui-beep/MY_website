@@ -8,6 +8,7 @@
 	import { MESSAGES } from '$lib/messages';
 	import { fade } from 'svelte/transition';
 	import { COLORS } from '$lib/constants';
+	import { i18n } from '$lib/stores/i18n.svelte';
 	import { escapeJsonForHtmlScript, sanitizeHtml } from '$lib/utils/sanitize';
 
 	const cart = useCart();
@@ -30,11 +31,9 @@
 		return idx === -1 ? Number.POSITIVE_INFINITY : idx;
 	}
 
-	// UI States
 	let isAdding = $state(false);
 	let sizeError = $state(false);
 
-	// Derived Colors (from variants or attributes)
 	let derivedColors = $derived(
 		product.variants?.length
 			? ([...new Set(product.variants.map((v) => v.color).filter((c) => !!c))] as string[])
@@ -52,7 +51,6 @@
 		return map;
 	});
 
-	// Derived available sizes for selected color
 	let availableSizes = $derived.by(() => {
 		if (!product.variants || product.variants.length === 0)
 			return (product.attributes?.sizes as string[]) || [];
@@ -79,7 +77,6 @@
 			});
 	});
 
-	// Reset state when product changes
 	$effect(() => {
 		if (product) {
 			selectedColor = derivedColors?.[0] || '';
@@ -89,8 +86,6 @@
 		}
 	});
 
-	// Dynamic Image Gallery Logic
-	// Variant galleries live on `product_variants.gallery_images`.
 	let sortedImages = $derived.by(() => {
 		const defaultImages = product.images || [];
 		const dedupeImages = (images: Array<string | undefined>) => [
@@ -111,7 +106,6 @@
 		const variantImage = variant?.image;
 
 		if (variantGallery.length > 0) {
-			// Ensure a dedicated variant image (if any) is included.
 			return dedupeImages([variantImage, ...variantGallery]);
 		}
 
@@ -127,13 +121,10 @@
 		return defaultImages;
 	});
 
-	// Scroll to top when images change (implying a variant switch)
 	let galleryContainer: HTMLElement;
 	$effect(() => {
-		// Trigger dependency on sortedImages
 		if (sortedImages && galleryContainer) {
 			galleryContainer.scrollTop = 0;
-			// For mobile
 			galleryContainer.scrollLeft = 0;
 			currentImageIndex = 0;
 		}
@@ -160,7 +151,6 @@
 	function addToBag() {
 		if (!selectedSize) {
 			sizeError = true;
-			// Removed redundant toast, visual shake is enough
 			setTimeout(() => (sizeError = false), 1000);
 			return;
 		}
@@ -169,14 +159,14 @@
 			(v) => v.color === selectedColor && v.size === selectedSize
 		);
 		if (variant && (variant.stockQuantity || 0) <= 0) {
-			toastStore.error(MESSAGES.ERROR.OUT_OF_STOCK);
+			toastStore.error(i18n.tx(MESSAGES.ERROR.OUT_OF_STOCK));
 			return;
 		}
 
 		isAdding = true;
 		setTimeout(() => {
 			cart.addItem(product, selectedColor, selectedSize);
-			toastStore.success(MESSAGES.SUCCESS.ADDED_TO_BAG(product.title));
+			toastStore.success(`${i18n.tx('Added to bag')}: ${product.title}`);
 			isAdding = false;
 		}, 500);
 	}
@@ -208,23 +198,19 @@
 	let safeJsonLd = $derived(escapeJsonForHtmlScript(jsonLd));
 	let safeProductDescription = $derived(sanitizeHtml(product.description));
 
-	// Color Mapping Helper
 	function getColorStyle(colorLabel: string) {
 		const swatch = colorSwatchByLabel.get(colorLabel);
 		if (swatch) return swatch;
 
 		const c = colorLabel.toLowerCase();
-		// Special overrides for better visibility/style
 		if (c === 'black') return '#111111';
 		if (c === 'white') return '#ffffff';
 		if (c === 'grey' || c === 'gray') return '#888888';
 		if (c === 'navy') return '#000080';
 
-		// Allow raw CSS color values as a fallback (hex, rgb(), hsl(), oklch(), etc.)
 		if (/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(colorLabel)) return colorLabel;
 		if (/^(rgb|hsl|oklch|oklab)\(/i.test(colorLabel)) return colorLabel;
 
-		// Safe visual fallback if no swatch is configured.
 		return '#e5e5e5';
 	}
 </script>
@@ -240,9 +226,7 @@
 	class="max-w-[1800px] mx-auto pt-24 pb-20 bg-background-light dark:bg-background-dark min-h-screen"
 >
 	<div class="lg:flex lg:gap-12 xl:gap-24">
-		<!-- Left Column: Vertical Gallery -->
 		<div class="lg:w-[60%] xl:w-[65%] flex flex-col gap-1 relative">
-			<!-- Mobile: Horizontal Scroll Snap -->
 			<div
 				bind:this={galleryContainer}
 				onscroll={handleGalleryScroll}
@@ -262,9 +246,6 @@
 				{/each}
 			</div>
 
-			<!-- Mobile Image Counter Badge REMOVED -->
-
-			<!-- Mobile Pagination Bars -->
 			{#if sortedImages.length > 1}
 				<div class="lg:hidden flex justify-center gap-2 mt-4 px-4">
 					{#each sortedImages as _, i}
@@ -277,7 +258,6 @@
 				</div>
 			{/if}
 
-			<!-- Desktop: Vertical Stack -->
 			<div class="hidden lg:flex flex-col gap-1 w-full pl-6 md:pl-12">
 				{#each sortedImages as image, i (image)}
 					<div class="w-full relative">
@@ -292,10 +272,8 @@
 			</div>
 		</div>
 
-		<!-- Right Column: Sticky Product Info -->
 		<div class="lg:w-[40%] xl:w-[35%] px-6 md:px-12 lg:px-0 lg:pr-12 mt-8 lg:mt-0">
 			<div class="sticky top-24 lg:max-w-[400px]">
-				<!-- Header Info -->
 				<div class="mb-8 space-y-4">
 					{#if product.categories && product.categories.length > 0}
 						<div
@@ -316,9 +294,7 @@
 					</div>
 				</div>
 
-				<!-- Selectors -->
 				<div class="mb-8 space-y-8">
-					<!-- Colors -->
 					{#if derivedColors && derivedColors.length > 0}
 						<div class="space-y-3">
 							<div class="flex flex-wrap gap-2">
@@ -334,14 +310,13 @@
 											selectedSize = '';
 											sizeError = false;
 										}}
-										aria-label="Select color {color}"
+										aria-label={`Select color ${color}`}
 									></button>
 								{/each}
 							</div>
 						</div>
 					{/if}
 
-					<!-- Sizes -->
 					<div class="space-y-3">
 						<div class="grid grid-cols-4 gap-2">
 							{#each availableSizes as item}
@@ -369,13 +344,12 @@
 						<div class="flex justify-end mt-3">
 							<button
 								class="text-[10px] uppercase tracking-[0.15em] text-primary dark:text-white hover:underline underline-offset-4 cursor-pointer"
-								>Size Guide</button
+								>{i18n.tx('Size Guide')}</button
 							>
 						</div>
 					</div>
 				</div>
 
-				<!-- Actions -->
 				<div class="flex gap-3 mb-10">
 					<button
 						onclick={addToBag}
@@ -389,25 +363,24 @@
 								class="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"
 							></span>
 						{:else}
-							ADD TO BAG
+							{i18n.tx('ADD TO BAG')}
 						{/if}
 					</button>
 					<button
 						class="w-[46px] h-[46px] border border-primary dark:border-white flex items-center justify-center transition-colors hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-primary group cursor-pointer"
 						onclick={() => wishlist.toggle(product)}
-						aria-label="Add to wishlist"
+						aria-label={i18n.tx('Add to wishlist')}
 					>
 						<span
 							class="material-symbols-outlined text-[24px] font-light {wishlist.has(product.id)
 								? 'font-fill'
-								: ''}">favorite</span
+								: ''}"
+							>favorite</span
 						>
 					</button>
 				</div>
 
-				<!-- Accordions / Info -->
 				<div class="space-y-0">
-					<!-- Description -->
 					<div class="py-4">
 						<div
 							class="prose prose-sm dark:prose-invert max-w-none text-primary/80 dark:text-white/80 leading-relaxed"
@@ -417,13 +390,11 @@
 						</div>
 					</div>
 
-					<!-- Material -->
 					<details class="group py-4 cursor-pointer">
 						<summary class="flex justify-between items-center list-none outline-none">
 							<span class="text-[10px] uppercase tracking-[0.15em] font-medium"
-								>Material & Care</span
+								>{i18n.tx('Material & Care')}</span
 							>
-							<!-- Ultra-thin Vector Icon -->
 							<svg
 								width="18"
 								height="18"
@@ -443,19 +414,16 @@
 						<div class="pt-4 text-sm text-primary/70 dark:text-white/70 leading-relaxed">
 							<ul class="list-disc pl-4 space-y-1">
 								<ul class="list-disc pl-4 space-y-1">
-									<!-- Attributes: details (array) -->
 									{#if product.attributes?.details && Array.isArray(product.attributes.details)}
 										{#each product.attributes.details as detail}
 											<li>{detail}</li>
 										{/each}
 									{/if}
 
-									<!-- Attributes: material (string) -->
 									{#if product.attributes?.material}
 										<li>{product.attributes.material}</li>
 									{/if}
 
-									<!-- Attributes: care (string) - New! -->
 									{#if product.attributes?.care}
 										<li>{product.attributes.care}</li>
 									{/if}
@@ -464,13 +432,11 @@
 						</div>
 					</details>
 
-					<!-- Shipping -->
 					<details class="group py-4 cursor-pointer">
 						<summary class="flex justify-between items-center list-none outline-none">
 							<span class="text-[10px] uppercase tracking-[0.15em] font-medium"
-								>Shipping & Returns</span
+								>{i18n.tx('Shipping & Returns')}</span
 							>
-							<!-- Ultra-thin Vector Icon -->
 							<svg
 								width="18"
 								height="18"
@@ -490,7 +456,9 @@
 						<div class="pt-4 text-sm text-primary/70 dark:text-white/70 leading-relaxed">
 							<p>
 								{product.attributes?.shipping ||
-									'Free express shipping on all orders over $300. Returns accepted within 14 days.'}
+									i18n.tx(
+										'Free express shipping on all orders over $300. Returns accepted within 14 days.'
+									)}
 							</p>
 						</div>
 					</details>
@@ -499,11 +467,10 @@
 		</div>
 	</div>
 
-	<!-- Related Products -->
 	{#if relatedProducts && relatedProducts.length > 0}
 		<section class="max-w-[1600px] mx-auto px-6 md:px-12 mt-32 mb-16">
 			<h3 class="font-display text-2xl mb-8 text-center uppercase tracking-widest">
-				You May Also Like
+				{i18n.tx('You May Also Like')}
 			</h3>
 			<ProductListGrid
 				products={relatedProducts}
@@ -516,7 +483,6 @@
 </div>
 
 <style>
-	/* Hide scrollbar but keep functionality */
 	.scrollbar-hide::-webkit-scrollbar {
 		display: none;
 	}
@@ -541,7 +507,6 @@
 		animation: shake 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 	}
 
-	/* Font Fill for icons */
 	.font-fill {
 		font-variation-settings: 'FILL' 1;
 	}

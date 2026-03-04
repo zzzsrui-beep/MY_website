@@ -1,26 +1,49 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import HeroMediaLayer from '$lib/components/ui/HeroMediaLayer.svelte';
 	import SectionActionLinks from '$lib/components/ui/SectionActionLinks.svelte';
 	import type { UISection } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import logo from '$lib/assets/logo.svg';
+	import { i18n } from '$lib/stores/i18n.svelte';
+	import AnimatedLogo from '$lib/components/ui/AnimatedLogo.svelte';
 
 	interface HeroProps {
 		section: UISection;
 	}
 
 	let { section }: HeroProps = $props();
-	const isPandaShopHeading = $derived(
-		(section.heading || '').trim().toUpperCase() === 'PANDASHOP'
+
+	const heroHeadingKey = $derived((section.heading || '').trim().toUpperCase());
+	const isLogoHeading = $derived(['PANDASHOP', 'PANDA CREATIVE'].includes(heroHeadingKey));
+	const heroLogoContainerStyle = $derived(
+		heroHeadingKey === 'PANDA CREATIVE'
+			? 'width:min(72vw,1080px);max-width:none;opacity:0.95;margin-bottom:0.5rem;'
+			: 'width:min(92vw,1560px);max-width:none;opacity:0.95;margin-bottom:0.5rem;'
+	);
+	const isShopPage = $derived($page.url.pathname === '/shop');
+	const heroHeightClass = $derived(
+		isShopPage ? 'h-[50vh] min-h-[420px]' : 'h-screen min-h-[600px]'
+	);
+	const heroContentOffsetClass = $derived(isShopPage ? 'pt-8 md:pt-10' : '-top-12 md:-top-16');
+	const heroActionsClass = $derived(
+		isShopPage
+			? 'absolute bottom-8 md:bottom-10 z-20 w-full flex flex-col md:flex-row items-center justify-center gap-6 px-6'
+			: 'absolute bottom-16 md:bottom-24 z-20 w-full flex flex-col md:flex-row items-center justify-center gap-10 px-6'
+	);
+	const heroActionsInnerClass = $derived(
+		isShopPage
+			? 'w-full flex flex-col md:flex-row items-center justify-center gap-6 px-6'
+			: 'w-full flex flex-col md:flex-row items-center justify-center gap-10 px-6'
 	);
 
-	// 安全地构造幻灯片列表
+	let translatedHeading = $derived(i18n.tx(section.heading || ''));
+	let translatedSubheading = $derived(i18n.tx(section.subheading || ''));
+
 	let slides = $derived.by(() => {
 		if (!section) return [];
 		const items: { type: 'image' | 'video'; url: string }[] = [];
 
-		// 视频源
 		const vGallery = section.videoGallery || [];
 		if (vGallery.length > 0) {
 			vGallery.forEach((v) => v && items.push({ type: 'video', url: v }));
@@ -28,7 +51,6 @@
 			items.push({ type: 'video', url: section.videoUrl });
 		}
 
-		// 图片源
 		const iGallery = section.imageGallery || [];
 		if (iGallery.length > 0) {
 			iGallery.forEach((img) => img && items.push({ type: 'image', url: img }));
@@ -55,9 +77,8 @@
 </script>
 
 <section
-	class="relative w-full h-screen min-h-[600px] flex items-center justify-center overflow-hidden bg-black"
+	class={`relative w-full ${heroHeightClass} flex items-center justify-center overflow-hidden bg-black`}
 >
-	<!-- Background Slideshow -->
 	<div class="absolute inset-0 w-full h-full z-0">
 		{#if slides.length > 0}
 			{#each slides as slide, i (slide.url + i)}
@@ -66,63 +87,64 @@
 						<HeroMediaLayer
 							mediaType={slide.type}
 							src={slide.url}
-							alt={section.heading || ''}
+							alt={translatedHeading}
 							priority={i === 0}
 						/>
 					</div>
 				{/if}
 			{/each}
 		{:else}
-			<!-- Fallback if no images/videos -->
 			<div class="absolute inset-0 bg-neutral-900 w-full h-full"></div>
 		{/if}
 	</div>
 
-	<!-- Center Title -->
 	<div
-		class="relative z-10 flex flex-col items-center justify-center h-full w-full px-4 text-center relative -top-12 md:-top-16"
+		class={`relative z-10 flex flex-col items-center justify-center h-full w-full px-4 text-center ${heroContentOffsetClass}`}
 	>
-		{#if section.subheading}
+		{#if section.subheading && !isLogoHeading}
 			<span
 				class="text-white text-[13px] font-sans font-medium tracking-[0.3em] uppercase mb-4 opacity-80"
 				in:fade={{ delay: 300, duration: 1000 }}
 			>
-				{section.subheading}
+				{translatedSubheading}
 			</span>
 		{/if}
-			{#if section.heading}
-				{#if isPandaShopHeading}
-					<img
-						src={logo}
-						alt={section.heading}
-						class="w-[92vw] lg:w-[78vw] max-w-none h-auto object-contain select-none brightness-0 invert mb-2 opacity-95"
-						loading="eager"
-						decoding="async"
-						in:fade={{ delay: 500, duration: 1000 }}
-					/>
-				{:else}
-					<h1
-						class="text-white text-[9.5vw] lg:text-[6.5vw] font-display font-normal tracking-normal mb-2 opacity-95 uppercase whitespace-nowrap leading-tight max-w-full"
-						in:fade={{ delay: 500, duration: 1000 }}
-					>
-						{section.heading}
-					</h1>
-				{/if}
-			{/if}
-		</div>
 
-	<!-- Bottom Actions -->
-	<div
-		class="absolute bottom-16 md:bottom-24 z-20 w-full flex flex-col md:flex-row items-center justify-center gap-10 px-6"
-	>
-		<SectionActionLinks
-			actions={section.settings?.actions}
-			containerClass="w-full flex flex-col md:flex-row items-center justify-center gap-10 px-6"
-			linkClass="inline-flex items-center justify-center w-full md:w-[320px] px-8 py-4 border border-white text-white text-xs font-sans font-medium tracking-[0.15em] uppercase transition-all duration-300 hover:bg-white hover:text-black"
-		/>
+		{#if section.heading}
+			{#if isLogoHeading}
+				<div in:fade={{ delay: 500, duration: 1000 }} style={heroLogoContainerStyle}>
+					<AnimatedLogo alt={translatedHeading} duration="4s" />
+				</div>
+			{:else}
+				<h1
+					class="text-white text-[9.5vw] lg:text-[6.5vw] font-display font-normal tracking-normal mb-2 opacity-95 uppercase whitespace-nowrap leading-tight max-w-full"
+					in:fade={{ delay: 500, duration: 1000 }}
+				>
+					{translatedHeading}
+				</h1>
+			{/if}
+		{/if}
+
+		{#if section.subheading && isLogoHeading}
+			<span
+				class="text-white text-[13px] font-sans font-medium tracking-[0.3em] uppercase mt-4 opacity-80"
+				in:fade={{ delay: 300, duration: 1000 }}
+			>
+				{translatedSubheading}
+			</span>
+		{/if}
 	</div>
 
-	<!-- Pagination Dots -->
+	{#if !isShopPage}
+		<div class={heroActionsClass}>
+			<SectionActionLinks
+				actions={section.settings?.actions}
+				containerClass={heroActionsInnerClass}
+				linkClass="inline-flex items-center justify-center w-full md:w-[320px] px-8 py-4 border border-white text-white text-xs font-sans font-medium tracking-[0.15em] uppercase transition-all duration-300 hover:bg-white hover:text-black"
+			/>
+		</div>
+	{/if}
+
 	{#if slides.length > 1}
 		<div class="absolute bottom-8 z-30 flex gap-2">
 			{#each slides as _, i (i)}
@@ -131,7 +153,7 @@
 						? 'bg-white w-4'
 						: 'bg-white/30'}"
 					onclick={() => (currentIndex = i)}
-					aria-label="Go to slide {i + 1}"
+					aria-label={`Slide ${i + 1}`}
 				></button>
 			{/each}
 		</div>

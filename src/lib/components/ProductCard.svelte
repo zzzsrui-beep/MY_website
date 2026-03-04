@@ -3,9 +3,9 @@
 	import { useWishlist } from '$lib/stores/wishlist.svelte';
 	import { TRANSITIONS } from '$lib/constants';
 	import { toastStore } from '$lib/stores/toast.svelte';
-	import { MESSAGES } from '$lib/messages';
 	import CoverImageLayer from './ui/CoverImageLayer.svelte';
 	import Badge from './ui/Badge.svelte';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	const cart = useCart();
 	const wishlist = useWishlist();
@@ -30,7 +30,7 @@
 		} else {
 			cart.addItem(product, 'Standard', 'Generic');
 		}
-		toastStore.success(MESSAGES.SUCCESS.ADDED_TO_BAG(product.title));
+		toastStore.success(`${i18n.tx('Added to bag')}: ${product.title}`);
 	}
 </script>
 
@@ -47,13 +47,13 @@
 		<a
 			href={linkHref}
 			data-sveltekit-preload-data="hover"
-			aria-label={`View ${product.title}`}
+			aria-label={`${i18n.tx('View')} ${product.title}`}
 			class="absolute inset-0 z-10"
 		></a>
 
 		{#if isFeature && product.tag}
 			<Badge variant="accent" className="absolute top-4 left-4 z-[var(--z-overlay-content)]">
-				{product.tag}
+				{i18n.tx(product.tag)}
 			</Badge>
 		{/if}
 
@@ -63,12 +63,10 @@
 			onclick={() => {
 				wishlist.toggle(product);
 			}}
-			aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+			aria-label={inWishlist ? i18n.tx('Remove from wishlist') : i18n.tx('Add to wishlist')}
 		>
 			<span
-				class="material-symbols-outlined text-[20px] drop-shadow-md {inWishlist
-					? "[font-variation-settings:'FILL'_1]"
-					: "[font-variation-settings:'FILL'_0]"}"
+				class="material-symbols-outlined text-[20px] drop-shadow-md {inWishlist ? 'font-fill' : ''}"
 			>
 				favorite
 			</span>
@@ -82,7 +80,7 @@
 				onclick={quickAdd}
 				class="bg-white/90 dark:bg-black/80 backdrop-blur text-primary dark:text-white text-xs font-bold py-2 px-6 uppercase tracking-wider hover:bg-white dark:hover:bg-black shadow-lg cursor-pointer hover:scale-105 {TRANSITIONS.transform} pointer-events-auto"
 			>
-				Quick Add
+				{i18n.tx('Quick Add')}
 			</button>
 		</div>
 	</CoverImageLayer>

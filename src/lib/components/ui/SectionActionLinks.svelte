@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { UISectionAction } from '$lib/types';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	interface Props {
 		actions?: UISectionAction[];
@@ -22,7 +23,7 @@
 	<div class={containerClass}>
 		{#each visibleActions as action, i (action.link || i)}
 			<a href={action.link || '#'} data-sveltekit-preload-data={preloadData} class={linkClass}>
-				{action.text}
+				{i18n.tx(action.text)}
 			</a>
 		{/each}
 	</div>

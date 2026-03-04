@@ -7,6 +7,7 @@
 	import { COLORS, SPACING, TYPOGRAPHY, DEFAULTS } from '$lib/constants';
 	import { toastStore } from '$lib/stores/toast.svelte';
 	import { MESSAGES } from '$lib/messages';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	let { data } = $props();
 
@@ -17,15 +18,13 @@
 	let subject = $state('');
 	let message = $state('');
 
-	// 表单提交处理
 	function handleSubmit(e: Event) {
 		e.preventDefault();
 		loading = true;
 
-		// 模拟 API 请求
 		setTimeout(() => {
 			loading = false;
-			toastStore.success(MESSAGES.SUCCESS.MESSAGE_SENT);
+			toastStore.success(i18n.tx(MESSAGES.SUCCESS.MESSAGE_SENT));
 			firstName = '';
 			lastName = '';
 			email = '';
@@ -34,33 +33,32 @@
 		}, 1500);
 	}
 
-	const subjects = [
-		{ value: 'general', label: 'General Inquiry' },
-		{ value: 'order', label: 'Order Status' },
-		{ value: 'return', label: 'Returns & Exchanges' },
-		{ value: 'collaboration', label: 'Press & Collaboration' }
-	];
+	const subjects = $derived([
+		{ value: 'general', label: i18n.tx('General Inquiry') },
+		{ value: 'order', label: i18n.tx('Order Status') },
+		{ value: 'return', label: i18n.tx('Returns & Exchanges') },
+		{ value: 'collaboration', label: i18n.tx('Press & Collaboration') }
+	]);
 
-	const contactLinks = [
-		{ label: 'Email', href: `mailto:${DEFAULTS.demoEmail}`, text: DEFAULTS.demoEmail },
-		{ label: 'Press', href: 'mailto:press@vanflow.com', text: 'press@vanflow.com' }
-	];
+	const contactLinks = $derived([
+		{ label: i18n.tx('Email'), href: `mailto:${DEFAULTS.demoEmail}`, text: DEFAULTS.demoEmail },
+		{ label: i18n.tx('Press'), href: 'mailto:press@vanflow.com', text: 'press@vanflow.com' }
+	]);
 </script>
 
 <svelte:head>
-	<title>Contact | {data.settings.siteName}</title>
-	<meta name="description" content="Get in touch with {data.settings.siteName}." />
+	<title>{i18n.tx('Contact')} | {data.settings.siteName}</title>
+	<meta name="description" content={`Get in touch with ${data.settings.siteName}.`} />
 </svelte:head>
 
 <div class="min-h-screen {COLORS.bg} {COLORS.text} pt-[80px]">
 	<div class="{SPACING.container} py-12 md:py-24">
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
-			<!-- Left Column: Info -->
 			<div class="space-y-12">
 				<div>
-					<h1 class="text-4xl md:text-6xl font-display uppercase tracking-tighter mb-6">Contact</h1>
+					<h1 class="text-4xl md:text-6xl font-display uppercase tracking-tighter mb-6">{i18n.tx('Contact')}</h1>
 					<p class="{TYPOGRAPHY.body} opacity-80 max-w-sm">
-						Our client services team is available Monday through Friday, 9am - 6pm EST.
+						{i18n.tx('Our client services team is available Monday through Friday, 9am - 6pm EST.')}
 					</p>
 				</div>
 
@@ -78,7 +76,7 @@
 					{/each}
 
 					<div>
-						<span class="{TYPOGRAPHY.label} opacity-40 block mb-2">Location</span>
+						<span class="{TYPOGRAPHY.label} opacity-40 block mb-2">{i18n.tx('Location')}</span>
 						<p class="{TYPOGRAPHY.body} opacity-80">
 							100 Crosby Street<br />
 							New York, NY 10012
@@ -87,32 +85,31 @@
 				</div>
 			</div>
 
-			<!-- Right Column: Form -->
 			<div
 				class="bg-white dark:bg-zinc-900 border border-primary/5 dark:border-white/5 p-8 md:p-12 shadow-sm"
 				in:fade={{ duration: 600, delay: 200 }}
 			>
 				<form onsubmit={handleSubmit} class="space-y-8">
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-						<FormInput id="firstName" label="First Name" bind:value={firstName} required />
-						<FormInput id="lastName" label="Last Name" bind:value={lastName} required />
+						<FormInput id="firstName" label={i18n.tx('First Name')} bind:value={firstName} required />
+						<FormInput id="lastName" label={i18n.tx('Last Name')} bind:value={lastName} required />
 					</div>
 
-					<FormInput id="email" type="email" label="Email Address" bind:value={email} required />
+					<FormInput id="email" type="email" label={i18n.tx('Email Address')} bind:value={email} required />
 
 					<FormSelect
 						id="subject"
-						label="Subject"
+						label={i18n.tx('Subject')}
 						options={subjects}
 						bind:value={subject}
 						required
 					/>
 
-					<FormTextarea id="message" label="Message" bind:value={message} required rows={4} />
+					<FormTextarea id="message" label={i18n.tx('Message')} bind:value={message} required rows={4} />
 
 					<div class="pt-4">
 						<Button type="submit" fullWidth disabled={loading}>
-							{loading ? 'Sending...' : 'Send Message'}
+							{loading ? i18n.tx('Sending...') : i18n.tx('Send Message')}
 						</Button>
 					</div>
 				</form>

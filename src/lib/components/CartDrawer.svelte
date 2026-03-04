@@ -7,6 +7,7 @@
 	import Drawer from './ui/Drawer.svelte';
 	import FreeShippingProgress from './ui/FreeShippingProgress.svelte';
 	import { TRANSITIONS } from '$lib/constants';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	const cart = useCart();
 
@@ -25,7 +26,7 @@
 				<h2
 					class="text-[11px] font-sans font-medium uppercase tracking-[0.15em] text-primary dark:text-white"
 				>
-					Shopping Bag ({cart.count})
+					{i18n.tx('Shopping Bag')} ({cart.count})
 				</h2>
 				<button
 					onclick={close}
@@ -36,7 +37,6 @@
 				</button>
 			</div>
 
-			<!-- Free Shipping Progress -->
 			{#if cart.items.length > 0}
 				<FreeShippingProgress total={cart.total} />
 			{/if}
@@ -48,12 +48,12 @@
 			class="h-full flex flex-col items-center justify-center text-center opacity-60 gap-4 py-12"
 		>
 			<span class="material-symbols-outlined text-4xl">shopping_bag</span>
-			<p class="text-[11px] font-sans uppercase tracking-[0.15em]">Your bag is empty</p>
+			<p class="text-[11px] font-sans uppercase tracking-[0.15em]">{i18n.tx('Your bag is empty')}</p>
 			<button
 				onclick={close}
 				class="text-[10px] font-sans uppercase tracking-[0.15em] underline underline-offset-4 mt-2 hover:text-primary dark:hover:text-white {TRANSITIONS.colors}"
 			>
-				Continue Shopping
+				{i18n.tx('Continue Shopping')}
 			</button>
 		</div>
 	{:else}
@@ -91,7 +91,7 @@
 								</div>
 								<button
 									class="text-[10px] font-sans uppercase tracking-[0.15em] text-black no-underline hover:underline underline-offset-2"
-									onclick={() => cart.removeItem(itemKey)}>Remove</button
+									onclick={() => cart.removeItem(itemKey)}>{i18n.tx('Remove')}</button
 								>
 						</div>
 					</div>
@@ -104,7 +104,7 @@
 		<div class="flex justify-between items-center mb-4">
 			<span
 				class="text-[11px] font-sans font-medium uppercase tracking-[0.15em] text-primary dark:text-white"
-				>Subtotal</span
+				>{i18n.tx('Subtotal')}</span
 			>
 			<span class="text-[11px] font-sans font-medium text-primary dark:text-white"
 				>{cart.subtotalFormatted}</span
@@ -119,7 +119,7 @@
 					goto('/checkout');
 				}}
 			>
-				Checkout
+				{i18n.tx('Checkout')}
 			</button>
 	{/snippet}
 </Drawer>

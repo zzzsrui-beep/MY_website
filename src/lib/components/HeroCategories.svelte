@@ -2,6 +2,7 @@
 	import LinkedImage from '$lib/components/ui/LinkedImage.svelte';
 	import { TRANSITIONS } from '$lib/constants';
 	import type { UIAsset } from '$lib/types';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	interface Props {
 		assets?: UIAsset[];
@@ -9,27 +10,25 @@
 
 	let { assets = [] }: Props = $props();
 
-	// 从 assets 中查找对应的图片 URL
 	function getImageUrl(key: string): string {
 		const asset = assets.find((a) => a.key === key);
 		return asset?.url || '';
 	}
 
-	// 首页三大入口配置
 	let categories = $derived([
 		{
-			name: 'PLUSHIES',
-			link: '/shop?category=plushies',
+			name: i18n.tx('Plush Toys'),
+			link: '/shop?category=plush-toys',
 			image: getImageUrl('hero_category_plushies')
 		},
 		{
-			name: 'STATIONERY',
-			link: '/shop?category=stationery',
+			name: i18n.tx('Art Pieces'),
+			link: '/shop?category=art-pieces',
 			image: getImageUrl('hero_category_stationery')
 		},
 		{
-			name: 'LIFESTYLE',
-			link: '/shop?category=lifestyle',
+			name: i18n.tx('Daily Products'),
+			link: '/shop?category=daily-products',
 			image: getImageUrl('hero_category_lifestyle')
 		}
 	]);
@@ -49,7 +48,6 @@
 					imageClassName="w-full h-full object-cover {TRANSITIONS.transform} group-hover:scale-105"
 					overlayClassName="absolute inset-0 bg-black/10 group-hover:bg-black/20 {TRANSITIONS.colors}"
 				>
-					<!-- Content - Bottom Left -->
 					<div class="absolute bottom-8 left-8 flex flex-col gap-2">
 						<h3
 							class="text-white text-xl md:text-2xl font-sans font-bold tracking-[0.15em] uppercase"

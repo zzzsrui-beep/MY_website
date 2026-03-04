@@ -11,6 +11,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { env } from '$env/dynamic/public';
+	import { i18n, initI18n } from '$lib/stores/i18n.svelte';
 
 	import {
 		QueryClient,
@@ -34,7 +35,6 @@
 	const queryClient = new QueryClient({
 		mutationCache: new MutationCache({
 			onError: (error: unknown, _variables, _context, mutation) => {
-				// We always show toast for mutations unless explicitly suppressed via meta
 				if (mutation.meta?.suppressErrorToast) return;
 
 				const message = error instanceof Error ? error.message : String(error);
@@ -55,10 +55,8 @@
 	});
 
 	let isCartOpen = $state(false);
-
 	let isMenuOpen = $state(false);
 
-	// Close menu on navigation
 	$effect(() => {
 		if ($page.url.pathname) {
 			isMenuOpen = false;
@@ -70,12 +68,62 @@
 	}
 
 	import type { NavItem } from '$lib/types';
-	const HIDDEN_HEADER_NAV_LABELS = new Set(['plushies', 'stationery', 'lifestyle']);
+
+	const HIDDEN_HEADER_NAV_LABELS = new Set([
+		'plushies',
+		'stationery',
+		'lifestyle',
+		'plush toys',
+		'art pieces',
+		'apparel accessories',
+		'souvenirs',
+		'daily products',
+		'digital products',
+		'promo products'
+	]);
+
 	const HEADER_NAV_PRIORITY: Record<string, number> = {
 		collection: 1,
 		shop: 2,
-		contact: 3
+		about: 3,
+		'about us': 3,
+		contact: 4
 	};
+
+	const REQUIRED_HEADER_NAV: NavItem[] = [
+		{
+			id: 'default-collection',
+			label: 'Collection',
+			url: '/collection',
+			location: 'header',
+			order: 1,
+			isVisible: true
+		},
+		{
+			id: 'default-shop',
+			label: 'Shop',
+			url: '/shop',
+			location: 'header',
+			order: 2,
+			isVisible: true
+		},
+		{
+			id: 'default-about',
+			label: 'About',
+			url: '/about',
+			location: 'header',
+			order: 3,
+			isVisible: true
+		},
+		{
+			id: 'default-contact',
+			label: 'Contact',
+			url: '/contact',
+			location: 'header',
+			order: 4,
+			isVisible: true
+		}
+	];
 
 	function filterHeaderNavItems(items: NavItem[]): NavItem[] {
 		return items.filter((item) => {
@@ -95,49 +143,31 @@
 		});
 	}
 
-	// Fallback navigation if data is missing or sparse
-	let headerNav = $derived.by(() => {
-		const incomingHeaderNav = Array.isArray(data.headerNav)
-			? sortHeaderNavItems(filterHeaderNavItems(data.headerNav))
-			: [];
-		if (incomingHeaderNav.length > 1) return incomingHeaderNav;
+	function ensureRequiredHeaderNav(items: NavItem[]): NavItem[] {
+		const merged = [...items];
+		const existingUrls = new Set(
+			merged.map((item) => String(item.url || '').split('?')[0].toLowerCase())
+		);
+		const existingLabels = new Set(merged.map((item) => String(item.label || '').trim().toLowerCase()));
 
-		// Default items if backend navigation is insufficient
-		const defaults: NavItem[] = [
-			{
-				label: 'Collection',
-				url: '/collection',
-				id: 'default-collection',
-				location: 'header',
-				order: 1,
-				isVisible: true
-			} as NavItem,
-			{
-				label: 'Shop',
-				url: '/shop',
-				id: 'default-shop',
-				location: 'header',
-				order: 2,
-				isVisible: true
-			} as NavItem
-		];
-
-		// If data has at least one item, merge it? Or just override?
-		// Strategy: If data has only 1 item, preprend "Shop" if not present.
-		if (incomingHeaderNav.length === 1) {
-			const hasShop = incomingHeaderNav.some((item) => item.url === '/shop');
-			const shopItem = {
-				label: 'Shop',
-				url: '/shop',
-				id: 'default-shop-prefix',
-				location: 'header',
-				order: 0,
-				isVisible: true
-			} as NavItem;
-			return sortHeaderNavItems(hasShop ? incomingHeaderNav : [shopItem, ...incomingHeaderNav]);
+		for (const required of REQUIRED_HEADER_NAV) {
+			const requiredUrl = required.url.toLowerCase();
+			const requiredLabel = required.label.toLowerCase();
+			if (existingUrls.has(requiredUrl) || existingLabels.has(requiredLabel)) continue;
+			merged.push({ ...required });
+			existingUrls.add(requiredUrl);
+			existingLabels.add(requiredLabel);
 		}
 
-		return sortHeaderNavItems(defaults);
+		return sortHeaderNavItems(merged);
+	}
+
+	let headerNav = $derived.by(() => {
+		const incomingHeaderNav = Array.isArray(data.headerNav)
+			? filterHeaderNavItems(data.headerNav)
+			: [];
+
+		return ensureRequiredHeaderNav(incomingHeaderNav.length ? incomingHeaderNav : REQUIRED_HEADER_NAV);
 	});
 
 	function toggleCart() {
@@ -145,6 +175,8 @@
 	}
 
 	onMount(() => {
+		initI18n();
+
 		const syncCookieConsent = () => {
 			cookieConsent = localStorage.getItem(COOKIE_CONSENT_KEY);
 		};
@@ -165,8 +197,7 @@
 
 <Metadata
 	title={data.settings.siteName}
-	description="Discover modern luxury essentials at {data.settings
-		.siteName}. Rooted in independent style and timeless design."
+	description={`Discover modern luxury essentials at ${data.settings.siteName}. Rooted in independent style and timeless design.`}
 	siteName={data.settings.siteName}
 />
 
@@ -182,12 +213,11 @@
 <div
 	class="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-text-main dark:text-white transition-colors duration-300"
 >
-	<!-- Skip to Content - Accessibility -->
 	<a
 		href="#main-content"
 		class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[200] focus:bg-primary focus:text-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:uppercase focus:tracking-widest"
 	>
-		Skip to Content
+		{i18n.tx('Skip to Content')}
 	</a>
 
 	<QueryClientProvider client={queryClient}>

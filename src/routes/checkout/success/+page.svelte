@@ -3,17 +3,17 @@
 	import { useCart } from '$lib/stores/cart.svelte';
 	import { fade } from 'svelte/transition';
 	import { DEFAULTS } from '$lib/constants';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	const cart = useCart();
 
 	onMount(() => {
-		// Clear cart on successful order
 		cart.clear();
 	});
 </script>
 
 <svelte:head>
-	<title>Thank You | {DEFAULTS.siteName}</title>
+	<title>{i18n.tx('Thank You For Your Order')} | {DEFAULTS.siteName}</title>
 </svelte:head>
 
 <div
@@ -27,14 +27,15 @@
 		<h1
 			class="text-3xl md:text-4xl font-display uppercase tracking-widest mb-6 text-primary dark:text-white"
 		>
-			Thank You For Your Order
+			{i18n.tx('Thank You For Your Order')}
 		</h1>
 
 		<p
 			class="text-xs uppercase tracking-[0.2em] leading-relaxed text-primary/60 dark:text-white/60 mb-12"
 		>
-			Your order has been received and is being processed. A confirmation email will be sent to you
-			shortly.
+			{i18n.tx(
+				'Your order has been received and is being processed. A confirmation email will be sent to you shortly.'
+			)}
 		</p>
 
 		<div class="flex flex-col gap-4">
@@ -42,13 +43,13 @@
 				href="/shop"
 				class="w-full h-14 border border-primary dark:border-white text-primary dark:text-white flex items-center justify-center text-[10px] font-bold uppercase tracking-widest hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-primary transition-all"
 			>
-				Continue Shopping
+				{i18n.tx('Continue Shopping')}
 			</a>
 			<a
 				href="/account"
 				class="w-full h-14 bg-primary text-white dark:bg-white dark:text-primary flex items-center justify-center text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all"
 			>
-				View My Account
+				{i18n.tx('View My Account')}
 			</a>
 		</div>
 
@@ -56,7 +57,7 @@
 			<p
 				class="text-[10px] text-primary/40 dark:text-white/40 uppercase tracking-widest font-medium"
 			>
-				Questions? Email us at assistance@{DEFAULTS.siteName.toLowerCase()}.com
+				{i18n.tx('Questions? Email us at')} assistance@{DEFAULTS.siteName.toLowerCase()}.com
 			</p>
 		</div>
 	</div>

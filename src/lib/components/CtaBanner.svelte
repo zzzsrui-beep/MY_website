@@ -3,10 +3,14 @@
 	import SectionActionLinks from '$lib/components/ui/SectionActionLinks.svelte';
 	import SectionHeadingContent from '$lib/components/ui/SectionHeadingContent.svelte';
 	import type { UISection } from '$lib/types';
+	import { i18n } from '$lib/stores/i18n.svelte';
 
 	let { section }: { section: UISection } = $props();
 
 	const hasImage = $derived(!!(section.imageUrl || section.imageGallery?.length));
+	let heading = $derived(i18n.tx(section.heading || ''));
+	let subheading = $derived(i18n.tx(section.subheading || ''));
+	let content = $derived(i18n.txHtml(section.content || ''));
 </script>
 
 <section
@@ -14,18 +18,16 @@
 		? ''
 		: 'bg-white dark:bg-background-dark'}"
 >
-	<!-- Background for Image Version -->
 	{#if hasImage}
 		<CoverImageLayer
 			src={section.imageUrl || ''}
-			alt={section.heading || ''}
+			alt={heading}
 			containerClass="absolute inset-0 z-0"
 			imageClassName="w-full h-full object-cover"
 			overlayClassName="absolute inset-0 bg-black/40"
 		/>
 	{/if}
 
-	<!-- Content -->
 	<div class="relative z-10 max-w-[1200px] mx-auto px-6 text-center flex flex-col items-center">
 		{#if section.settings?.actions?.[0] && !section.settings.actions[0].text}
 			<a href={section.settings.actions[0].link} class="group">
@@ -35,7 +37,7 @@
 							? 'text-white/70'
 							: 'text-primary/40 dark:text-white/40'}"
 					>
-						{section.subheading}
+						{subheading}
 					</span>
 				{/if}
 
@@ -44,7 +46,7 @@
 						? 'text-white'
 						: 'text-primary dark:text-white'}"
 				>
-					{section.heading}
+					{heading}
 				</h2>
 			</a>
 		{:else}
@@ -54,14 +56,14 @@
 						? 'text-white/70'
 						: 'text-primary/40 dark:text-white/40'}"
 				>
-					{section.subheading}
+					{subheading}
 				</span>
 			{/if}
 
 			<SectionHeadingContent
-				heading={section.heading}
+				heading={heading}
 				headingTag="h2"
-				contentHtml={section.content}
+				contentHtml={content}
 				headingClass="text-3xl md:text-7xl font-display font-normal tracking-wide uppercase {hasImage
 					? 'text-white'
 					: 'text-primary dark:text-white'}"

@@ -41,3 +41,8 @@ __pycache__/
 
 # Wrangler
 .wrangler/
+
+# Codex (project-level CODEX_HOME)
+.codex/*
+!.codex/prompts/
+!.codex/prompts/*.md

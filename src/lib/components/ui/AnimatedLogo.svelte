@@ -1,0 +1,183 @@
+<script lang="ts">
+	interface AnimatedLogoProps {
+		className?: string;
+		alt?: string;
+		duration?: string;
+		loop?: boolean;
+	}
+
+	let {
+		className = '',
+		alt = 'PandaShop logo',
+		duration = '4s',
+		loop = false
+	}: AnimatedLogoProps = $props();
+</script>
+
+<div
+	class={`animated-logo-wrapper ${className}`.trim()}
+	style={`--animation-duration: ${duration}; --animation-iteration: ${loop ? 'infinite' : '1'};`}
+>
+	<svg
+		id="閸ユ儳鐪癬1"
+		data-name="閸ユ儳鐪?1"
+		xmlns="http://www.w3.org/2000/svg"
+		viewBox="0 0 1258.43 319.3"
+		class="animated-logo-svg"
+		role="img"
+		aria-label={alt}
+	>
+		<defs>
+			<style>.cls-1{fill:#fff;}</style>
+		</defs>
+		<path class="cls-1 logo--name-path" d="M340.61,206.78h-42l-10.32,31.77H269L309,127.2h22l40,111.35H350.77ZM336,193l-4.75-15c-4.1-12.1-7.71-24.5-11.48-37.06h-.65c-3.44,12.71-7.21,25-11.14,37.06l-4.92,15Z"/>
+		<path class="cls-1 logo--name-path" d="M386.82,127.2h19.5l40,65.36,12.62,23.6h.81c-1-11.5-2.45-25-2.45-37.07V127.2h18V238.55h-19.5l-40-65.66-12.61-23.3h-.82c1,11.5,2.45,24.36,2.45,36.46v52.5h-18Z"/>
+		<path class="cls-1 logo--name-path" d="M507.1,127.2h31.3c37,0,58.18,18.91,58.18,55.22s-21.14,56.13-57.19,56.13H507.1Zm30,97c25.9,0,39.83-14.07,39.83-41.76s-13.93-41-39.83-41h-11v82.76Z"/>
+		<path class="cls-1 logo--name-path" d="M675.57,206.78h-42l-10.33,31.77H604l40-111.35h22l40,111.35H685.73ZM671,193l-4.75-15c-4.1-12.1-7.7-24.5-11.47-37.06h-.66c-3.44,12.71-7.21,25-11.14,37.06L638,193Z"/>
+		<path class="cls-1 logo--name-path" d="M713.26,224.18l11.14-12.1c8.69,8,20.49,13.16,32.12,13.16,14.59,0,22.78-6.36,22.78-15.74,0-10.13-8.19-13.31-19.33-17.85L743.25,185c-11.64-4.53-24.58-13-24.58-29.19,0-17.55,16.71-30.72,39.66-30.72a53.9,53.9,0,0,1,36.54,14.07l-10,11.2c-7.54-6.2-15.9-10-26.55-10-12.29,0-20.32,5.45-20.32,14.38,0,9.53,9.66,13.16,19.5,16.79l16.55,6.5c14.26,5.6,24.58,13.77,24.58,30.11,0,17.85-16.06,32.38-42.44,32.38C739.64,240.52,724.24,234.47,713.26,224.18Z"/>
+		<path class="cls-1 logo--name-path" d="M821.42,127.2h19v45.39h51.62V127.2h19V238.55h-19V187.87H840.43v50.68h-19Z"/>
+		<path class="cls-1 logo--name-path" d="M936.13,182.42c0-35.85,21.47-57.34,52.44-57.34s52.61,21.49,52.61,57.34-21.64,58.1-52.61,58.1S936.13,218.28,936.13,182.42Zm85.54,0c0-26.17-13.11-42.06-33.1-42.06s-32.94,15.89-32.94,42.06,13,42.82,32.94,42.82S1021.67,208.6,1021.67,182.42Z"/>
+		<path class="cls-1 logo--name-path" d="M1066.25,127.2h36.54c26.88,0,46,8.47,46,33.59,0,24.36-19.17,35.55-45.39,35.55h-18.19v42.21h-19Zm35.39,55.07c19.34,0,28.52-6.81,28.52-21.48s-10-19.52-29.17-19.52h-15.73v41Z"/>
+		<path class="cls-1 logo--bar logo--circle--bar logo--circle--bar-1" d="M158.32,84.93a1.47,1.47,0,0,0-1.54-1.65H140.9a1.47,1.47,0,0,0-1.54,1.65c.76,4.28,2.69,16,2.69,24s-1.93,19.77-2.69,24.05a1.47,1.47,0,0,0,1.54,1.65h15.88a1.47,1.47,0,0,0,1.54-1.65c-.76-4.28-2.69-16-2.69-24.05S157.56,89.21,158.32,84.93Z"/>
+		<path class="cls-1 logo--bar logo--circle--bar logo--circle--bar-2" d="M158.32,138.67a1.47,1.47,0,0,0-1.54-1.65H140.9a1.47,1.47,0,0,0-1.54,1.65c.76,4.28,2.69,16,2.69,24s-1.93,19.77-2.69,24a1.47,1.47,0,0,0,1.54,1.65h15.88a1.47,1.47,0,0,0,1.54-1.65c-.76-4.28-2.69-16-2.69-24S157.56,143,158.32,138.67Z"/>
+		<path class="cls-1 logo--bar logo--circle--bar logo--circle--bar-3" d="M158.32,192.41a1.47,1.47,0,0,0-1.54-1.65H140.9a1.47,1.47,0,0,0-1.54,1.65c.76,4.28,2.69,16,2.69,24s-1.93,19.76-2.69,24.05a1.47,1.47,0,0,0,1.54,1.65h15.88a1.47,1.47,0,0,0,1.54-1.65c-.76-4.29-2.69-16-2.69-24.05S157.56,196.69,158.32,192.41Z"/>
+		<path class="cls-1 logo--circle" d="M221,149.05c-5.61-.82-10.16-4.39-10.86-9.1-.75-5.08,4.69-7.82,8-11.34,3.47-3.67,2.35-8.81,8.09-8.81,4.41,0,8,3.86,8,8.61C234.21,128.41,234.3,151,221,149.05Z"/>
+		<path class="cls-1 logo--circle" d="M194.55,93.24a16.58,16.58,0,0,0-14.83-9.83c-9.2,0-16.66,8.07-16.66,18,0,9.56,6.88,17.37,15.58,18A31.4,31.4,0,0,1,194.55,93.24Z"/>
+		<path class="cls-1 logo--circle" d="M230.54,88.9h0a11.73,11.73,0,1,0-23.46,0h.19c2.66,0,35.19,1.28,38.52,34.23a6.65,6.65,0,0,0,1.6,3.65,50.47,50.47,0,0,0,4.56,4.64c3.69,3.28,8.46,6.51,9,9.91a13.37,13.37,0,0,1,.14,1.52,14.59,14.59,0,0,1-6.08.73c-6-.29-5.47,4.7-2.25,6.36a21.78,21.78,0,0,0,7.1,1.6c-2,6.92-6.64,14.54-14.82,17.18-12.92,4.18-22.44-.91-38,14.09h23a47,47,0,0,0,47-47h0A47,47,0,0,0,230.54,88.9Z"/>
+		<path class="cls-1 logo--circle" d="M138.27,114.58A30.59,30.59,0,0,0,134,102.92a.81.81,0,0,0-1.53.2,30.58,30.58,0,0,0-1.1,12.36,25.75,25.75,0,0,0,.56,2.88,50.19,50.19,0,0,0-5.89-6.78,55.13,55.13,0,0,0-15-10c-1.08-.48-1.79.26-1.26,1.31a55,55,0,0,0,10.68,14.58,52.8,52.8,0,0,0,10.64,7.79,28.15,28.15,0,0,0-7-.5,30.7,30.7,0,0,0-11.93,3.42.81.81,0,0,0,.09,1.55,28.59,28.59,0,0,0,24.19-1.46c.38-.2.73-1.11.79-1.31A30.79,30.79,0,0,0,138.27,114.58Z"/>
+		<path class="cls-1 logo--circle" d="M159.41,160.73a30.77,30.77,0,0,1,4.24-11.66.81.81,0,0,1,1.54.2,30.76,30.76,0,0,1,1.1,12.36,25.13,25.13,0,0,1-.56,2.87,50.75,50.75,0,0,1,5.89-6.77,55,55,0,0,1,15-10c1.08-.48,1.79.26,1.26,1.31a55,55,0,0,1-10.68,14.58,53.48,53.48,0,0,1-10.64,7.79,28.15,28.15,0,0,1,7-.5,30.7,30.7,0,0,1,11.93,3.42.81.81,0,0,1-.09,1.55,28.59,28.59,0,0,1-24.19-1.46c-.39-.2-.73-1.11-.79-1.31A30.79,30.79,0,0,1,159.41,160.73Z"/>
+	</svg>
+</div>
+
+<style>
+	.animated-logo-wrapper {
+		--logo-color: #fff;
+		--animation-duration: 4s;
+		--animation-iteration: 1;
+		--dash-length-circle: 280;
+		--dash-length-bars: 90;
+		--dash-length-letters: 680;
+		align-items: center;
+		display: flex;
+		justify-content: center;
+		width: 100%;
+	}
+
+	.animated-logo-svg {
+		display: block;
+		height: auto;
+		max-width: 100%;
+		overflow: visible;
+		width: 100%;
+	}
+
+	@keyframes scale-to-full {
+		0%,
+		1% {
+			transform: scale(0);
+		}
+		70%,
+		100% {
+			transform: scale(1);
+		}
+	}
+
+	@keyframes show-bars {
+		0%,
+		30% {
+			opacity: 0;
+			transform: scaleY(0.78);
+		}
+		70%,
+		100% {
+			opacity: 1;
+			transform: scaleY(1);
+		}
+	}
+
+	@keyframes dash {
+		0% {
+			fill-opacity: 0;
+			stroke-width: 1px;
+		}
+		37% {
+			fill-opacity: 0;
+		}
+		50% {
+			stroke-width: 1px;
+		}
+		100% {
+			fill-opacity: 1;
+			stroke-dashoffset: 0;
+			stroke-width: 0;
+		}
+	}
+
+	.logo--circle,
+	.logo--bar {
+		animation-duration: var(--animation-duration), var(--animation-duration);
+		animation-fill-mode: forwards, forwards;
+		animation-iteration-count: var(--animation-iteration), var(--animation-iteration);
+		animation-name: dash, scale-to-full;
+		animation-timing-function: ease, ease;
+		fill: var(--logo-color);
+		fill-opacity: 0;
+		stroke: var(--logo-color);
+		stroke-dasharray: var(--dash-length-circle);
+		stroke-dashoffset: var(--dash-length-circle);
+		stroke-width: 1px;
+		transform-box: fill-box;
+		transform-origin: center;
+	}
+
+	.logo--circle--bar {
+		animation-duration: var(--animation-duration), var(--animation-duration), var(--animation-duration);
+		animation-fill-mode: forwards, forwards, both;
+		animation-iteration-count: var(--animation-iteration), var(--animation-iteration), var(--animation-iteration);
+		animation-name: dash, scale-to-full, show-bars;
+		animation-timing-function: ease, ease, ease;
+		opacity: 0;
+		stroke-dasharray: var(--dash-length-bars);
+		stroke-dashoffset: var(--dash-length-bars);
+		transform: scaleY(0.78);
+	}
+
+	.logo--circle--bar-1 {
+		animation-delay: 0s, 0s, 0.25s;
+	}
+
+	.logo--circle--bar-2 {
+		animation-delay: 0s, 0s, 0.7s;
+	}
+
+	.logo--circle--bar-3 {
+		animation-delay: 0s, 0s, 1s;
+	}
+
+	.logo--name-path {
+		animation-duration: var(--animation-duration);
+		animation-fill-mode: forwards;
+		animation-iteration-count: var(--animation-iteration);
+		animation-name: dash;
+		animation-timing-function: ease;
+		fill: var(--logo-color);
+		fill-opacity: 0;
+		stroke: var(--logo-color);
+		stroke-dasharray: var(--dash-length-letters);
+		stroke-dashoffset: var(--dash-length-letters);
+		stroke-width: 1px;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.logo--circle,
+		.logo--bar,
+		.logo--name-path {
+			animation: none;
+			fill-opacity: 1;
+			opacity: 1;
+			stroke-dashoffset: 0;
+			stroke-width: 0;
+			transform: none;
+		}
+	}
+</style>

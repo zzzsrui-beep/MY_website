@@ -1,0 +1,146 @@
+@import 'tailwindcss';
+@plugin "@tailwindcss/typography";
+
+@theme {
+	/* Colors - Cute Panda Creative Theme */
+	--color-primary: oklch(0.2 0 0); /* #27272a Almost Black for Panda */
+	--color-secondary: oklch(0.65 0.15 150); /* Bamboo Green */
+	--color-accent: oklch(0.7 0.1 350); /* Cute Pink */
+	--color-destructive: oklch(0.63 0.22 29); /* Red */
+
+	--color-background-light: oklch(0.98 0.01 80); /* Warm Cream / Bamboo Paper */
+	--color-background-dark: oklch(0.15 0 0); /* Dark mode off-black */
+	--color-surface-light: oklch(1 0 0 / 0.9);
+	--color-surface-dark: oklch(0.2 0 0 / 0.9);
+
+	--color-text-main: oklch(0.15 0 0); /* Black text */
+	--color-text-muted: oklch(0.5 0 0); /* Gray text */
+
+	/* Fonts - Playful and Rounded */
+	--font-sans: 'Nunito', 'Quicksand', ui-rounded, 'Hiragino Maru Gothic ProN', system-ui, sans-serif;
+	--font-serif: 'Fredoka', ui-serif, serif;
+	--font-display: 'Nunito', ui-rounded, sans-serif;
+
+	/* Layout - Header */
+	--header-height: 56px; /* Slightly taller for playful feel */
+	--content-offset: 128px;
+
+	/* Animation - Bouncy */
+	--ease-apple-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy spring */
+	--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+	/* Z-Index Design System */
+	--z-base: 0;
+	--z-content: 10;
+	--z-overlay-content: 20;
+	--z-sticky: 40;
+	--z-header: 50;
+	--z-modal-backdrop: 60;
+	--z-modal: 70;
+	--z-toast: 80;
+	--z-max: 100;
+
+	/* Border Radii for playful design */
+	--radius-sm: 0.5rem;
+	--radius-md: 1rem;
+	--radius-lg: 1.5rem;
+	--radius-xl: 2rem;
+}
+
+@layer utilities {
+	.scrollbar-hide {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* Playful Glassmorphism */
+	.glass {
+		@apply backdrop-blur-md bg-white/60 border border-white/40 shadow-sm rounded-2xl;
+	}
+	.dark .glass {
+		@apply bg-black/60 border-white/10;
+	}
+
+	.glass-panel {
+		@apply backdrop-blur-xl bg-white/80 border border-white/50 shadow-md rounded-3xl;
+	}
+	.dark .glass-panel {
+		@apply bg-black/60 border-white/10;
+	}
+}
+
+/* Global Styles */
+html {
+	overflow-y: scroll;
+	background-color: var(--color-background-light);
+	color: var(--color-text-main);
+}
+
+body {
+	font-family: var(--font-sans);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Rounded and cute buttons */
+button {
+	@apply rounded-xl;
+}
+
+/* Reset default browser focus outlines */
+input,
+textarea,
+select,
+button {
+	outline: none;
+}
+
+/* Reduced Motion Accessibility */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* ============================================================================
+   Focus Visible - Keyboard Navigation Accessibility
+   ============================================================================ */
+
+:focus-visible:not(input):not(textarea):not(select) {
+	outline: 3px solid var(--color-secondary); /* Bamboo Green Focus */
+	outline-offset: 3px;
+	border-radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+	:focus-visible:not(input):not(textarea):not(select) {
+		outline-color: var(--color-secondary);
+	}
+}
+
+:focus:not(:focus-visible) {
+	outline: none;
+}
+
+button:focus-visible,
+a:focus-visible,
+[role='button']:focus-visible {
+	outline: 3px solid var(--color-secondary);
+	outline-offset: 3px;
+	border-radius: var(--radius-md);
+}
+
+input:not(.outline-none):focus-visible,
+textarea:not(.outline-none):focus-visible,
+select:not(.outline-none):focus-visible {
+	outline: 3px solid var(--color-secondary);
+	outline-offset: 1px;
+}

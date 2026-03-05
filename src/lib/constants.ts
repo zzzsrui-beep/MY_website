@@ -127,7 +127,7 @@ export const DEFAULTS = {
 	currencySymbol: '$',
 	currencyCode: 'USD',
 	freeShippingThreshold: 300,
-	demoEmail: 'demo@pandacreative.com'
+	demoEmail: 'zzzsrui@gmail.com'
 } as const;
 
 // =============================================================================

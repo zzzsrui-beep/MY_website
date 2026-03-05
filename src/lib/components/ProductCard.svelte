@@ -58,7 +58,9 @@
 		{/if}
 
 		<button
-			class="group/btn absolute top-2 right-2 z-20 p-2 text-white mix-blend-difference cursor-pointer opacity-0 group-hover:opacity-100 {TRANSITIONS.opacity}"
+			class="group/btn absolute top-2 right-2 z-20 p-2 cursor-pointer text-white {TRANSITIONS.opacity} transition-transform hover:scale-105 {inWishlist
+				? 'opacity-100 pointer-events-auto mix-blend-normal'
+				: 'opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto mix-blend-difference'}"
 			type="button"
 			onclick={() => {
 				wishlist.toggle(product);
@@ -66,7 +68,8 @@
 			aria-label={inWishlist ? i18n.tx('Remove from wishlist') : i18n.tx('Add to wishlist')}
 		>
 			<span
-				class="material-symbols-outlined text-[20px] drop-shadow-md {inWishlist ? 'font-fill' : ''}"
+				class="material-symbols-outlined text-[20px] text-white drop-shadow-md"
+				style={`font-variation-settings: 'FILL' ${inWishlist ? 1 : 0}, 'wght' ${inWishlist ? 500 : 300}, 'GRAD' 0, 'opsz' 24;`}
 			>
 				favorite
 			</span>

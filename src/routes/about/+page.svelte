@@ -154,8 +154,8 @@
 			{/each}
 			<p class="text-base md:text-lg leading-relaxed opacity-90">
 				{copy.contactPrefix}
-				<a href="mailto:support@yourdomain.com" class="underline underline-offset-4 hover:opacity-70">
-					support@yourdomain.com
+				<a href="mailto:zzzsrui@gmail.com" class="underline underline-offset-4 hover:opacity-70">
+					zzzsrui@gmail.com
 				</a>
 			</p>
 		</section>

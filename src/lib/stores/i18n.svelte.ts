@@ -5,14 +5,14 @@ export type LanguageCode = 'en' | 'ja' | 'zh';
 const LANGUAGE_STORAGE_KEY = 'site-language';
 
 export const LANGUAGE_OPTIONS = [
-	{ code: 'en' as const, shortLabel: 'EN', menuLabel: '\u82f1\u6587' },
-	{ code: 'ja' as const, shortLabel: 'JP', menuLabel: '\u65e5\u6587' },
+	{ code: 'en' as const, shortLabel: 'EN', menuLabel: 'English' },
+	{ code: 'ja' as const, shortLabel: 'JP', menuLabel: '\u65e5\u672c\u8a9e' },
 	{ code: 'zh' as const, shortLabel: '\u4e2d', menuLabel: '\u4e2d\u6587' }
 ];
 
 const TRANSLATIONS: Record<Exclude<LanguageCode, 'en'>, Record<string, string>> = {
 	ja: {
-		Collection: '\u30b3\u30ec\u30af\u30b7\u30e7\u30f3',
+		Collection: '\u53b3\u9078',
 		Shop: '\u30b7\u30e7\u30c3\u30d7',
 		Contact: '\u304a\u554f\u3044\u5408\u308f\u305b',
 		About: '\u79c1\u305f\u3061\u306b\u3064\u3044\u3066',
@@ -70,7 +70,7 @@ const TRANSLATIONS: Record<Exclude<LanguageCode, 'en'>, Record<string, string>> 
 		'Guest Session': '\u30b2\u30b9\u30c8\u30bb\u30c3\u30b7\u30e7\u30f3',
 		'Address Book': '\u4f4f\u6240\u9332',
 		Back: '\u623b\u308b',
-		Home: '\u81ea\u5b85',
+		Home: '\u30db\u30fc\u30e0',
 		'Order History': '\u6ce8\u6587\u5c65\u6b74',
 		'Back to Dashboard': '\u30c0\u30c3\u30b7\u30e5\u30dc\u30fc\u30c9\u306b\u623b\u308b',
 		Order: '\u6ce8\u6587',
@@ -124,7 +124,6 @@ const TRANSLATIONS: Record<Exclude<LanguageCode, 'en'>, Record<string, string>> 
 		STATIONERY: '\u6587\u5177',
 		LIFESTYLE: '\u30e9\u30a4\u30d5\u30b9\u30bf\u30a4\u30eb',
 		'Shop All Pandas': '\u3059\u3079\u3066\u306e\u30d1\u30f3\u30c0\u5546\u54c1',
-		'Find your new friend': '\u65b0\u3057\u3044\u304a\u6c17\u306b\u5165\u308a\u3092\u898b\u3064\u3051\u3088\u3046',
 		'See Collection': '\u30b3\u30ec\u30af\u30b7\u30e7\u30f3\u3092\u898b\u308b',
 		'Shop Plushies': '\u306c\u3044\u3050\u308b\u307f\u3092\u898b\u308b',
 		'Shop Stationery': '\u6587\u5177\u3092\u898b\u308b',
@@ -158,7 +157,7 @@ const TRANSLATIONS: Record<Exclude<LanguageCode, 'en'>, Record<string, string>> 
 		'Added to bag': '\u30d0\u30c3\u30b0\u306b\u8ffd\u52a0\u3057\u307e\u3057\u305f'
 	},
 	zh: {
-		Collection: '\u5408\u96c6',
+		Collection: '\u7cbe\u9009',
 		Shop: '\u5546\u5e97',
 		Contact: '\u8054\u7cfb',
 		About: '\u5173\u4e8e',
@@ -216,7 +215,7 @@ const TRANSLATIONS: Record<Exclude<LanguageCode, 'en'>, Record<string, string>> 
 		'Guest Session': '\u8bbf\u5ba2\u4f1a\u8bdd',
 		'Address Book': '\u5730\u5740\u7c3f',
 		Back: '\u8fd4\u56de',
-		Home: '\u5bb6\u5ead',
+		Home: '\u9996\u9875',
 		'Order History': '\u8ba2\u5355\u5386\u53f2',
 		'Back to Dashboard': '\u8fd4\u56de\u9762\u677f',
 		Order: '\u8ba2\u5355',
@@ -270,7 +269,6 @@ const TRANSLATIONS: Record<Exclude<LanguageCode, 'en'>, Record<string, string>> 
 		STATIONERY: '\u6587\u5177',
 		LIFESTYLE: '\u751f\u6d3b\u65b9\u5f0f',
 		'Shop All Pandas': '\u9009\u8d2d\u5168\u90e8\u718a\u732b\u5546\u54c1',
-		'Find your new friend': '\u627e\u5230\u4f60\u7684\u65b0\u4f19\u4f34',
 		'See Collection': '\u67e5\u770b\u5408\u96c6',
 		'Shop Plushies': '\u9009\u8d2d\u6bdb\u7ed2',
 		'Shop Stationery': '\u9009\u8d2d\u6587\u5177',
@@ -383,5 +381,6 @@ export const i18n = {
 	tx: translateText,
 	txHtml: translateHtml
 };
+
 
 

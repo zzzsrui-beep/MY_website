@@ -103,7 +103,7 @@
 	>
 		{#if section.subheading && !isLogoHeading}
 			<span
-				class="text-white text-[13px] font-sans font-medium tracking-[0.3em] uppercase mb-4 opacity-80"
+				class="inline-block text-white text-[10px] md:text-[13px] font-sans font-medium tracking-[0.18em] md:tracking-[0.3em] uppercase mb-4 opacity-80 max-w-[80vw] md:max-w-none leading-[1.45] [text-wrap:balance]"
 				in:fade={{ delay: 300, duration: 1000 }}
 			>
 				{translatedSubheading}
@@ -127,7 +127,7 @@
 
 		{#if section.subheading && isLogoHeading}
 			<span
-				class="text-white text-[13px] font-sans font-medium tracking-[0.3em] uppercase mt-4 opacity-80"
+				class="inline-block text-white text-[10px] md:text-[13px] font-sans font-medium tracking-[0.18em] md:tracking-[0.3em] uppercase mt-4 opacity-80 max-w-[72vw] md:max-w-none leading-[1.45] [text-wrap:balance]"
 				in:fade={{ delay: 300, duration: 1000 }}
 			>
 				{translatedSubheading}

@@ -83,6 +83,7 @@
 	]);
 
 	const HEADER_NAV_PRIORITY: Record<string, number> = {
+		home: 0,
 		collection: 1,
 		shop: 2,
 		about: 3,
@@ -91,6 +92,14 @@
 	};
 
 	const REQUIRED_HEADER_NAV: NavItem[] = [
+		{
+			id: 'default-home',
+			label: 'Home',
+			url: '/',
+			location: 'header',
+			order: 0,
+			isVisible: true
+		},
 		{
 			id: 'default-collection',
 			label: 'Collection',
@@ -254,3 +263,4 @@
 		<CookieBanner />
 	</QueryClientProvider>
 </div>
+

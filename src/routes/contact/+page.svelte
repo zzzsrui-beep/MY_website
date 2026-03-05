@@ -7,7 +7,7 @@
 	import { COLORS, SPACING, TYPOGRAPHY, DEFAULTS } from '$lib/constants';
 	import { toastStore } from '$lib/stores/toast.svelte';
 	import { MESSAGES } from '$lib/messages';
-	import { i18n } from '$lib/stores/i18n.svelte';
+	import { i18n, type LanguageCode } from '$lib/stores/i18n.svelte';
 
 	let { data } = $props();
 
@@ -44,6 +44,21 @@
 		{ label: i18n.tx('Email'), href: `mailto:${DEFAULTS.demoEmail}`, text: DEFAULTS.demoEmail },
 		{ label: i18n.tx('Press'), href: 'mailto:press@vanflow.com', text: 'press@vanflow.com' }
 	]);
+
+	const CONTACT_SERVICE_HOURS: Record<LanguageCode, string> = {
+		en: 'Our client services team is available Monday through Friday, 9:00am - 5:00pm Beijing Time',
+		ja: 'カスタマーサービス対応時間は、月曜日から金曜日の北京時間 9:00 - 17:00 です',
+		zh: '我们的客户服务时间为周一至周五（北京时间）上午 9:00 至下午 5:00'
+	};
+
+	const CONTACT_LOCATION: Record<LanguageCode, string> = {
+		en: 'Chengdu, Sichuan, China',
+		ja: '中国・四川・成都',
+		zh: '中国·四川·成都'
+	};
+
+	let serviceHoursText = $derived(CONTACT_SERVICE_HOURS[i18n.language] ?? CONTACT_SERVICE_HOURS.en);
+	let locationText = $derived(CONTACT_LOCATION[i18n.language] ?? CONTACT_LOCATION.en);
 </script>
 
 <svelte:head>
@@ -58,7 +73,7 @@
 				<div>
 					<h1 class="text-4xl md:text-6xl font-display uppercase tracking-tighter mb-6">{i18n.tx('Contact')}</h1>
 					<p class="{TYPOGRAPHY.body} opacity-80 max-w-sm">
-						{i18n.tx('Our client services team is available Monday through Friday, 9am - 6pm EST.')}
+						{serviceHoursText}
 					</p>
 				</div>
 
@@ -78,8 +93,7 @@
 					<div>
 						<span class="{TYPOGRAPHY.label} opacity-40 block mb-2">{i18n.tx('Location')}</span>
 						<p class="{TYPOGRAPHY.body} opacity-80">
-							100 Crosby Street<br />
-							New York, NY 10012
+							{locationText}
 						</p>
 					</div>
 				</div>

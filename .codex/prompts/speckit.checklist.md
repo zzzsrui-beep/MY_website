@@ -1,5 +1,5 @@
 ---
-description: Generate a custom checklist for the current feature based on user requirements.
+description: 基于用户需求为当前特性生成自定义检查清单（用于需求质量校验）。
 ---
 
 ## Checklist Purpose: "Unit Tests for English"

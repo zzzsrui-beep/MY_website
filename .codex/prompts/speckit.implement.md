@@ -1,5 +1,5 @@
 ---
-description: Execute the implementation plan by processing and executing all tasks defined in tasks.md
+description: 按 tasks.md 中定义的任务顺序执行实施计划并推进落地。
 ---
 
 ## User Input

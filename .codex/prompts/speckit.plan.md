@@ -1,13 +1,13 @@
 ---
-description: Execute the implementation planning workflow using the plan template to generate design artifacts.
+description: 使用计划模板执行实施规划流程，并生成设计与落地文档。
 handoffs: 
-  - label: Create Tasks
+  - label: 生成任务清单
     agent: speckit.tasks
-    prompt: Break the plan into tasks
+    prompt: 请将实施计划拆解为可执行任务
     send: true
-  - label: Create Checklist
+  - label: 生成检查清单
     agent: speckit.checklist
-    prompt: Create a checklist for the following domain...
+    prompt: 请针对以下领域生成检查清单...
 ---
 
 ## User Input

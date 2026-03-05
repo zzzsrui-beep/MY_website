@@ -1,12 +1,12 @@
 ---
-description: Create or update the feature specification from a natural language feature description.
+description: 根据自然语言需求创建或更新功能规格说明（spec）。
 handoffs: 
-  - label: Build Technical Plan
+  - label: 生成技术计划
     agent: speckit.plan
-    prompt: Create a plan for the spec. I am building with...
-  - label: Clarify Spec Requirements
+    prompt: 请基于该规格生成技术计划，我的技术栈是...
+  - label: 澄清规格需求
     agent: speckit.clarify
-    prompt: Clarify specification requirements
+    prompt: 请澄清当前规格中的关键需求和歧义点
     send: true
 ---
 

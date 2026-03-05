@@ -1,9 +1,9 @@
 ---
-description: Create or update the project constitution from interactive or provided principle inputs, ensuring all dependent templates stay in sync.
+description: 根据交互输入或给定原则创建/更新项目宪章，并确保相关模板同步更新。
 handoffs: 
-  - label: Build Specification
+  - label: 生成功能规格
     agent: speckit.specify
-    prompt: Implement the feature specification based on the updated constitution. I want to build...
+    prompt: 请基于更新后的宪章生成功能规格，我要构建的是...
 ---
 
 ## User Input

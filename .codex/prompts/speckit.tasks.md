@@ -1,13 +1,13 @@
 ---
-description: Generate an actionable, dependency-ordered tasks.md for the feature based on available design artifacts.
+description: 基于现有设计文档生成可执行、按依赖排序的 tasks.md 任务清单。
 handoffs: 
-  - label: Analyze For Consistency
+  - label: 一致性交叉分析
     agent: speckit.analyze
-    prompt: Run a project analysis for consistency
+    prompt: 请对当前特性执行一致性分析
     send: true
-  - label: Implement Project
+  - label: 开始实施
     agent: speckit.implement
-    prompt: Start the implementation in phases
+    prompt: 请按阶段开始实施
     send: true
 ---
 

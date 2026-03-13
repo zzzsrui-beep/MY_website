@@ -1,6 +1,5 @@
 <script lang="ts">
 	import ProductListGrid from '$lib/components/shop/ProductListGrid.svelte';
-	import ProductGridSkeleton from '$lib/components/ui/ProductGridSkeleton.svelte';
 	import Drawer from '$lib/components/ui/Drawer.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import { parsePrice } from '$lib/utils/price';
@@ -9,6 +8,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { i18n } from '$lib/stores/i18n.svelte';
+	import type { Product } from '$lib/types';
 
 	let { data } = $props();
 
@@ -24,8 +24,13 @@
 
 	let activeCategory = $derived($page.url.searchParams.get('category') || 'ALL');
 	let activeSearch = $derived($page.url.searchParams.get('search') || '');
+	let activeGender = $derived($page.url.searchParams.get('gender') || '');
 	let activeSort = $state('Featured');
 	let isFilterOpen = $state(false);
+	let loadedProducts = $state<Product[]>([]);
+	let currentProductsPage = $state(1);
+	let hasMoreProducts = $state(false);
+	let isLoadingMoreProducts = $state(false);
 
 	let isNavLevelCategory = $derived(() => {
 		const currentCategory = $page.url.searchParams.get('category');
@@ -122,7 +127,7 @@
 	}
 
 	let filteredProducts = $derived.by(() => {
-		let items = data.products;
+		let items = loadedProducts;
 
 		if (activeSearch) {
 			const q = activeSearch.toUpperCase();
@@ -156,19 +161,40 @@
 		activeSearch ? i18n.tx('SEARCH RESULTS') : i18n.tx(data.page?.title || 'Collection')
 	);
 
-	let visibleCount = $state(6);
-
 	$effect(() => {
-		void activeCategory;
-		void activeSearch;
-		void activeSort;
-		visibleCount = 6;
+		loadedProducts = data.products;
+		currentProductsPage = data.productsPage || 1;
+		hasMoreProducts = Boolean(data.productsHasNextPage);
+		isLoadingMoreProducts = false;
 	});
 
-	let displayProducts = $derived(filteredProducts.slice(0, visibleCount));
+	async function loadMore() {
+		if (!data.useLazyProducts || isLoadingMoreProducts || !hasMoreProducts) return;
 
-	function loadMore() {
-		visibleCount += 6;
+		isLoadingMoreProducts = true;
+		try {
+			const params = new URLSearchParams();
+			params.set('page', String(currentProductsPage + 1));
+			params.set('limit', String(data.productsPageSize || 12));
+			if (activeCategory !== 'ALL') params.set('category', activeCategory);
+			if (activeGender) params.set('gender', activeGender);
+
+			const response = await fetch(`/api/shop/products?${params.toString()}`);
+			if (!response.ok) throw new Error(`Load more failed: ${response.status}`);
+
+			const result = await response.json();
+			const nextProducts = (Array.isArray(result.products) ? result.products : []) as Product[];
+			const existingIds = new Set(loadedProducts.map((product) => product.id));
+			const deduped = nextProducts.filter((product) => !existingIds.has(product.id));
+
+			loadedProducts = [...loadedProducts, ...deduped];
+			currentProductsPage = Number(result.page) || currentProductsPage + 1;
+			hasMoreProducts = Boolean(result.hasNextPage);
+		} catch (error) {
+			console.warn('[shop] loadMore products failed', error);
+		} finally {
+			isLoadingMoreProducts = false;
+		}
 	}
 </script>
 
@@ -248,14 +274,10 @@
 					<span class="material-symbols-outlined text-4xl opacity-50">search_off</span>
 					<p class="text-sm uppercase tracking-widest">{i18n.tx('No products found in this category')}</p>
 				</div>
-			{:else if data.products.length === 0}
-				<div class="col-span-full">
-					<ProductGridSkeleton count={8} columns={4} />
-				</div>
 			{:else}
 				<div class="col-span-full" in:fade={{ duration: 300 }}>
 					<ProductListGrid
-						products={displayProducts}
+						products={filteredProducts}
 						variant="card"
 						gridClass="grid grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-4 md:gap-x-12"
 						cardWrapperClass="group flex flex-col gap-4"
@@ -264,13 +286,14 @@
 			{/if}
 		</section>
 
-		{#if filteredProducts.length > visibleCount}
+		{#if data.useLazyProducts && hasMoreProducts}
 			<div class="flex justify-center py-16" in:fade>
 				<button
 					onclick={loadMore}
+					disabled={isLoadingMoreProducts}
 					class="text-[10px] font-sans font-medium tracking-[0.15em] border-b border-primary dark:border-white pb-[3px] uppercase hover:opacity-60 transition-opacity"
 				>
-					{i18n.tx('View More Products')}
+					{isLoadingMoreProducts ? i18n.tx('Loading...') : i18n.tx('View More Products')}
 				</button>
 			</div>
 		{/if}

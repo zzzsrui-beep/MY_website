@@ -15,7 +15,12 @@ import {
 } from '$lib/mock';
 import type { Category, GlobalSettings, NavItem, Page, Product, UIAsset, UISection } from '$lib/types';
 import { resolveAssetUrl } from '$lib/utils/image';
-import { fetchPayloadCollection, fetchPayloadGlobal, isPayloadConfigured } from './payload-client';
+import {
+	fetchPayloadCollection,
+	fetchPayloadCollectionPage,
+	fetchPayloadGlobal,
+	isPayloadConfigured
+} from './payload-client';
 import { isPayloadProvider } from './provider';
 
 type FetchLike = typeof fetch;
@@ -34,6 +39,21 @@ type ProductQueryOptions = {
 	categorySlug?: string | null;
 	gender?: string | null;
 	isFeatured?: boolean;
+};
+
+type ProductPageOptions = ProductQueryOptions & {
+	page?: number;
+	limit?: number;
+};
+
+export type ProductPageResult = {
+	products: Product[];
+	page: number;
+	limit: number;
+	hasNextPage: boolean;
+	hasPrevPage: boolean;
+	totalPages: number;
+	totalDocs: number;
 };
 
 const warnedContexts = new Set<string>();
@@ -275,6 +295,31 @@ function filterProductsByOptions(
 	}
 
 	return filtered;
+}
+
+function toPositiveInt(value: unknown, fallback: number) {
+	const parsed = Number(value);
+	if (!Number.isFinite(parsed)) return fallback;
+	return Math.max(1, Math.floor(parsed));
+}
+
+function paginateProducts(products: Product[], page: number, limit: number): ProductPageResult {
+	const safePage = toPositiveInt(page, 1);
+	const safeLimit = toPositiveInt(limit, 12);
+	const totalDocs = products.length;
+	const totalPages = Math.max(1, Math.ceil(totalDocs / safeLimit));
+	const start = (safePage - 1) * safeLimit;
+	const paged = products.slice(start, start + safeLimit);
+
+	return {
+		products: paged,
+		page: safePage,
+		limit: safeLimit,
+		hasNextPage: safePage < totalPages,
+		hasPrevPage: safePage > 1,
+		totalPages,
+		totalDocs
+	};
 }
 
 function getConfig() {
@@ -779,6 +824,62 @@ export async function getCategoriesFromCms(fetcher: FetchLike) {
 	} catch (error) {
 		warnPayloadFallback('categories', error);
 		return frontendCategories;
+	}
+}
+
+export async function getProductsPageFromCms(fetcher: FetchLike, options?: ProductPageOptions) {
+	const page = toPositiveInt(options?.page, 1);
+	const limit = toPositiveInt(options?.limit, 12);
+
+	if (!canUsePayload()) {
+		return paginateProducts(getMockProducts(options), page, limit);
+	}
+
+	const config = getConfig();
+	try {
+		const categories = await getCategoriesFromCms(fetcher);
+		const categoryById = new Map(categories.map((category) => [category.id, category]));
+
+		const query: Record<string, string | undefined> = {
+			limit: String(limit),
+			page: String(page),
+			depth: '1'
+		};
+
+		if (options?.gender) {
+			query['where[gender][equals]'] = options.gender;
+		}
+
+		if (options?.isFeatured) {
+			query['where[isFeature][equals]'] = 'true';
+		}
+
+		if (options?.categorySlug) {
+			const targetCategory = categories.find((category) => category.slug === options.categorySlug);
+			if (!targetCategory) {
+				return paginateProducts([], page, limit);
+			}
+			query['where[categories][in]'] = targetCategory.id;
+		}
+
+		const result = await fetchPayloadCollectionPage<UnknownRecord>(fetcher, config.productCollection, query);
+		const mapped = result.docs
+			.map((doc, index) => mapPayloadProduct(doc, index, categoryById))
+			.filter((product) => product.id && product.slug);
+		const filtered = filterProductsByOptions(mapped, options, categoryById);
+
+		return {
+			products: filtered,
+			page: result.page,
+			limit: result.limit,
+			hasNextPage: result.hasNextPage,
+			hasPrevPage: result.hasPrevPage,
+			totalPages: result.totalPages,
+			totalDocs: result.totalDocs
+		};
+	} catch (error) {
+		warnPayloadFallback('products:page', error);
+		return paginateProducts(getMockProducts(options), page, limit);
 	}
 }
 

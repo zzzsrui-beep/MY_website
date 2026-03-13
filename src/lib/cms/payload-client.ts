@@ -4,6 +4,22 @@ type FetchLike = typeof fetch;
 
 interface PayloadListResponse<T> {
 	docs?: T[];
+	page?: number;
+	limit?: number;
+	totalPages?: number;
+	totalDocs?: number;
+	hasNextPage?: boolean;
+	hasPrevPage?: boolean;
+}
+
+export interface PayloadCollectionPage<T> {
+	docs: T[];
+	page: number;
+	limit: number;
+	totalPages: number;
+	totalDocs: number;
+	hasNextPage: boolean;
+	hasPrevPage: boolean;
 }
 
 function normalizeBaseUrl(value?: string) {
@@ -84,4 +100,41 @@ export async function fetchPayloadCollection<T>(
 	const json = await readJson<PayloadListResponse<T> | T[]>(response);
 	if (Array.isArray(json)) return json;
 	return Array.isArray(json.docs) ? json.docs : [];
+}
+
+export async function fetchPayloadCollectionPage<T>(
+	fetcher: FetchLike,
+	collection: string,
+	query?: Record<string, string | undefined>
+): Promise<PayloadCollectionPage<T>> {
+	const url = buildPayloadUrl(collection, query);
+	const response = await fetcher(url, {
+		headers: {
+			Accept: 'application/json'
+		}
+	});
+	const json = await readJson<PayloadListResponse<T> | T[]>(response);
+
+	if (Array.isArray(json)) {
+		return {
+			docs: json,
+			page: 1,
+			limit: json.length,
+			totalPages: 1,
+			totalDocs: json.length,
+			hasNextPage: false,
+			hasPrevPage: false
+		};
+	}
+
+	const docs = Array.isArray(json.docs) ? json.docs : [];
+	return {
+		docs,
+		page: typeof json.page === 'number' ? json.page : 1,
+		limit: typeof json.limit === 'number' ? json.limit : docs.length,
+		totalPages: typeof json.totalPages === 'number' ? json.totalPages : 1,
+		totalDocs: typeof json.totalDocs === 'number' ? json.totalDocs : docs.length,
+		hasNextPage: Boolean(json.hasNextPage),
+		hasPrevPage: Boolean(json.hasPrevPage)
+	};
 }

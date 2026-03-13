@@ -70,6 +70,94 @@ function asBoolean(value: unknown, fallback = false) {
 	return fallback;
 }
 
+function escapeHtml(input: string) {
+	return input
+		.replaceAll('&', '&amp;')
+		.replaceAll('<', '&lt;')
+		.replaceAll('>', '&gt;')
+		.replaceAll('"', '&quot;')
+		.replaceAll("'", '&#39;');
+}
+
+function collectLexicalText(node: unknown): string {
+	const record = asRecord(node);
+	if (!record) return '';
+
+	if (typeof record.text === 'string') return record.text;
+
+	const children = Array.isArray(record.children) ? record.children : [];
+	return children.map((child) => collectLexicalText(child)).join('');
+}
+
+function richTextToHtml(value: unknown): string {
+	const record = asRecord(value);
+	const root = asRecord(record?.root);
+	const children = Array.isArray(root?.children) ? root.children : [];
+	if (!children.length) return '';
+
+	const chunks: string[] = [];
+
+	for (const child of children) {
+		const childRecord = asRecord(child);
+		if (!childRecord) continue;
+
+		const text = collectLexicalText(childRecord).trim();
+		if (!text) continue;
+
+		const type = asString(childRecord.type, 'paragraph');
+		const safeText = escapeHtml(text);
+
+		if (type === 'heading') {
+			const tag = asString(childRecord.tag, 'h2');
+			const validTag = /^h[1-6]$/.test(tag) ? tag : 'h2';
+			chunks.push(`<${validTag}>${safeText}</${validTag}>`);
+			continue;
+		}
+
+		if (type === 'quote') {
+			chunks.push(`<blockquote>${safeText}</blockquote>`);
+			continue;
+		}
+
+		chunks.push(`<p>${safeText}</p>`);
+	}
+
+	return chunks.join('');
+}
+
+function readLayoutRichText(value: unknown): string {
+	if (!Array.isArray(value)) return '';
+
+	const chunks: string[] = [];
+
+	for (const block of value) {
+		const record = asRecord(block);
+		if (!record) continue;
+
+		const richTextCandidates = [
+			record.richText,
+			record.introContent,
+			record.content,
+			record.body
+		];
+
+		for (const candidate of richTextCandidates) {
+			const html = richTextToHtml(candidate);
+			if (html) chunks.push(html);
+		}
+
+		const columns = Array.isArray(record.columns) ? record.columns : [];
+		for (const column of columns) {
+			const columnRecord = asRecord(column);
+			if (!columnRecord) continue;
+			const html = richTextToHtml(columnRecord.richText);
+			if (html) chunks.push(html);
+		}
+	}
+
+	return chunks.join('');
+}
+
 function normalizeNavUrl(url: string) {
 	const value = url.trim();
 	if (!value) return '/';
@@ -200,20 +288,25 @@ function mapPayloadSettings(input: UnknownRecord | null): GlobalSettings {
 			input.maintenanceMode,
 			asBoolean(input.maintenance_mode, frontendSettings.maintenanceMode)
 		),
-		icon: asString(input.icon, frontendSettings.icon),
-		storyImage: asString(input.storyImage, asString(input.story_image, frontendSettings.storyImage)),
-		aboutHeroImage: asString(
-			input.aboutHeroImage,
-			asString(input.about_hero_image, frontendSettings.aboutHeroImage)
-		),
-		aboutSectionImage: asString(
-			input.aboutSectionImage,
-			asString(input.about_section_image, frontendSettings.aboutSectionImage)
-		),
-		emptyWishlistImage: asString(
-			input.emptyWishlistImage,
-			asString(input.empty_wishlist_image, frontendSettings.emptyWishlistImage)
-		)
+		icon: readMediaUrl(input.icon) || asString(input.icon, frontendSettings.icon),
+		storyImage:
+			readMediaUrl(input.storyImage) ||
+			asString(input.storyImage, asString(input.story_image, frontendSettings.storyImage)),
+		aboutHeroImage:
+			readMediaUrl(input.aboutHeroImage) ||
+			asString(input.aboutHeroImage, asString(input.about_hero_image, frontendSettings.aboutHeroImage)),
+		aboutSectionImage:
+			readMediaUrl(input.aboutSectionImage) ||
+			asString(
+				input.aboutSectionImage,
+				asString(input.about_section_image, frontendSettings.aboutSectionImage)
+			),
+		emptyWishlistImage:
+			readMediaUrl(input.emptyWishlistImage) ||
+			asString(
+				input.emptyWishlistImage,
+				asString(input.empty_wishlist_image, frontendSettings.emptyWishlistImage)
+			)
 	};
 }
 
@@ -271,17 +364,29 @@ function mapPayloadGlobalNavItems(raw: UnknownRecord | null, location: 'header' 
 }
 
 function mapPayloadPage(input: UnknownRecord): Page {
+	const meta = asRecord(input.meta);
+	const hero = asRecord(input.hero);
+
+	const pageContent =
+		asString(input.content) ||
+		richTextToHtml(input.content) ||
+		richTextToHtml(hero?.richText) ||
+		readLayoutRichText(input.layout);
+
 	return {
 		id: asString(input.id),
 		slug: asString(input.slug),
 		title: asString(input.title, 'Untitled'),
-		content: asString(input.content, ''),
+		content: pageContent,
 		metaDescription: asString(
 			input.metaDescription,
-			asString(input.meta_description, 'Curated page content.')
+			asString(input.meta_description, asString(meta?.description, 'Curated page content.'))
 		),
-		ogImage: asString(input.ogImage, asString(input.og_image, CONTENT_IMAGES.OG_DEFAULT)),
-		heroImage: asString(input.heroImage, asString(input.hero_image, ''))
+		ogImage: asString(
+			input.ogImage,
+			asString(input.og_image, readMediaUrl(meta?.image) || CONTENT_IMAGES.OG_DEFAULT)
+		),
+		heroImage: asString(input.heroImage, asString(input.hero_image, readMediaUrl(hero?.media)))
 	};
 }
 
@@ -518,24 +623,39 @@ export async function getSiteSettings(fetcher: FetchLike) {
 	}
 }
 
-export async function getPageBySlugFromCms(fetcher: FetchLike, slug: string) {
-	if (!canUsePayload()) return frontendPages[slug] ?? null;
+type ContentFallbackOptions = {
+	fallback?: boolean;
+};
+
+export async function getPageBySlugFromCms(
+	fetcher: FetchLike,
+	slug: string,
+	options?: ContentFallbackOptions
+) {
+	const fallback = options?.fallback !== false;
+	if (!canUsePayload()) return fallback ? (frontendPages[slug] ?? null) : null;
 
 	try {
-		return (await getPayloadPageBySlug(fetcher, slug)) ?? (frontendPages[slug] ?? null);
+		const page = await getPayloadPageBySlug(fetcher, slug);
+		return page ?? (fallback ? (frontendPages[slug] ?? null) : null);
 	} catch (error) {
 		warnPayloadFallback(`page:${slug}`, error);
-		return frontendPages[slug] ?? null;
+		return fallback ? (frontendPages[slug] ?? null) : null;
 	}
 }
 
-export async function getSectionsBySlugFromCms(fetcher: FetchLike, slug: string) {
-	if (!canUsePayload()) return frontendSections[slug] ?? [];
+export async function getSectionsBySlugFromCms(
+	fetcher: FetchLike,
+	slug: string,
+	options?: ContentFallbackOptions
+) {
+	const fallback = options?.fallback !== false;
+	if (!canUsePayload()) return fallback ? (frontendSections[slug] ?? []) : [];
 
 	const config = getConfig();
 	try {
 		const page = await getPayloadPageBySlug(fetcher, slug);
-		if (!page?.id) return frontendSections[slug] ?? [];
+		if (!page?.id) return fallback ? (frontendSections[slug] ?? []) : [];
 
 		const docs = await fetchPayloadCollection<UnknownRecord>(fetcher, config.sectionsCollection, {
 			'where[page][equals]': page.id,
@@ -547,10 +667,10 @@ export async function getSectionsBySlugFromCms(fetcher: FetchLike, slug: string)
 			.filter((section) => section.isActive !== false)
 			.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
-		return mapped.length ? mapped : frontendSections[slug] ?? [];
+		return mapped.length ? mapped : fallback ? (frontendSections[slug] ?? []) : [];
 	} catch (error) {
 		warnPayloadFallback(`sections:${slug}`, error);
-		return frontendSections[slug] ?? [];
+		return fallback ? (frontendSections[slug] ?? []) : [];
 	}
 }
 

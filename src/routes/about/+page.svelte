@@ -1,5 +1,7 @@
 ﻿<script lang="ts">
 	import { i18n, type LanguageCode } from '$lib/stores/i18n.svelte';
+	import SectionRenderer from '$lib/components/SectionRenderer.svelte';
+	import { sanitizeHtml } from '$lib/utils/sanitize';
 
 	let { data } = $props();
 
@@ -127,37 +129,79 @@
 	};
 
 	const copy = $derived(ABOUT_COPY[i18n.language] ?? ABOUT_COPY.en);
+
+	const cmsSections = $derived(
+		Array.isArray(data.sections)
+			? [...data.sections].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+			: []
+	);
+	const cmsTitle = $derived(
+		typeof data.page?.title === 'string' && data.page.title.trim().length > 0
+			? data.page.title
+			: ''
+	);
+	const cmsContentRaw = $derived(
+		typeof data.page?.content === 'string' ? data.page.content.trim() : ''
+	);
+	const cmsMetaDescription = $derived(
+		typeof data.page?.metaDescription === 'string' && data.page.metaDescription.trim().length > 0
+			? data.page.metaDescription
+			: ''
+	);
+	const safeCmsContent = $derived(sanitizeHtml(cmsContentRaw));
+	const hasCmsAboutContent = $derived(cmsSections.length > 0 || cmsContentRaw.length > 0);
+	const pageTitle = $derived(hasCmsAboutContent ? cmsTitle || copy.pageTitle : copy.pageTitle);
+	const pageMetaDescription = $derived(
+		hasCmsAboutContent ? cmsMetaDescription || copy.metaDescription : copy.metaDescription
+	);
 </script>
 
 <svelte:head>
-	<title>{copy.pageTitle} | {data.settings.siteName}</title>
-	<meta name="description" content={copy.metaDescription} />
+	<title>{pageTitle} | {data.settings.siteName}</title>
+	<meta name="description" content={pageMetaDescription} />
 </svelte:head>
 
 <div class="min-h-screen bg-background-light dark:bg-background-dark text-primary dark:text-white pt-[80px]">
 	<div class="max-w-[980px] mx-auto px-6 md:px-12 py-12 md:py-20">
-		<h1 class="text-4xl md:text-6xl font-display tracking-tight mb-10">{copy.pageTitle}</h1>
+		<h1 class="text-4xl md:text-6xl font-display tracking-tight mb-10">{pageTitle}</h1>
 
-		{#each copy.sections as section (section.title)}
-			<section class="space-y-5 mb-10">
-				<h2 class="text-xl md:text-2xl font-display tracking-wide">{section.title}</h2>
-				{#each section.paragraphs as paragraph (paragraph)}
-					<p class="text-base md:text-lg leading-relaxed opacity-90">{paragraph}</p>
-				{/each}
-			</section>
-		{/each}
-
-		<section class="space-y-4 border-t border-primary/15 dark:border-white/15 pt-8">
-			<h2 class="text-xl md:text-2xl font-display tracking-wide">{copy.overviewTitle}</h2>
-			{#each copy.companyOverview as line (line)}
-				<p class="text-base md:text-lg leading-relaxed opacity-90">{line}</p>
+		{#if hasCmsAboutContent}
+			{#if cmsSections.length > 0}
+				<div class="space-y-10">
+					{#each cmsSections as section (section.id)}
+						<SectionRenderer {section} />
+					{/each}
+				</div>
+			{:else}
+				<div
+					class="prose prose-lg dark:prose-invert max-w-none text-primary/90 dark:text-white/90 leading-relaxed"
+				>
+					<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+					{@html safeCmsContent}
+				</div>
+			{/if}
+		{:else}
+			{#each copy.sections as section (section.title)}
+				<section class="space-y-5 mb-10">
+					<h2 class="text-xl md:text-2xl font-display tracking-wide">{section.title}</h2>
+					{#each section.paragraphs as paragraph (paragraph)}
+						<p class="text-base md:text-lg leading-relaxed opacity-90">{paragraph}</p>
+					{/each}
+				</section>
 			{/each}
-			<p class="text-base md:text-lg leading-relaxed opacity-90">
-				{copy.contactPrefix}
-				<a href="mailto:zzzsrui@gmail.com" class="underline underline-offset-4 hover:opacity-70">
-					zzzsrui@gmail.com
-				</a>
-			</p>
-		</section>
+
+			<section class="space-y-4 border-t border-primary/15 dark:border-white/15 pt-8">
+				<h2 class="text-xl md:text-2xl font-display tracking-wide">{copy.overviewTitle}</h2>
+				{#each copy.companyOverview as line (line)}
+					<p class="text-base md:text-lg leading-relaxed opacity-90">{line}</p>
+				{/each}
+				<p class="text-base md:text-lg leading-relaxed opacity-90">
+					{copy.contactPrefix}
+					<a href="mailto:zzzsrui@gmail.com" class="underline underline-offset-4 hover:opacity-70">
+						zzzsrui@gmail.com
+					</a>
+				</p>
+			</section>
+		{/if}
 	</div>
 </div>

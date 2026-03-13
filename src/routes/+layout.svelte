@@ -154,18 +154,16 @@
 
 	function ensureRequiredHeaderNav(items: NavItem[]): NavItem[] {
 		const merged = [...items];
-		const existingUrls = new Set(
-			merged.map((item) => String(item.url || '').split('?')[0].toLowerCase())
-		);
-		const existingLabels = new Set(merged.map((item) => String(item.label || '').trim().toLowerCase()));
+		const existingUrls = merged.map((item) => String(item.url || '').split('?')[0].toLowerCase());
+		const existingLabels = merged.map((item) => String(item.label || '').trim().toLowerCase());
 
 		for (const required of REQUIRED_HEADER_NAV) {
 			const requiredUrl = required.url.toLowerCase();
 			const requiredLabel = required.label.toLowerCase();
-			if (existingUrls.has(requiredUrl) || existingLabels.has(requiredLabel)) continue;
+			if (existingUrls.includes(requiredUrl) || existingLabels.includes(requiredLabel)) continue;
 			merged.push({ ...required });
-			existingUrls.add(requiredUrl);
-			existingLabels.add(requiredLabel);
+			existingUrls.push(requiredUrl);
+			existingLabels.push(requiredLabel);
 		}
 
 		return sortHeaderNavItems(merged);

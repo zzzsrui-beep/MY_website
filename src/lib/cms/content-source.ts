@@ -14,6 +14,7 @@ import {
 	getProducts as getMockProducts
 } from '$lib/mock';
 import type { Category, GlobalSettings, NavItem, Page, Product, UIAsset, UISection } from '$lib/types';
+import { resolveAssetUrl } from '$lib/utils/image';
 import { fetchPayloadCollection, fetchPayloadGlobal, isPayloadConfigured } from './payload-client';
 import { isPayloadProvider } from './provider';
 
@@ -170,13 +171,18 @@ function parseUrlArray(value: unknown): string[] {
 	const output: string[] = [];
 	for (const item of value) {
 		if (typeof item === 'string') {
-			const url = item.trim();
+			const url = readMediaUrl(item);
 			if (url) output.push(url);
 			continue;
 		}
 
 		const record = asRecord(item);
 		if (!record) continue;
+		const mediaUrl = readMediaUrl(record);
+		if (mediaUrl) {
+			output.push(mediaUrl);
+			continue;
+		}
 		const url = asString(record.url, asString(record.image, asString(record.value)));
 		if (url) output.push(url);
 	}
@@ -185,6 +191,19 @@ function parseUrlArray(value: unknown): string[] {
 
 function uniqueStrings(values: string[]) {
 	return [...new Set(values.filter((value) => value.trim().length > 0))];
+}
+
+function normalizeApiBasePath(value?: string) {
+	const trimmed = value?.trim();
+	if (!trimmed) return '/api';
+	const withLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+	return withLeadingSlash.replace(/\/$/, '');
+}
+
+function buildMediaPathFromFilename(filename: string) {
+	const clean = filename.trim().replace(/^\/+/, '');
+	if (!clean) return '';
+	return `${normalizeApiBasePath(env.PUBLIC_PAYLOAD_API_BASE_PATH)}/media/file/${clean}`;
 }
 
 function readRelationshipId(value: unknown) {
@@ -207,10 +226,20 @@ function readRelationshipId(value: unknown) {
 }
 
 function readMediaUrl(value: unknown) {
-	if (typeof value === 'string') return value;
+	if (typeof value === 'string') {
+		const raw = value.trim();
+		if (!raw) return '';
+		if (!raw.includes('/') && !/^https?:\/\//i.test(raw)) {
+			return resolveAssetUrl(buildMediaPathFromFilename(raw));
+		}
+		return resolveAssetUrl(raw);
+	}
 	const record = asRecord(value);
 	if (!record) return '';
-	return asString(record.url, asString(record.image, asString(record.filename)));
+	const direct =
+		asString(record.url, asString(record.image, asString(record.thumbnailURL))) ||
+		buildMediaPathFromFilename(asString(record.filename));
+	return direct ? resolveAssetUrl(direct) : '';
 }
 
 function toPriceLabel(priceValue: number) {
@@ -373,6 +402,12 @@ function mapPayloadPage(input: UnknownRecord): Page {
 		richTextToHtml(hero?.richText) ||
 		readLayoutRichText(input.layout);
 
+	const rawOgImage = asString(
+		input.ogImage,
+		asString(input.og_image, readMediaUrl(meta?.image) || CONTENT_IMAGES.OG_DEFAULT)
+	);
+	const rawHeroImage = asString(input.heroImage, asString(input.hero_image, readMediaUrl(hero?.media)));
+
 	return {
 		id: asString(input.id),
 		slug: asString(input.slug),
@@ -382,11 +417,8 @@ function mapPayloadPage(input: UnknownRecord): Page {
 			input.metaDescription,
 			asString(input.meta_description, asString(meta?.description, 'Curated page content.'))
 		),
-		ogImage: asString(
-			input.ogImage,
-			asString(input.og_image, readMediaUrl(meta?.image) || CONTENT_IMAGES.OG_DEFAULT)
-		),
-		heroImage: asString(input.heroImage, asString(input.hero_image, readMediaUrl(hero?.media)))
+		ogImage: rawOgImage ? resolveAssetUrl(rawOgImage) : '',
+		heroImage: rawHeroImage ? resolveAssetUrl(rawHeroImage) : ''
 	};
 }
 
@@ -394,6 +426,8 @@ function mapPayloadSection(input: UnknownRecord, index: number): UISection {
 	const settings = asRecord(input.settings) ?? {};
 	const imageArray = parseUrlArray(input.image);
 	const videoArray = parseUrlArray(input.video);
+	const imageUrl = asString(input.imageUrl, asString(input.image_url, imageArray[0] || ''));
+	const videoUrl = asString(input.videoUrl, asString(input.video_url, videoArray[0] || ''));
 
 	return {
 		id: asString(input.id, `payload-section-${index + 1}`),
@@ -402,8 +436,8 @@ function mapPayloadSection(input: UnknownRecord, index: number): UISection {
 		subheading: asString(input.subheading),
 		content: asString(input.content),
 		settings,
-		imageUrl: asString(input.imageUrl, asString(input.image_url, imageArray[0] || '')),
-		videoUrl: asString(input.videoUrl, asString(input.video_url, videoArray[0] || '')),
+		imageUrl: imageUrl ? resolveAssetUrl(imageUrl) : '',
+		videoUrl: videoUrl ? resolveAssetUrl(videoUrl) : '',
 		imageGallery: imageArray,
 		videoGallery: videoArray,
 		sortOrder: asNumber(input.sortOrder, asNumber(input.sort_order, index + 1)),
@@ -412,10 +446,11 @@ function mapPayloadSection(input: UnknownRecord, index: number): UISection {
 }
 
 function mapPayloadAsset(input: UnknownRecord, index: number): UIAsset {
+	const rawUrl = asString(input.url, asString(input.image_url, asString(input.image)));
 	return {
 		id: asString(input.id, `payload-asset-${index + 1}`),
 		key: asString(input.key),
-		url: asString(input.url, asString(input.image_url, asString(input.image))),
+		url: rawUrl ? resolveAssetUrl(rawUrl) : '',
 		altText: asString(input.altText, asString(input.alt_text))
 	};
 }

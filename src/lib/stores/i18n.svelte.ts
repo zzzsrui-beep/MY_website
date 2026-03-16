@@ -3,6 +3,7 @@ import { browser } from '$app/environment';
 export type LanguageCode = 'en' | 'ja' | 'zh';
 
 const LANGUAGE_STORAGE_KEY = 'site-language';
+export const LANGUAGE_COOKIE_KEY = LANGUAGE_STORAGE_KEY;
 
 export const LANGUAGE_OPTIONS = [
 	{ code: 'en' as const, shortLabel: 'EN', menuLabel: 'English' },
@@ -323,13 +324,26 @@ function normalizeLanguage(value: unknown): LanguageCode {
 function persistLanguage(lang: LanguageCode) {
 	if (!browser) return;
 	localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+	document.cookie = `${LANGUAGE_COOKIE_KEY}=${lang}; path=/; max-age=31536000; samesite=lax`;
+}
+
+function readLanguageCookie(): LanguageCode | null {
+	if (!browser) return null;
+	const cookie = document.cookie
+		.split(';')
+		.map((item) => item.trim())
+		.find((item) => item.startsWith(`${LANGUAGE_COOKIE_KEY}=`));
+	if (!cookie) return null;
+	return normalizeLanguage(cookie.split('=').slice(1).join('='));
 }
 
 export function initI18n() {
 	if (!browser || initialized) return;
 	initialized = true;
 	const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-	currentLanguage = normalizeLanguage(stored);
+	const fromCookie = readLanguageCookie();
+	currentLanguage = normalizeLanguage(stored || fromCookie || 'en');
+	persistLanguage(currentLanguage);
 }
 
 function lookup(text: string): string {
@@ -381,6 +395,10 @@ export const i18n = {
 	tx: translateText,
 	txHtml: translateHtml
 };
+
+export function getCurrentLanguage(): LanguageCode {
+	return currentLanguage;
+}
 
 
 

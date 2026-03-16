@@ -178,6 +178,7 @@
 			params.set('limit', String(data.productsPageSize || 12));
 			if (activeCategory !== 'ALL') params.set('category', activeCategory);
 			if (activeGender) params.set('gender', activeGender);
+			params.set('locale', i18n.language);
 
 			const response = await fetch(`/api/shop/products?${params.toString()}`);
 			if (!response.ok) throw new Error(`Load more failed: ${response.status}`);

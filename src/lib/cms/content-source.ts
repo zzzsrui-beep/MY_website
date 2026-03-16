@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/public';
+import { browser } from '$app/environment';
 import { CONTENT_IMAGES } from '$lib/constants';
 import {
 	frontendCategories,
@@ -13,6 +14,7 @@ import {
 	getRelatedProducts as getMockRelatedProducts,
 	getProducts as getMockProducts
 } from '$lib/mock';
+import { getCurrentLanguage, type LanguageCode } from '$lib/stores/i18n.svelte';
 import type { Category, GlobalSettings, NavItem, Page, Product, UIAsset, UISection } from '$lib/types';
 import { resolveAssetUrl } from '$lib/utils/image';
 import {
@@ -35,7 +37,11 @@ type CollectionImageRecord = {
 	isActive?: boolean;
 };
 
-type ProductQueryOptions = {
+type LocaleOptions = {
+	locale?: LanguageCode;
+};
+
+type ProductQueryOptions = LocaleOptions & {
 	categorySlug?: string | null;
 	gender?: string | null;
 	isFeatured?: boolean;
@@ -57,11 +63,64 @@ export type ProductPageResult = {
 };
 
 const warnedContexts = new Set<string>();
+const SUPPORTED_LOCALES: LanguageCode[] = ['en', 'ja', 'zh'];
+const DEFAULT_LOCALE: LanguageCode = 'en';
 
 function warnPayloadFallback(context: string, error: unknown) {
 	if (warnedContexts.has(context)) return;
 	warnedContexts.add(context);
 	console.warn(`[cms] payload fallback for ${context}`, error);
+}
+
+function normalizeLocale(value: unknown): LanguageCode {
+	if (typeof value === 'string' && SUPPORTED_LOCALES.includes(value as LanguageCode)) {
+		return value as LanguageCode;
+	}
+	return DEFAULT_LOCALE;
+}
+
+function resolveLocale(explicitLocale?: LanguageCode): LanguageCode {
+	if (explicitLocale) return normalizeLocale(explicitLocale);
+	if (browser) return normalizeLocale(getCurrentLanguage());
+	return DEFAULT_LOCALE;
+}
+
+function toSnakeCaseField(value: string) {
+	return value.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
+}
+
+function getLocaleFieldSuffix(locale: LanguageCode) {
+	if (locale === 'ja') return 'Ja';
+	if (locale === 'zh') return 'Zh';
+	return '';
+}
+
+function readLocalizedText(
+	input: UnknownRecord,
+	baseField: string,
+	locale: LanguageCode,
+	fallback = ''
+) {
+	const localeSuffix = getLocaleFieldSuffix(locale);
+	if (localeSuffix) {
+		const camel = `${baseField}${localeSuffix}`;
+		const snake = `${toSnakeCaseField(baseField)}_${localeSuffix.toLowerCase()}`;
+		const translated = asString(input[camel], asString(input[snake]));
+		if (translated.trim()) return translated;
+	}
+
+	const baseSnake = toSnakeCaseField(baseField);
+	return asString(input[baseField], asString(input[baseSnake], fallback));
+}
+
+function withLocaleQuery(
+	query: Record<string, string | undefined> | undefined,
+	locale?: LanguageCode
+): Record<string, string | undefined> {
+	return {
+		...(query || {}),
+		locale: resolveLocale(locale)
+	};
 }
 
 function asRecord(value: unknown): UnknownRecord | null {
@@ -500,9 +559,9 @@ function mapPayloadAsset(input: UnknownRecord, index: number): UIAsset {
 	};
 }
 
-function mapPayloadCategory(input: UnknownRecord, index: number): Category {
+function mapPayloadCategory(input: UnknownRecord, index: number, locale: LanguageCode): Category {
 	const id = asString(input.id, `payload-category-${index + 1}`);
-	const title = asString(input.title, asString(input.name, 'Untitled'));
+	const title = readLocalizedText(input, 'title', locale, asString(input.name, 'Untitled'));
 	const image = readMediaUrl(input.image) || asString(input.imageUrl);
 
 	return {
@@ -539,7 +598,8 @@ function mapPayloadProductVariant(
 function mapPayloadProduct(
 	input: UnknownRecord,
 	index: number,
-	categoryById: Map<string, Category>
+	categoryById: Map<string, Category>,
+	locale: LanguageCode
 ): Product {
 	const id = asString(input.id, `payload-product-${index + 1}`);
 	const priceValue = asNumber(input.priceValue, asNumber(input.price_value, 0));
@@ -565,7 +625,7 @@ function mapPayloadProduct(
 
 			const mapped =
 				categoryById.get(categoryId) ||
-				(categoryRecord ? mapPayloadCategory(categoryRecord, categories.length) : null);
+				(categoryRecord ? mapPayloadCategory(categoryRecord, categories.length, locale) : null);
 			if (mapped) categories.push(mapped);
 			continue;
 		}
@@ -582,9 +642,9 @@ function mapPayloadProduct(
 
 	return {
 		id,
-		title: asString(input.title, 'Untitled'),
+		title: readLocalizedText(input, 'title', locale, 'Untitled'),
 		slug: asString(input.slug, id),
-		description: asString(input.description),
+		description: readLocalizedText(input, 'description', locale),
 		priceValue,
 		price: asString(input.price, toPriceLabel(priceValue)),
 		image: mainImage,
@@ -598,7 +658,7 @@ function mapPayloadProduct(
 		stockStatus: asString(input.stockStatus, asString(input.stock_status, 'in_stock')),
 		gender: asString(input.gender, 'unisex'),
 		stripePriceId: asString(input.stripePriceId, asString(input.stripe_price_id)) || undefined,
-		tag: asString(input.tag) || undefined
+		tag: readLocalizedText(input, 'tag', locale) || undefined
 	};
 }
 
@@ -614,18 +674,22 @@ function mapPayloadCollectionPanel(input: UnknownRecord, index: number): Collect
 	};
 }
 
-async function getPayloadPageBySlug(fetcher: FetchLike, slug: string): Promise<Page | null> {
+async function getPayloadPageBySlug(
+	fetcher: FetchLike,
+	slug: string,
+	locale?: LanguageCode
+): Promise<Page | null> {
 	const config = getConfig();
-	const docs = await fetchPayloadCollection<UnknownRecord>(fetcher, config.pagesCollection, {
+	const docs = await fetchPayloadCollection<UnknownRecord>(fetcher, config.pagesCollection, withLocaleQuery({
 		'where[slug][equals]': slug,
 		limit: '1'
-	});
+	}, locale));
 	const first = docs[0];
 	if (!first) return null;
 	return mapPayloadPage(first);
 }
 
-export async function getSiteLayoutData(fetcher: FetchLike) {
+export async function getSiteLayoutData(fetcher: FetchLike, options?: LocaleOptions) {
 	if (!canUsePayload()) {
 		return {
 			settings: frontendSettings,
@@ -635,19 +699,24 @@ export async function getSiteLayoutData(fetcher: FetchLike) {
 	}
 
 	const config = getConfig();
+	const locale = resolveLocale(options?.locale);
 	let settings = frontendSettings;
 	try {
-		const settingsRaw = await fetchPayloadGlobal<UnknownRecord>(fetcher, config.settingsGlobal);
+		const settingsRaw = await fetchPayloadGlobal<UnknownRecord>(
+			fetcher,
+			config.settingsGlobal,
+			withLocaleQuery(undefined, locale)
+		);
 		settings = mapPayloadSettings(asRecord(settingsRaw));
 	} catch (error) {
 		warnPayloadFallback('layout:settings', error);
 	}
 
 	try {
-		const navRaw = await fetchPayloadCollection<UnknownRecord>(fetcher, config.navigationCollection, {
+		const navRaw = await fetchPayloadCollection<UnknownRecord>(fetcher, config.navigationCollection, withLocaleQuery({
 			limit: '200',
 			sort: 'order'
-		});
+		}, locale));
 		const navItems = navRaw.map(mapPayloadNavItem).filter((item) => item.isVisible);
 		const headerNav = navItems
 			.filter((item) => (item.location || 'header') === 'header')
@@ -667,8 +736,8 @@ export async function getSiteLayoutData(fetcher: FetchLike) {
 
 	try {
 		const [headerRaw, footerRaw] = await Promise.all([
-			fetchPayloadGlobal<UnknownRecord>(fetcher, 'header'),
-			fetchPayloadGlobal<UnknownRecord>(fetcher, 'footer')
+			fetchPayloadGlobal<UnknownRecord>(fetcher, 'header', withLocaleQuery(undefined, locale)),
+			fetchPayloadGlobal<UnknownRecord>(fetcher, 'footer', withLocaleQuery(undefined, locale))
 		]);
 
 		const headerNav = mapPayloadGlobalNavItems(asRecord(headerRaw), 'header');
@@ -690,12 +759,16 @@ export async function getSiteLayoutData(fetcher: FetchLike) {
 	};
 }
 
-export async function getSiteSettings(fetcher: FetchLike) {
+export async function getSiteSettings(fetcher: FetchLike, options?: LocaleOptions) {
 	if (!canUsePayload()) return frontendSettings;
 
 	const config = getConfig();
 	try {
-		const settingsRaw = await fetchPayloadGlobal<UnknownRecord>(fetcher, config.settingsGlobal);
+		const settingsRaw = await fetchPayloadGlobal<UnknownRecord>(
+			fetcher,
+			config.settingsGlobal,
+			withLocaleQuery(undefined, options?.locale)
+		);
 		return mapPayloadSettings(asRecord(settingsRaw));
 	} catch (error) {
 		warnPayloadFallback('settings', error);
@@ -703,7 +776,7 @@ export async function getSiteSettings(fetcher: FetchLike) {
 	}
 }
 
-type ContentFallbackOptions = {
+type ContentFallbackOptions = LocaleOptions & {
 	fallback?: boolean;
 };
 
@@ -716,7 +789,7 @@ export async function getPageBySlugFromCms(
 	if (!canUsePayload()) return fallback ? (frontendPages[slug] ?? null) : null;
 
 	try {
-		const page = await getPayloadPageBySlug(fetcher, slug);
+		const page = await getPayloadPageBySlug(fetcher, slug, options?.locale);
 		return page ?? (fallback ? (frontendPages[slug] ?? null) : null);
 	} catch (error) {
 		warnPayloadFallback(`page:${slug}`, error);
@@ -734,14 +807,15 @@ export async function getSectionsBySlugFromCms(
 
 	const config = getConfig();
 	try {
-		const page = await getPayloadPageBySlug(fetcher, slug);
+		const locale = resolveLocale(options?.locale);
+		const page = await getPayloadPageBySlug(fetcher, slug, locale);
 		if (!page?.id) return fallback ? (frontendSections[slug] ?? []) : [];
 
-		const docs = await fetchPayloadCollection<UnknownRecord>(fetcher, config.sectionsCollection, {
+		const docs = await fetchPayloadCollection<UnknownRecord>(fetcher, config.sectionsCollection, withLocaleQuery({
 			'where[page][equals]': page.id,
 			limit: '200',
 			sort: 'sort_order'
-		});
+		}, locale));
 		const mapped = docs
 			.map(mapPayloadSection)
 			.filter((section) => section.isActive !== false)
@@ -757,22 +831,23 @@ export async function getSectionsBySlugFromCms(
 export async function getPageWithSectionsFromCms(
 	fetcher: FetchLike,
 	slug: string,
-	fallbackSlug: string
+	fallbackSlug: string,
+	options?: LocaleOptions
 ) {
 	if (slug === fallbackSlug) {
 		const [page, sections] = await Promise.all([
-			getPageBySlugFromCms(fetcher, slug),
-			getSectionsBySlugFromCms(fetcher, slug)
+			getPageBySlugFromCms(fetcher, slug, options),
+			getSectionsBySlugFromCms(fetcher, slug, options)
 		]);
 
 		return { page, sections };
 	}
 
 	const [pageBySlug, sectionsBySlug, fallbackPage, fallbackSections] = await Promise.all([
-		getPageBySlugFromCms(fetcher, slug),
-		getSectionsBySlugFromCms(fetcher, slug),
-		getPageBySlugFromCms(fetcher, fallbackSlug),
-		getSectionsBySlugFromCms(fetcher, fallbackSlug)
+		getPageBySlugFromCms(fetcher, slug, options),
+		getSectionsBySlugFromCms(fetcher, slug, options),
+		getPageBySlugFromCms(fetcher, fallbackSlug, options),
+		getSectionsBySlugFromCms(fetcher, fallbackSlug, options)
 	]);
 
 	return {
@@ -781,14 +856,14 @@ export async function getPageWithSectionsFromCms(
 	};
 }
 
-export async function getHomeAssetsFromCms(fetcher: FetchLike) {
+export async function getHomeAssetsFromCms(fetcher: FetchLike, options?: LocaleOptions) {
 	if (!canUsePayload()) return frontendHomeAssets;
 
 	const config = getConfig();
 	try {
-		const docs = await fetchPayloadCollection<UnknownRecord>(fetcher, config.assetsCollection, {
+		const docs = await fetchPayloadCollection<UnknownRecord>(fetcher, config.assetsCollection, withLocaleQuery({
 			limit: '100'
-		});
+		}, options?.locale));
 		const mapped = docs.map(mapPayloadAsset).filter((item) => item.url);
 		return mapped.length ? mapped : frontendHomeAssets;
 	} catch (error) {
@@ -797,26 +872,27 @@ export async function getHomeAssetsFromCms(fetcher: FetchLike) {
 	}
 }
 
-export async function getCategoriesFromCms(fetcher: FetchLike) {
+export async function getCategoriesFromCms(fetcher: FetchLike, options?: LocaleOptions) {
 	if (!canUsePayload()) return frontendCategories;
 
 	const config = getConfig();
 	try {
+		const locale = resolveLocale(options?.locale);
 		const [docs, productProbe] = await Promise.all([
-			fetchPayloadCollection<UnknownRecord>(fetcher, config.categoryCollection, {
+			fetchPayloadCollection<UnknownRecord>(fetcher, config.categoryCollection, withLocaleQuery({
 				limit: '500',
 				sort: 'sortOrder'
-			}),
-			fetchPayloadCollection<UnknownRecord>(fetcher, config.productCollection, {
+			}, locale)),
+			fetchPayloadCollection<UnknownRecord>(fetcher, config.productCollection, withLocaleQuery({
 				limit: '1'
-			})
+			}, locale))
 		]);
 		if (productProbe.length === 0) {
 			return frontendCategories;
 		}
 
 		const mapped = docs
-			.map(mapPayloadCategory)
+			.map((doc, index) => mapPayloadCategory(doc, index, locale))
 			.filter((category) => category.isVisible !== false)
 			.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
@@ -837,7 +913,8 @@ export async function getProductsPageFromCms(fetcher: FetchLike, options?: Produ
 
 	const config = getConfig();
 	try {
-		const categories = await getCategoriesFromCms(fetcher);
+		const locale = resolveLocale(options?.locale);
+		const categories = await getCategoriesFromCms(fetcher, { locale });
 		const categoryById = new Map(categories.map((category) => [category.id, category]));
 
 		const query: Record<string, string | undefined> = {
@@ -862,9 +939,13 @@ export async function getProductsPageFromCms(fetcher: FetchLike, options?: Produ
 			query['where[categories][in]'] = targetCategory.id;
 		}
 
-		const result = await fetchPayloadCollectionPage<UnknownRecord>(fetcher, config.productCollection, query);
+		const result = await fetchPayloadCollectionPage<UnknownRecord>(
+			fetcher,
+			config.productCollection,
+			withLocaleQuery(query, locale)
+		);
 		const mapped = result.docs
-			.map((doc, index) => mapPayloadProduct(doc, index, categoryById))
+			.map((doc, index) => mapPayloadProduct(doc, index, categoryById, locale))
 			.filter((product) => product.id && product.slug);
 		const filtered = filterProductsByOptions(mapped, options, categoryById);
 
@@ -888,16 +969,17 @@ export async function getProductsFromCms(fetcher: FetchLike, options?: ProductQu
 
 	const config = getConfig();
 	try {
+		const locale = resolveLocale(options?.locale);
 		const [categories, docs] = await Promise.all([
-			getCategoriesFromCms(fetcher),
-			fetchPayloadCollection<UnknownRecord>(fetcher, config.productCollection, {
+			getCategoriesFromCms(fetcher, { locale }),
+			fetchPayloadCollection<UnknownRecord>(fetcher, config.productCollection, withLocaleQuery({
 				limit: '1000',
 				depth: '1'
-			})
+			}, locale))
 		]);
 		const categoryById = new Map(categories.map((category) => [category.id, category]));
 		const mapped = docs
-			.map((doc, index) => mapPayloadProduct(doc, index, categoryById))
+			.map((doc, index) => mapPayloadProduct(doc, index, categoryById, locale))
 			.filter((product) => product.id && product.slug);
 
 		if (!mapped.length) return getMockProducts(options);
@@ -908,11 +990,15 @@ export async function getProductsFromCms(fetcher: FetchLike, options?: ProductQu
 	}
 }
 
-export async function getProductByIdOrSlugFromCms(fetcher: FetchLike, idOrSlug: string) {
+export async function getProductByIdOrSlugFromCms(
+	fetcher: FetchLike,
+	idOrSlug: string,
+	options?: LocaleOptions
+) {
 	if (!canUsePayload()) return getMockProductByIdOrSlug(idOrSlug);
 
 	try {
-		const products = await getProductsFromCms(fetcher);
+		const products = await getProductsFromCms(fetcher, options);
 		return (
 			products.find((product) => product.id === idOrSlug || product.slug === idOrSlug) ??
 			getMockProductByIdOrSlug(idOrSlug)
@@ -923,13 +1009,18 @@ export async function getProductByIdOrSlugFromCms(fetcher: FetchLike, idOrSlug: 
 	}
 }
 
-export async function getRelatedProductsFromCms(fetcher: FetchLike, idOrSlug: string, limit = 4) {
+export async function getRelatedProductsFromCms(
+	fetcher: FetchLike,
+	idOrSlug: string,
+	limit = 4,
+	options?: LocaleOptions
+) {
 	if (!canUsePayload()) return getMockRelatedProducts(idOrSlug, limit);
 
 	try {
 		const [products, current] = await Promise.all([
-			getProductsFromCms(fetcher),
-			getProductByIdOrSlugFromCms(fetcher, idOrSlug)
+			getProductsFromCms(fetcher, options),
+			getProductByIdOrSlugFromCms(fetcher, idOrSlug, options)
 		]);
 		if (!current) return products.slice(0, limit);
 
@@ -948,15 +1039,19 @@ export async function getRelatedProductsFromCms(fetcher: FetchLike, idOrSlug: st
 	}
 }
 
-export async function getCollectionPanelsFromCms(fetcher: FetchLike) {
+export async function getCollectionPanelsFromCms(fetcher: FetchLike, options?: LocaleOptions) {
 	if (!canUsePayload()) return frontendCollectionImages;
 
 	const config = getConfig();
 	try {
-		const docs = await fetchPayloadCollection<UnknownRecord>(fetcher, config.collectionPanelCollection, {
+		const docs = await fetchPayloadCollection<UnknownRecord>(
+			fetcher,
+			config.collectionPanelCollection,
+			withLocaleQuery({
 			limit: '10',
 			sort: 'order'
-		});
+			}, options?.locale)
+		);
 		const mapped = docs
 			.map(mapPayloadCollectionPanel)
 			.filter((panel) => panel.isActive !== false && panel.image)
@@ -968,7 +1063,7 @@ export async function getCollectionPanelsFromCms(fetcher: FetchLike) {
 	}
 }
 
-export async function getNavCategorySlugsFromCms(fetcher: FetchLike) {
+export async function getNavCategorySlugsFromCms(fetcher: FetchLike, options?: LocaleOptions) {
 	if (!canUsePayload()) {
 		return [
 			...new Set(
@@ -979,7 +1074,7 @@ export async function getNavCategorySlugsFromCms(fetcher: FetchLike) {
 		];
 	}
 
-	const { headerNav } = await getSiteLayoutData(fetcher);
+	const { headerNav } = await getSiteLayoutData(fetcher, options);
 	return [
 		...new Set(
 			headerNav

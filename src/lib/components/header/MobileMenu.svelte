@@ -4,6 +4,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import { useCart } from '$lib/stores/cart.svelte';
 	import { i18n, type LanguageCode } from '$lib/stores/i18n.svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	const cart = useCart();
 
@@ -16,8 +17,12 @@
 
 	let { navItems, onClose, onSearchClick, onCartClick }: Props = $props();
 
-	function selectLanguage(lang: LanguageCode) {
+	async function selectLanguage(lang: LanguageCode) {
+		const previous = i18n.language;
 		i18n.setLanguage(lang);
+		if (previous !== lang) {
+			await invalidateAll();
+		}
 	}
 </script>
 

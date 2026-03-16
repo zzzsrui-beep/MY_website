@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { useCart } from '$lib/stores/cart.svelte';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { DEFAULTS } from '$lib/constants';
 	import { isLinkActive } from '$lib/utils/core';
 	import { browser } from '$app/environment';
@@ -81,9 +81,13 @@
 		isLanguageMenuOpen = !isLanguageMenuOpen;
 	}
 
-	function selectLanguage(lang: LanguageCode) {
+	async function selectLanguage(lang: LanguageCode) {
+		const previous = i18n.language;
 		i18n.setLanguage(lang);
 		isLanguageMenuOpen = false;
+		if (previous !== lang) {
+			await invalidateAll();
+		}
 	}
 
 	$effect(() => {

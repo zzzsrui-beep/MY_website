@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CoverImageLayer from '$lib/components/ui/CoverImageLayer.svelte';
+	import { IMAGE_THUMBS } from '$lib/constants';
 	import SectionActionLinks from '$lib/components/ui/SectionActionLinks.svelte';
 	import SectionHeadingContent from '$lib/components/ui/SectionHeadingContent.svelte';
 	import type { UISection } from '$lib/types';
@@ -25,6 +26,7 @@
 			containerClass="absolute inset-0 z-0"
 			imageClassName="w-full h-full object-cover"
 			overlayClassName="absolute inset-0 bg-black/40"
+			thumb={IMAGE_THUMBS.SECTION_BG}
 		/>
 	{/if}
 

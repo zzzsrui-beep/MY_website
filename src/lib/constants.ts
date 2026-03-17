@@ -131,26 +131,40 @@ export const DEFAULTS = {
 } as const;
 
 // =============================================================================
+// IMAGE THUMBS - 统一远程图片缩略图规格
+// =============================================================================
+export const IMAGE_THUMBS = {
+	HERO: '2200x0',
+	SECTION_BG: '1800x0',
+	COLLECTION_PANEL: '1800x0',
+	PRODUCT_DETAIL_MAIN: '1600x0',
+	PRODUCT_DETAIL_GALLERY: '1200x0',
+	PRODUCT_CARD: '900x0',
+	CATEGORY_CARD: '1100x0',
+	THUMBNAIL: '320x0'
+} as const;
+
+export const FALLBACK_IMAGE_FILES = {
+	HERO: '/fallback/hero-16x9.webp',
+	SECTION: '/fallback/section-4x3.webp',
+	CARD: '/fallback/card-3x4.webp'
+} as const;
+
+// =============================================================================
 // CONTENT IMAGES - 统一的图片 Fallback (实际由 CMS assets/settings 管理)
 // =============================================================================
 export const CONTENT_IMAGES = {
 	// 空状态图片
-	WISHLIST_EMPTY:
-		'https://images.unsplash.com/photo-1598439210625-5067c578f3f6?q=80&w=2000&auto=format&fit=crop',
-	CART_EMPTY:
-		'https://images.unsplash.com/photo-1598439210625-5067c578f3f6?q=80&w=2000&auto=format&fit=crop',
+	WISHLIST_EMPTY: FALLBACK_IMAGE_FILES.CARD,
+	CART_EMPTY: FALLBACK_IMAGE_FILES.CARD,
 
 	// About 页面
-	ABOUT_HERO:
-		'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=2000&auto=format&fit=crop',
-	ABOUT_SECTION:
-		'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=2000&auto=format&fit=crop',
+	ABOUT_HERO: FALLBACK_IMAGE_FILES.HERO,
+	ABOUT_SECTION: FALLBACK_IMAGE_FILES.SECTION,
 
 	// 首页
-	HOME_HERO:
-		'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=2000&auto=format&fit=crop',
-	HOME_STORY:
-		'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=2000&auto=format&fit=crop',
+	HOME_HERO: FALLBACK_IMAGE_FILES.HERO,
+	HOME_STORY: FALLBACK_IMAGE_FILES.SECTION,
 
 	// SEO / Open Graph
 	OG_DEFAULT:

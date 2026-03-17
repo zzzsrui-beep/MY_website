@@ -1,21 +1,21 @@
-import { CONTENT_IMAGES } from '$lib/constants';
+import { CONTENT_IMAGES, FALLBACK_IMAGE_FILES } from '$lib/constants';
 import type { Page, UIAsset, UISection } from '$lib/types';
 
 export const frontendHomeAssets: UIAsset[] = [
 	{
 		id: 'asset-plushies',
 		key: 'hero_category_plushies',
-		url: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=1200&auto=format&fit=crop'
+		url: FALLBACK_IMAGE_FILES.CARD
 	},
 	{
 		id: 'asset-stationery',
 		key: 'hero_category_stationery',
-		url: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=1200&auto=format&fit=crop'
+		url: FALLBACK_IMAGE_FILES.CARD
 	},
 	{
 		id: 'asset-lifestyle',
 		key: 'hero_category_lifestyle',
-		url: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=1200&auto=format&fit=crop'
+		url: FALLBACK_IMAGE_FILES.CARD
 	}
 ];
 
@@ -23,16 +23,14 @@ export const frontendCollectionImages = [
 	{
 		id: 'collection-left',
 		position: 'left',
-		image:
-			'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=1200&auto=format&fit=crop',
+		image: FALLBACK_IMAGE_FILES.HERO,
 		link: '/shop?category=plush-toys',
 		title: 'Plush Toys > New Arrivals'
 	},
 	{
 		id: 'collection-right',
 		position: 'right',
-		image:
-			'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=1200&auto=format&fit=crop',
+		image: FALLBACK_IMAGE_FILES.SECTION,
 		link: '/shop?category=art-pieces',
 		title: 'Art Pieces'
 	}
@@ -90,7 +88,7 @@ export const frontendSections: Record<string, UISection[]> = {
 			type: 'hero',
 			heading: 'PANDA CREATIVE',
 			subheading: 'Welcome to the Bamboo Forest',
-			imageUrl: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=1600&auto=format&fit=crop',
+			imageUrl: CONTENT_IMAGES.HOME_HERO,
 			sortOrder: 1,
 			isActive: true,
 			settings: {
@@ -125,7 +123,7 @@ export const frontendSections: Record<string, UISection[]> = {
 			heading: 'Designed For Joy',
 			content:
 				'<p>Every piece is crafted to bring a smile to your face. From soft plushies to beautifully illustrated stationery.</p>',
-			imageUrl: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=1200&auto=format&fit=crop',
+			imageUrl: CONTENT_IMAGES.HOME_STORY,
 			sortOrder: 4,
 			isActive: true,
 			settings: {
@@ -151,8 +149,7 @@ export const frontendSections: Record<string, UISection[]> = {
 			type: 'hero',
 			heading: 'Shop All Pandas',
 			subheading: 'Find your new friend',
-			imageUrl:
-				'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=1600&auto=format&fit=crop',
+			imageUrl: CONTENT_IMAGES.HOME_HERO,
 			sortOrder: 1,
 			isActive: true,
 			settings: {

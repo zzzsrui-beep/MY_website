@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { useCart } from '$lib/stores/cart.svelte';
 	import { useWishlist } from '$lib/stores/wishlist.svelte';
-	import { TRANSITIONS } from '$lib/constants';
+	import { IMAGE_THUMBS, TRANSITIONS } from '$lib/constants';
 	import { toastStore } from '$lib/stores/toast.svelte';
 	import CoverImageLayer from './ui/CoverImageLayer.svelte';
 	import Badge from './ui/Badge.svelte';
@@ -43,6 +43,7 @@
 			: 'aspect-[3/4]'}"
 		imageClassName="w-full h-full absolute inset-0 group-hover:scale-105 {TRANSITIONS.transform} ease-apple-spring"
 		overlayClassName="absolute inset-0 bg-black/0 group-hover:bg-black/5 {TRANSITIONS.colors} pointer-events-none"
+		thumb={IMAGE_THUMBS.PRODUCT_CARD}
 	>
 		<a
 			href={linkHref}

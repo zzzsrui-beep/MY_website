@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ProductListGrid from '$lib/components/shop/ProductListGrid.svelte';
 	import RemoteImage from '$lib/components/ui/RemoteImage.svelte';
+	import { IMAGE_THUMBS } from '$lib/constants';
 	import { resolveAssetUrl } from '$lib/utils/image';
 	import { i18n } from '$lib/stores/i18n.svelte';
 	import logo from '$lib/assets/logo.svg';
@@ -77,15 +78,15 @@
 	</div>
 
 	<div class="relative w-full h-screen flex flex-col md:flex-row z-0">
-		{#each heroPanels as panel (panel.id)}
+		{#each heroPanels as panel, panelIndex (panel.id)}
 			<a href={panel.link} class="flex-1 block bg-black overflow-hidden">
 				{#if panel.image}
 					<RemoteImage
 						src={panel.image}
 						alt={panel.title}
 						className="w-full h-full"
-						priority={true}
-						thumb="2000x0"
+						priority={panelIndex === 0}
+						thumb={IMAGE_THUMBS.COLLECTION_PANEL}
 					/>
 				{/if}
 			</a>

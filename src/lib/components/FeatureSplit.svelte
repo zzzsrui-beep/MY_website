@@ -1,5 +1,6 @@
 <script lang="ts">
 	import CoverImageLayer from '$lib/components/ui/CoverImageLayer.svelte';
+	import { IMAGE_THUMBS } from '$lib/constants';
 	import SectionHeadingContent from '$lib/components/ui/SectionHeadingContent.svelte';
 	import type { UISection } from '$lib/types';
 	import { i18n } from '$lib/stores/i18n.svelte';
@@ -16,6 +17,7 @@
 		alt={heading || i18n.tx('Story')}
 		containerClass="relative overflow-hidden min-h-[400px] md:min-h-0"
 		imageClassName="w-full h-full object-cover"
+		thumb={IMAGE_THUMBS.SECTION_BG}
 	>
 		<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
 			<span class="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold"> {i18n.tx('Story')} </span>

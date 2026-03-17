@@ -1,6 +1,6 @@
 <script lang="ts">
 	import LinkedImage from '$lib/components/ui/LinkedImage.svelte';
-	import { TRANSITIONS } from '$lib/constants';
+	import { IMAGE_THUMBS, TRANSITIONS } from '$lib/constants';
 	import type { UIAsset } from '$lib/types';
 	import { i18n } from '$lib/stores/i18n.svelte';
 
@@ -46,6 +46,7 @@
 					src={category.image}
 					alt={category.name}
 					imageClassName="w-full h-full object-cover {TRANSITIONS.transform} group-hover:scale-105"
+					thumb={IMAGE_THUMBS.CATEGORY_CARD}
 					overlayClassName="absolute inset-0 bg-black/10 group-hover:bg-black/20 {TRANSITIONS.colors}"
 				>
 					<div class="absolute bottom-8 left-8 flex flex-col gap-2">

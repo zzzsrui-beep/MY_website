@@ -47,6 +47,16 @@
 		return src;
 	});
 
+	let avifSrc = $derived.by(() => {
+		if (!finalSrc) return '';
+		const [rawPath, rawQuery] = finalSrc.split('?');
+		if (!rawPath.startsWith('/fallback/') || !/\.webp$/i.test(rawPath)) return '';
+		const avifPath = rawPath.replace(/\.webp$/i, '.avif');
+		return rawQuery ? `${avifPath}?${rawQuery}` : avifPath;
+	});
+
+	let preloadSrc = $derived(avifSrc || finalSrc);
+
 	function handleLoad() {
 		loaded = true;
 	}
@@ -61,8 +71,8 @@
 </script>
 
 <svelte:head>
-	{#if priority && finalSrc}
-		<link rel="preload" as="image" href={finalSrc} fetchpriority="high" />
+	{#if priority && preloadSrc}
+		<link rel="preload" as="image" href={preloadSrc} fetchpriority="high" />
 	{/if}
 </svelte:head>
 
@@ -81,18 +91,36 @@
 
 	<!-- Image -->
 	{#if finalSrc}
-		<img
-			src={finalSrc}
-			{alt}
-			class="w-full h-full object-cover transition-opacity duration-700 ease-out z-10 {loaded &&
-			!error
-				? 'opacity-100'
-				: 'opacity-0'}"
-			loading={priority ? 'eager' : 'lazy'}
-			decoding="async"
-			fetchpriority={priority ? 'high' : 'auto'}
-			onload={handleLoad}
-			onerror={handleError}
-		/>
+		{#if avifSrc}
+			<picture class="block w-full h-full z-10">
+				<source srcset={avifSrc} type="image/avif" />
+				<img
+					src={finalSrc}
+					{alt}
+					class="w-full h-full object-cover transition-opacity duration-700 ease-out {loaded && !error
+						? 'opacity-100'
+						: 'opacity-0'}"
+					loading={priority ? 'eager' : 'lazy'}
+					decoding="async"
+					fetchpriority={priority ? 'high' : 'auto'}
+					onload={handleLoad}
+					onerror={handleError}
+				/>
+			</picture>
+		{:else}
+			<img
+				src={finalSrc}
+				{alt}
+				class="w-full h-full object-cover transition-opacity duration-700 ease-out z-10 {loaded &&
+				!error
+					? 'opacity-100'
+					: 'opacity-0'}"
+				loading={priority ? 'eager' : 'lazy'}
+				decoding="async"
+				fetchpriority={priority ? 'high' : 'auto'}
+				onload={handleLoad}
+				onerror={handleError}
+			/>
+		{/if}
 	{/if}
 </div>

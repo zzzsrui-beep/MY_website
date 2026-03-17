@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { WishlistItem } from '$lib/types';
 	import CoverImageLayer from '$lib/components/ui/CoverImageLayer.svelte';
-	import { COLORS, BUTTON_STYLES, TYPOGRAPHY } from '$lib/constants';
+	import { COLORS, BUTTON_STYLES, IMAGE_THUMBS, TYPOGRAPHY } from '$lib/constants';
 	import { i18n } from '$lib/stores/i18n.svelte';
 
 	interface Props {
@@ -19,6 +19,7 @@
 		alt={item.title || 'Product'}
 		containerClass="relative aspect-[3/4] overflow-hidden bg-gray-100 dark:bg-zinc-800"
 		imageClassName="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+		thumb={IMAGE_THUMBS.PRODUCT_CARD}
 	>
 		<button
 			onclick={() => onRemove(item.id)}

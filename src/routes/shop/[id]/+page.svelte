@@ -7,7 +7,7 @@
 	import { toastStore } from '$lib/stores/toast.svelte';
 	import { MESSAGES } from '$lib/messages';
 	import { fade } from 'svelte/transition';
-	import { COLORS } from '$lib/constants';
+	import { COLORS, IMAGE_THUMBS } from '$lib/constants';
 	import { i18n } from '$lib/stores/i18n.svelte';
 	import { escapeJsonForHtmlScript, sanitizeHtml } from '$lib/utils/sanitize';
 
@@ -240,6 +240,7 @@
 								alt="{product.title} view {i + 1}"
 								className="w-full h-full object-cover"
 								priority={i === 0}
+								thumb={IMAGE_THUMBS.PRODUCT_DETAIL_MAIN}
 							/>
 						</div>
 					</div>
@@ -265,7 +266,8 @@
 							src={image}
 							alt="{product.title} view {i + 1}"
 							className="w-full h-auto object-cover"
-							priority={i <= 1}
+							priority={i === 0}
+							thumb={IMAGE_THUMBS.PRODUCT_DETAIL_GALLERY}
 						/>
 					</div>
 				{/each}

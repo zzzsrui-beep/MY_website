@@ -1,11 +1,13 @@
 <script lang="ts">
 	import RemoteImage from '$lib/components/ui/RemoteImage.svelte';
+	import { IMAGE_THUMBS } from '$lib/constants';
 
 	interface Props {
 		mediaType: 'image' | 'video';
 		src: string;
 		alt?: string;
 		priority?: boolean;
+		thumb?: string;
 		mediaClassName?: string;
 		overlayClassName?: string;
 	}
@@ -15,6 +17,7 @@
 		src,
 		alt = 'Hero media',
 		priority = false,
+		thumb = IMAGE_THUMBS.HERO,
 		mediaClassName = 'w-full h-full object-cover',
 		overlayClassName = 'absolute inset-0 bg-black/30'
 	}: Props = $props();
@@ -23,7 +26,7 @@
 {#if mediaType === 'video'}
 	<video {src} autoplay loop muted playsinline class={mediaClassName}></video>
 {:else}
-	<RemoteImage {src} {alt} className={mediaClassName} {priority} />
+	<RemoteImage {src} {alt} className={mediaClassName} {priority} {thumb} />
 {/if}
 
 {#if overlayClassName}

@@ -167,8 +167,7 @@ export const CONTENT_IMAGES = {
 	HOME_STORY: FALLBACK_IMAGE_FILES.SECTION,
 
 	// SEO / Open Graph
-	OG_DEFAULT:
-		'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=1200&auto=format&fit=crop'
+	OG_DEFAULT: FALLBACK_IMAGE_FILES.HERO
 } as const;
 
 // =============================================================================

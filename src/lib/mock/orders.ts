@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit';
+import { FALLBACK_IMAGE_FILES } from '$lib/constants';
 import type { OrderDetail, OrderSummary } from '$lib/types';
 
 const frontendOrderDetails: OrderDetail[] = [
@@ -16,8 +17,7 @@ const frontendOrderDetails: OrderDetail[] = [
 				title: 'Obsidian Trench',
 				price: 21000,
 				quantity: 2,
-				image:
-					'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop',
+				image: FALLBACK_IMAGE_FILES.CARD,
 				variant: 'Black / M'
 			}
 		],
@@ -48,8 +48,7 @@ const frontendOrderDetails: OrderDetail[] = [
 				title: 'Leather Tote',
 				price: 23000,
 				quantity: 1,
-				image:
-					'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop',
+				image: FALLBACK_IMAGE_FILES.CARD,
 				variant: 'Brown / O/S'
 			}
 		],

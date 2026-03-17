@@ -1,3 +1,4 @@
+import { FALLBACK_IMAGE_FILES } from '$lib/constants';
 import type { Category, Product } from '$lib/types';
 
 const makePriceLabel = (value: number) => `$${value.toFixed(2)}`;
@@ -69,10 +70,8 @@ export const frontendProducts: Product[] = [
 		description: 'A super soft oversized panda plush perfect for cuddling.',
 		priceValue: 45,
 		price: makePriceLabel(45),
-		image: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			material: '100% Polyester Fluff',
 			care: 'Spot clean only'
@@ -93,10 +92,8 @@ export const frontendProducts: Product[] = [
 		description: 'Pocket-size panda plush with keyring clip.',
 		priceValue: 14,
 		price: makePriceLabel(14),
-		image: 'https://images.unsplash.com/photo-1589656966895-2f33e7653819?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1589656966895-2f33e7653819?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			material: 'Plush + Alloy Clip'
 		},
@@ -115,10 +112,8 @@ export const frontendProducts: Product[] = [
 		description: 'Museum-grade panda illustration print for studio walls.',
 		priceValue: 39,
 		price: makePriceLabel(39),
-		image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			details: ['A2 Size', 'Matte Finish']
 		},
@@ -137,10 +132,8 @@ export const frontendProducts: Product[] = [
 		description: 'Artist sketchbook with panda-themed cover art.',
 		priceValue: 24,
 		price: makePriceLabel(24),
-		image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			details: ['120 gsm paper', 'Hardcover']
 		},
@@ -159,10 +152,8 @@ export const frontendProducts: Product[] = [
 		description: 'Heavyweight hoodie with embroidered panda icon.',
 		priceValue: 62,
 		price: makePriceLabel(62),
-		image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			material: 'Cotton Fleece'
 		},
@@ -181,10 +172,8 @@ export const frontendProducts: Product[] = [
 		description: 'Low-profile cap with stitched panda patch.',
 		priceValue: 28,
 		price: makePriceLabel(28),
-		image: 'https://images.unsplash.com/photo-1521369909029-2afed882baee?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1521369909029-2afed882baee?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			material: 'Cotton Twill'
 		},
@@ -203,10 +192,8 @@ export const frontendProducts: Product[] = [
 		description: 'Travel magnet featuring panda skyline artwork.',
 		priceValue: 9,
 		price: makePriceLabel(9),
-		image: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1611224923853-80b023f02d71?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			material: 'Resin'
 		},
@@ -225,10 +212,8 @@ export const frontendProducts: Product[] = [
 		description: 'Set of 4 enamel pins inspired by panda adventures.',
 		priceValue: 16,
 		price: makePriceLabel(16),
-		image: 'https://images.unsplash.com/photo-1620063238128-4081cde3bd88?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1620063238128-4081cde3bd88?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			material: 'Enamel'
 		},
@@ -248,10 +233,8 @@ export const frontendProducts: Product[] = [
 		description: '12oz ceramic mug with 3D panda face detail.',
 		priceValue: 22,
 		price: makePriceLabel(22),
-		image: 'https://images.unsplash.com/photo-1514228742587-a6fdfaac4f7d?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1514228742587-a6fdfaac4f7d?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			material: 'Ceramic',
 			care: 'Microwave safe'
@@ -271,10 +254,8 @@ export const frontendProducts: Product[] = [
 		description: 'Set of 3 notebooks with panda line art.',
 		priceValue: 18,
 		price: makePriceLabel(18),
-		image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			details: ['A5 Size', 'Eco Paper']
 		},
@@ -293,10 +274,8 @@ export const frontendProducts: Product[] = [
 		description: 'Silent click mouse with panda shell design.',
 		priceValue: 34,
 		price: makePriceLabel(34),
-		image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			details: ['2.4G Wireless', 'Rechargeable']
 		},
@@ -315,10 +294,8 @@ export const frontendProducts: Product[] = [
 		description: 'Soft warm desk lamp powered by USB.',
 		priceValue: 26,
 		price: makePriceLabel(26),
-		image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			details: ['USB-C', '3 Brightness Levels']
 		},
@@ -337,10 +314,8 @@ export const frontendProducts: Product[] = [
 		description: 'Random panda mini figure from promo series.',
 		priceValue: 11,
 		price: makePriceLabel(11),
-		image: 'https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			details: ['Limited Promo']
 		},
@@ -360,10 +335,8 @@ export const frontendProducts: Product[] = [
 		description: 'Special discount combo with panda daily goods.',
 		priceValue: 49,
 		price: makePriceLabel(49),
-		image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop',
-		images: [
-			'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop'
-		],
+		image: FALLBACK_IMAGE_FILES.CARD,
+		images: [FALLBACK_IMAGE_FILES.CARD],
 		attributes: {
 			details: ['Bundle Offer']
 		},

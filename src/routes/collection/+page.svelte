@@ -25,7 +25,13 @@
 
 	const getImageUrl = (record: CollectionImageRecord | undefined) => {
 		if (!record || !record.image) return '';
-		return resolveAssetUrl(record.image);
+		const raw = record.image.trim();
+		if (!raw) return '';
+		if (raw.startsWith('/fallback/')) return raw;
+		if (!raw.includes('/') && !/^https?:\/\//i.test(raw) && !/\.[a-z0-9]{2,5}$/i.test(raw)) {
+			return '';
+		}
+		return resolveAssetUrl(raw);
 	};
 
 	let heroImageLeft = $derived(getImageUrl(leftRecord) || CONTENT_IMAGES.HOME_HERO);
@@ -80,15 +86,14 @@
 	<div class="relative w-full h-screen flex flex-col md:flex-row z-0">
 		{#each heroPanels as panel, panelIndex (panel.id)}
 			<a href={panel.link} class="flex-1 block bg-black overflow-hidden">
-				{#if panel.image}
-					<RemoteImage
-						src={panel.image}
-						alt={panel.title}
-						className="w-full h-full"
-						priority={panelIndex === 0}
-						thumb={IMAGE_THUMBS.COLLECTION_PANEL}
-					/>
-				{/if}
+				<RemoteImage
+					src={panel.image}
+					fallbackSrc={panel.id === 'left' ? CONTENT_IMAGES.HOME_HERO : CONTENT_IMAGES.HOME_STORY}
+					alt={panel.title}
+					className="w-full h-full"
+					priority={panelIndex === 0}
+					thumb={IMAGE_THUMBS.COLLECTION_PANEL}
+				/>
 			</a>
 		{/each}
 	</div>

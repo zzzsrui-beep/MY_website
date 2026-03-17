@@ -18,6 +18,7 @@
 	 */
 	interface Props {
 		src: string;
+		fallbackSrc?: string;
 		alt: string;
 		className?: string;
 		style?: string;
@@ -28,6 +29,7 @@
 
 	let {
 		src,
+		fallbackSrc = '',
 		alt,
 		className = '',
 		style = '',
@@ -38,30 +40,53 @@
 
 	let loaded = $state(false);
 	let error = $state(false);
+	let triedFallback = $state(false);
+	let currentSrc = $state('');
 
-	let finalSrc = $derived.by(() => {
+	function applyThumb(url: string) {
+		if (!url) return '';
+		return thumb ? appendThumbToUrl(url, thumb) : url;
+	}
+
+	let primarySrc = $derived.by(() => {
 		if (!src) return '';
-		if (thumb) {
-			return appendThumbToUrl(src, thumb);
-		}
-		return src;
+		return applyThumb(src);
+	});
+
+	let fallbackFinalSrc = $derived.by(() => {
+		if (!fallbackSrc) return '';
+		return applyThumb(fallbackSrc);
+	});
+
+	$effect(() => {
+		currentSrc = primarySrc || fallbackFinalSrc || '';
+		triedFallback = !primarySrc && Boolean(fallbackFinalSrc);
+		loaded = false;
+		error = false;
 	});
 
 	let avifSrc = $derived.by(() => {
-		if (!finalSrc) return '';
-		const [rawPath, rawQuery] = finalSrc.split('?');
+		if (!currentSrc) return '';
+		const [rawPath, rawQuery] = currentSrc.split('?');
 		if (!rawPath.startsWith('/fallback/') || !/\.webp$/i.test(rawPath)) return '';
 		const avifPath = rawPath.replace(/\.webp$/i, '.avif');
 		return rawQuery ? `${avifPath}?${rawQuery}` : avifPath;
 	});
 
-	let preloadSrc = $derived(avifSrc || finalSrc);
+	let preloadSrc = $derived(avifSrc || primarySrc || currentSrc);
 
 	function handleLoad() {
 		loaded = true;
 	}
 
 	function handleError() {
+		if (!triedFallback && fallbackFinalSrc && currentSrc !== fallbackFinalSrc) {
+			triedFallback = true;
+			currentSrc = fallbackFinalSrc;
+			loaded = false;
+			error = false;
+			return;
+		}
 		error = true;
 		loaded = true; // Stop showing skeleton
 	}
@@ -78,24 +103,24 @@
 
 <div class="relative overflow-hidden {className}" style={computedStyle}>
 	<!-- Skeleton / Placeholder -->
-	{#if !loaded && !error && finalSrc}
+	{#if !loaded && !error && currentSrc}
 		<div aria-hidden="true" class="absolute inset-0 w-full h-full z-0">
 			<Skeleton className="w-full h-full rounded-none" />
 		</div>
 	{/if}
 
 	<!-- Elegant solid color fallback (All Black) -->
-	{#if error || !finalSrc}
+	{#if error || !currentSrc}
 		<div aria-hidden="true" class="absolute inset-0 w-full h-full bg-neutral-900 z-0"></div>
 	{/if}
 
 	<!-- Image -->
-	{#if finalSrc}
+	{#if currentSrc}
 		{#if avifSrc}
 			<picture class="block w-full h-full z-10">
 				<source srcset={avifSrc} type="image/avif" />
 				<img
-					src={finalSrc}
+					src={currentSrc}
 					{alt}
 					class="w-full h-full object-cover transition-opacity duration-700 ease-out {loaded && !error
 						? 'opacity-100'
@@ -109,7 +134,7 @@
 			</picture>
 		{:else}
 			<img
-				src={finalSrc}
+				src={currentSrc}
 				{alt}
 				class="w-full h-full object-cover transition-opacity duration-700 ease-out z-10 {loaded &&
 				!error

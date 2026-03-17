@@ -39,6 +39,7 @@ export function resolveAssetUrl(pathOrUrl: string): string {
 	const raw = pathOrUrl?.trim();
 	if (!raw) return '';
 	if (isAbsoluteUrl(raw)) return raw;
+	if (raw.startsWith('/fallback/')) return raw;
 
 	const base = getPublicMediaBaseUrl();
 	if (!base) {

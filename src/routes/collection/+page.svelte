@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ProductListGrid from '$lib/components/shop/ProductListGrid.svelte';
 	import RemoteImage from '$lib/components/ui/RemoteImage.svelte';
-	import { IMAGE_THUMBS } from '$lib/constants';
+	import { CONTENT_IMAGES, IMAGE_THUMBS } from '$lib/constants';
 	import { resolveAssetUrl } from '$lib/utils/image';
 	import { i18n } from '$lib/stores/i18n.svelte';
 	import logo from '$lib/assets/logo.svg';
@@ -28,8 +28,8 @@
 		return resolveAssetUrl(record.image);
 	};
 
-	let heroImageLeft = $derived(getImageUrl(leftRecord));
-	let heroImageRight = $derived(getImageUrl(rightRecord));
+	let heroImageLeft = $derived(getImageUrl(leftRecord) || CONTENT_IMAGES.HOME_HERO);
+	let heroImageRight = $derived(getImageUrl(rightRecord) || CONTENT_IMAGES.HOME_STORY);
 
 	let leftLink = $derived(leftRecord?.link || '/shop?category=plush-toys');
 	let rightLink = $derived(rightRecord?.link || '/shop?category=art-pieces');

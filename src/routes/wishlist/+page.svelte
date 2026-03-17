@@ -2,10 +2,11 @@
 	import { useWishlist } from '$lib/stores/wishlist.svelte';
 	import { useCart } from '$lib/stores/cart.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
+	import RemoteImage from '$lib/components/ui/RemoteImage.svelte';
 	import WishlistItemCard from '$lib/components/wishlist/WishlistItemCard.svelte';
 	import { fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
-	import { COLORS } from '$lib/constants';
+	import { COLORS, CONTENT_IMAGES, IMAGE_THUMBS } from '$lib/constants';
 	import { i18n } from '$lib/stores/i18n.svelte';
 
 	const wishlist = useWishlist();
@@ -14,6 +15,12 @@
 	import type { CartItem, WishlistItem } from '$lib/types';
 
 	let { data } = $props();
+
+	let emptyWishlistImage = $derived.by(() => {
+		const image = data?.settings?.emptyWishlistImage;
+		if (typeof image === 'string' && image.trim().length > 0) return image;
+		return CONTENT_IMAGES.WISHLIST_EMPTY;
+	});
 
 	function moveToBag(item: WishlistItem) {
 		const cartItem: CartItem = {
@@ -55,8 +62,15 @@
 				class="relative w-full h-[50vh] flex flex-col items-center justify-center overflow-hidden group"
 				in:fade
 			>
+				<RemoteImage
+					src={emptyWishlistImage}
+					alt={i18n.tx('The canvas is empty')}
+					className="absolute inset-0 w-full h-full"
+					thumb={IMAGE_THUMBS.SECTION_BG}
+				/>
+				<div class="absolute inset-0 bg-black/35 z-10"></div>
 				<div class="relative z-10 text-center space-y-8">
-					<p class="text-sm md:text-lg font-display uppercase tracking-[0.3em] {COLORS.text}">
+					<p class="text-sm md:text-lg font-display uppercase tracking-[0.3em] text-white">
 						{i18n.tx('The canvas is empty')}
 					</p>
 					<Button href="/shop" size="lg">{i18n.tx('Start Curating')}</Button>

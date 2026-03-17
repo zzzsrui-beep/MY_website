@@ -309,6 +309,9 @@ function readMediaUrl(value: unknown) {
 		const raw = value.trim();
 		if (!raw) return '';
 		if (!raw.includes('/') && !/^https?:\/\//i.test(raw)) {
+			if (!/\.[a-z0-9]{2,5}$/i.test(raw)) {
+				return '';
+			}
 			return resolveAssetUrl(buildMediaPathFromFilename(raw));
 		}
 		return resolveAssetUrl(raw);
@@ -530,8 +533,18 @@ function mapPayloadSection(input: UnknownRecord, index: number): UISection {
 	const settings = asRecord(input.settings) ?? {};
 	const imageArray = parseUrlArray(input.image);
 	const videoArray = parseUrlArray(input.video);
-	const imageUrl = asString(input.imageUrl, asString(input.image_url, imageArray[0] || ''));
-	const videoUrl = asString(input.videoUrl, asString(input.video_url, videoArray[0] || ''));
+	const singleImage = readMediaUrl(input.image);
+	const singleVideo = readMediaUrl(input.video);
+	const normalizedImageGallery = imageArray.length ? imageArray : singleImage ? [singleImage] : [];
+	const normalizedVideoGallery = videoArray.length ? videoArray : singleVideo ? [singleVideo] : [];
+	const imageUrl = asString(
+		input.imageUrl,
+		asString(input.image_url, normalizedImageGallery[0] || singleImage || '')
+	);
+	const videoUrl = asString(
+		input.videoUrl,
+		asString(input.video_url, normalizedVideoGallery[0] || singleVideo || '')
+	);
 
 	return {
 		id: asString(input.id, `payload-section-${index + 1}`),
@@ -542,8 +555,8 @@ function mapPayloadSection(input: UnknownRecord, index: number): UISection {
 		settings,
 		imageUrl: imageUrl ? resolveAssetUrl(imageUrl) : '',
 		videoUrl: videoUrl ? resolveAssetUrl(videoUrl) : '',
-		imageGallery: imageArray,
-		videoGallery: videoArray,
+		imageGallery: normalizedImageGallery,
+		videoGallery: normalizedVideoGallery,
 		sortOrder: asNumber(input.sortOrder, asNumber(input.sort_order, index + 1)),
 		isActive: asBoolean(input.isActive, asBoolean(input.is_active, true))
 	};
@@ -682,7 +695,8 @@ async function getPayloadPageBySlug(
 	const config = getConfig();
 	const docs = await fetchPayloadCollection<UnknownRecord>(fetcher, config.pagesCollection, withLocaleQuery({
 		'where[slug][equals]': slug,
-		limit: '1'
+		limit: '1',
+		depth: '1'
 	}, locale));
 	const first = docs[0];
 	if (!first) return null;
@@ -705,7 +719,7 @@ export async function getSiteLayoutData(fetcher: FetchLike, options?: LocaleOpti
 		const settingsRaw = await fetchPayloadGlobal<UnknownRecord>(
 			fetcher,
 			config.settingsGlobal,
-			withLocaleQuery(undefined, locale)
+			withLocaleQuery({ depth: '1' }, locale)
 		);
 		settings = mapPayloadSettings(asRecord(settingsRaw));
 	} catch (error) {
@@ -736,8 +750,8 @@ export async function getSiteLayoutData(fetcher: FetchLike, options?: LocaleOpti
 
 	try {
 		const [headerRaw, footerRaw] = await Promise.all([
-			fetchPayloadGlobal<UnknownRecord>(fetcher, 'header', withLocaleQuery(undefined, locale)),
-			fetchPayloadGlobal<UnknownRecord>(fetcher, 'footer', withLocaleQuery(undefined, locale))
+			fetchPayloadGlobal<UnknownRecord>(fetcher, 'header', withLocaleQuery({ depth: '2' }, locale)),
+			fetchPayloadGlobal<UnknownRecord>(fetcher, 'footer', withLocaleQuery({ depth: '2' }, locale))
 		]);
 
 		const headerNav = mapPayloadGlobalNavItems(asRecord(headerRaw), 'header');
@@ -767,7 +781,7 @@ export async function getSiteSettings(fetcher: FetchLike, options?: LocaleOption
 		const settingsRaw = await fetchPayloadGlobal<UnknownRecord>(
 			fetcher,
 			config.settingsGlobal,
-			withLocaleQuery(undefined, options?.locale)
+			withLocaleQuery({ depth: '1' }, options?.locale)
 		);
 		return mapPayloadSettings(asRecord(settingsRaw));
 	} catch (error) {
@@ -814,7 +828,8 @@ export async function getSectionsBySlugFromCms(
 		const docs = await fetchPayloadCollection<UnknownRecord>(fetcher, config.sectionsCollection, withLocaleQuery({
 			'where[page][equals]': page.id,
 			limit: '200',
-			sort: 'sort_order'
+			sort: 'sort_order',
+			depth: '1'
 		}, locale));
 		const mapped = docs
 			.map(mapPayloadSection)
@@ -881,7 +896,8 @@ export async function getCategoriesFromCms(fetcher: FetchLike, options?: LocaleO
 		const [docs, productProbe] = await Promise.all([
 			fetchPayloadCollection<UnknownRecord>(fetcher, config.categoryCollection, withLocaleQuery({
 				limit: '500',
-				sort: 'sortOrder'
+				sort: 'sortOrder',
+				depth: '1'
 			}, locale)),
 			fetchPayloadCollection<UnknownRecord>(fetcher, config.productCollection, withLocaleQuery({
 				limit: '1'
@@ -1048,8 +1064,9 @@ export async function getCollectionPanelsFromCms(fetcher: FetchLike, options?: L
 			fetcher,
 			config.collectionPanelCollection,
 			withLocaleQuery({
-			limit: '10',
-			sort: 'order'
+				limit: '10',
+				sort: 'order',
+				depth: '1'
 			}, options?.locale)
 		);
 		const mapped = docs

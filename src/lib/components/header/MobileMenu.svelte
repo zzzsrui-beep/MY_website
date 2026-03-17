@@ -37,11 +37,7 @@
 	>
 		{#if navItems && navItems.length > 0}
 			{#each navItems as link (link.url)}
-				<a
-					href={link.url}
-					onclick={onClose}
-					class="block py-3 hover:text-primary/70"
-				>
+				<a href={link.url} data-sveltekit-preload-data="hover" class="block py-3 hover:text-primary/70">
 					{i18n.tx(link.label)}
 				</a>
 			{/each}
@@ -49,8 +45,12 @@
 
 		<div class="h-px bg-primary/5 dark:bg-white/5 my-2"></div>
 
-		<a href="/wishlist" onclick={onClose} class="block py-3 hover:text-primary/70">{i18n.tx('Wishlist')}</a>
-		<a href="/account" onclick={onClose} class="block py-3 hover:text-primary/70">{i18n.tx('Account')}</a>
+		<a href="/wishlist" data-sveltekit-preload-data="hover" class="block py-3 hover:text-primary/70"
+			>{i18n.tx('Wishlist')}</a
+		>
+		<a href="/account" data-sveltekit-preload-data="hover" class="block py-3 hover:text-primary/70"
+			>{i18n.tx('Account')}</a
+		>
 		<button
 			onclick={onSearchClick}
 			class="text-left uppercase tracking-[0.15em] cursor-pointer py-3 w-full hover:text-primary/70"

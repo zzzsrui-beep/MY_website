@@ -4,8 +4,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import { useCart } from '$lib/stores/cart.svelte';
 	import { i18n, type LanguageCode } from '$lib/stores/i18n.svelte';
-	import { goto, invalidateAll } from '$app/navigation';
-	import { browser } from '$app/environment';
+	import { invalidateAll } from '$app/navigation';
 
 	const cart = useCart();
 
@@ -18,22 +17,8 @@
 
 	let { navItems, onClose, onSearchClick, onCartClick }: Props = $props();
 
-	const EXTERNAL_LINK_RE = /^(https?:\/\/|mailto:|tel:|#)/i;
-
-	async function navigate(url: string) {
-		const target = url?.trim();
-		if (!target) return;
-
-		onClose();
-
-		if (EXTERNAL_LINK_RE.test(target)) {
-			if (browser) {
-				window.location.href = target;
-			}
-			return;
-		}
-
-		await goto(target);
+	function scheduleClose() {
+		setTimeout(() => onClose(), 0);
 	}
 
 	async function selectLanguage(lang: LanguageCode) {
@@ -56,24 +41,35 @@
 	>
 		{#if navItems && navItems.length > 0}
 			{#each navItems as link (link.url)}
-				<button
-					type="button"
-					onclick={() => navigate(link.url)}
+				<a
+					href={link.url}
+					data-sveltekit-preload-data="hover"
+					onclick={scheduleClose}
 					class="block py-3 hover:text-primary/70 text-left w-full"
 				>
 					{i18n.tx(link.label)}
-				</button>
+				</a>
 			{/each}
 		{/if}
 
 		<div class="h-px bg-primary/5 dark:bg-white/5 my-2"></div>
 
-		<button type="button" onclick={() => navigate('/wishlist')} class="block py-3 hover:text-primary/70 text-left w-full">
+		<a
+			href="/wishlist"
+			data-sveltekit-preload-data="hover"
+			onclick={scheduleClose}
+			class="block py-3 hover:text-primary/70 text-left w-full"
+		>
 			{i18n.tx('Wishlist')}
-		</button>
-		<button type="button" onclick={() => navigate('/account')} class="block py-3 hover:text-primary/70 text-left w-full">
+		</a>
+		<a
+			href="/account"
+			data-sveltekit-preload-data="hover"
+			onclick={scheduleClose}
+			class="block py-3 hover:text-primary/70 text-left w-full"
+		>
 			{i18n.tx('Account')}
-		</button>
+		</a>
 		<button
 			onclick={onSearchClick}
 			class="text-left uppercase tracking-[0.15em] cursor-pointer py-3 w-full hover:text-primary/70"
@@ -93,7 +89,21 @@
 		<div class="h-px bg-primary/5 dark:bg-white/5 my-2"></div>
 
 		<div class="flex items-center gap-2 py-2">
-			<span class="material-symbols-outlined text-[16px]">language</span>
+			<svg
+				viewBox="0 0 24 24"
+				class="w-4 h-4"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="1.8"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				aria-hidden="true"
+			>
+				<circle cx="12" cy="12" r="9" />
+				<path d="M3 12H21" />
+				<path d="M12 3C14.8 5.7 16.4 8.8 16.4 12C16.4 15.2 14.8 18.3 12 21" />
+				<path d="M12 3C9.2 5.7 7.6 8.8 7.6 12C7.6 15.2 9.2 18.3 12 21" />
+			</svg>
 			{#each i18n.options as option (option.code)}
 				<button
 					onclick={() => selectLanguage(option.code)}

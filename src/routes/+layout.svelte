@@ -10,6 +10,7 @@
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import { env } from '$env/dynamic/public';
 	import { i18n, initI18n } from '$lib/stores/i18n.svelte';
 
@@ -25,6 +26,7 @@
 
 	const COOKIE_CONSENT_KEY = 'cookie_consent';
 	const COOKIE_CONSENT_EVENT = 'cookie-consent-change';
+	const MOBILE_ENTRY_CHECK_KEY = 'mobile_entry_checked';
 
 	let { children, data } = $props();
 	let cookieConsent = $state<string | null>(null);
@@ -183,6 +185,21 @@
 
 	onMount(() => {
 		initI18n();
+
+		const mobileFirstEntryHandled = sessionStorage.getItem(MOBILE_ENTRY_CHECK_KEY);
+		if (!mobileFirstEntryHandled) {
+			sessionStorage.setItem(MOBILE_ENTRY_CHECK_KEY, '1');
+			const isMobileViewport = window.matchMedia('(max-width: 767px)').matches;
+			const isDirectEntry = !document.referrer;
+			const isPlainShopEntry =
+				window.location.pathname === '/shop' &&
+				window.location.search.length === 0 &&
+				window.location.hash.length === 0;
+
+			if (isMobileViewport && isDirectEntry && isPlainShopEntry) {
+				goto('/', { replaceState: true, noScroll: true, keepFocus: true });
+			}
+		}
 
 		const syncCookieConsent = () => {
 			cookieConsent = localStorage.getItem(COOKIE_CONSENT_KEY);

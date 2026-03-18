@@ -204,9 +204,36 @@
 			aria-label="Toggle menu"
 			class="md:hidden p-2 -ml-2 hover:opacity-70 transition-opacity outline-none focus:outline-none active:outline-none tap-highlight-transparent"
 		>
-			<span class="material-symbols-outlined text-[24px]">
-				{isMenuOpen ? 'close' : 'menu'}
-			</span>
+			{#if isMenuOpen}
+				<svg
+					viewBox="0 0 24 24"
+					class="w-6 h-6"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M18 6L6 18" />
+					<path d="M6 6L18 18" />
+				</svg>
+			{:else}
+				<svg
+					viewBox="0 0 24 24"
+					class="w-6 h-6"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M4 6H20" />
+					<path d="M4 12H20" />
+					<path d="M4 18H20" />
+				</svg>
+			{/if}
 		</button>
 
 		<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">

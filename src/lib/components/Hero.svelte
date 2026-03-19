@@ -28,8 +28,8 @@
 	const heroContentOffsetClass = $derived(isShopPage ? 'pt-8 md:pt-10' : '-top-12 md:-top-16');
 	const heroActionsClass = $derived(
 		isShopPage
-			? 'absolute bottom-8 md:bottom-10 z-20 w-full flex flex-col md:flex-row items-center justify-center gap-6 px-6'
-			: 'absolute bottom-16 md:bottom-24 z-20 w-full flex flex-col md:flex-row items-center justify-center gap-10 px-6'
+			? 'absolute bottom-8 md:bottom-10 z-40 w-full flex flex-col md:flex-row items-center justify-center gap-6 px-6'
+			: 'absolute bottom-16 md:bottom-24 z-40 w-full flex flex-col md:flex-row items-center justify-center gap-10 px-6'
 	);
 	const heroActionsInnerClass = $derived(
 		isShopPage
@@ -77,9 +77,9 @@
 </script>
 
 <section
-	class={`relative w-full ${heroHeightClass} flex items-center justify-center overflow-hidden bg-black`}
+	class={`relative isolate w-full ${heroHeightClass} flex items-center justify-center overflow-hidden bg-black`}
 >
-	<div class="absolute inset-0 w-full h-full z-0">
+	<div class="absolute inset-0 w-full h-full z-0 pointer-events-none">
 		{#if slides.length > 0}
 			{#each slides as slide, i (slide.url + i)}
 				{#if i === currentIndex}
@@ -99,7 +99,7 @@
 	</div>
 
 	<div
-		class={`relative z-10 flex flex-col items-center justify-center h-full w-full px-4 text-center ${heroContentOffsetClass}`}
+		class={`relative z-10 flex flex-col items-center justify-center h-full w-full px-4 text-center pointer-events-none ${heroContentOffsetClass}`}
 	>
 		{#if section.subheading && !isLogoHeading}
 			<span
@@ -141,6 +141,8 @@
 				actions={section.settings?.actions}
 				containerClass={heroActionsInnerClass}
 				linkClass="inline-flex items-center justify-center w-full md:w-[320px] px-8 py-4 border border-white text-white text-xs font-sans font-medium tracking-[0.15em] uppercase transition-all duration-300 hover:bg-white hover:text-black"
+				preloadData="tap"
+				navigationMode="auto"
 			/>
 		</div>
 	{/if}

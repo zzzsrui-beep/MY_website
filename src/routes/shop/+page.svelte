@@ -6,7 +6,7 @@
 	import SectionRenderer from '$lib/components/SectionRenderer.svelte';
 	import { fade } from 'svelte/transition';
 	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
 	import { i18n } from '$lib/stores/i18n.svelte';
 	import type { Product } from '$lib/types';
 
@@ -31,6 +31,7 @@
 	let currentProductsPage = $state(1);
 	let hasMoreProducts = $state(false);
 	let isLoadingMoreProducts = $state(false);
+	let isCategoryNavigating = $state(false);
 
 	let isNavLevelCategory = $derived(() => {
 		const currentCategory = $page.url.searchParams.get('category');
@@ -39,14 +40,26 @@
 
 	let showFilterButton = $derived($page.url.searchParams.has('gender') && !isNavLevelCategory());
 
-	function selectCategory(slug: string) {
+	function getCategoryHref(slug: string) {
 		const url = new URL($page.url);
 		if (slug === 'ALL') {
 			url.searchParams.delete('category');
 		} else {
 			url.searchParams.set('category', slug);
 		}
-		goto(url.toString(), { replaceState: false, noScroll: true });
+		return `${url.pathname}${url.search}${url.hash}`;
+	}
+
+	function handleCategoryActivate(event: Event, slug: string) {
+		if (!browser || isCategoryNavigating) return;
+
+		const isMobileViewport = window.matchMedia('(max-width: 767px)').matches;
+		if (!isMobileViewport) return;
+
+		event.preventDefault();
+		event.stopPropagation();
+		isCategoryNavigating = true;
+		window.location.assign(getCategoryHref(slug));
 	}
 
 	type FilterState = {
@@ -216,19 +229,22 @@
 	</div>
 {/if}
 
-<section class="w-full px-4 md:px-12 py-6 md:py-8">
+<section class="relative z-30 w-full px-4 md:px-12 py-6 md:py-8">
 	<div class="mx-auto w-full max-w-[1440px]" in:fade>
 		<div class="flex flex-wrap items-center justify-center gap-3 md:gap-4">
 			{#each categories as category (category.slug)}
-				<button
+				<a
+					href={getCategoryHref(category.slug)}
+					data-sveltekit-preload-data="tap"
+					onpointerup={(event) => handleCategoryActivate(event, category.slug)}
+					onclick={(event) => handleCategoryActivate(event, category.slug)}
 					class="inline-flex h-11 min-w-[150px] items-center justify-center border px-4 text-center text-[10px] md:text-[11px] leading-tight tracking-[0.12em] uppercase transition-colors {activeCategory ===
 					category.slug
 						? 'bg-primary text-white border-primary dark:bg-white dark:text-black dark:border-white'
-						: 'text-primary border-primary/70 hover:border-primary hover:bg-primary/5 dark:text-white dark:border-white/70 dark:hover:border-white dark:hover:bg-white/10'}"
-					onclick={() => selectCategory(category.slug)}
+						: 'text-primary border-primary/70 hover:border-primary hover:bg-primary/5 dark:text-white dark:border-white/70 dark:hover:border-white dark:hover:bg-white/10'} touch-manipulation"
 				>
 					{category.name}
-				</button>
+				</a>
 			{/each}
 		</div>
 	</div>

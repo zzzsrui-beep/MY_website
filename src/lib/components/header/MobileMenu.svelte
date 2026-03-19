@@ -5,6 +5,7 @@
 	import { useCart } from '$lib/stores/cart.svelte';
 	import { i18n, type LanguageCode } from '$lib/stores/i18n.svelte';
 	import { invalidateAll } from '$app/navigation';
+	import { browser } from '$app/environment';
 
 	const cart = useCart();
 
@@ -17,8 +18,29 @@
 
 	let { navItems, onClose, onSearchClick, onCartClick }: Props = $props();
 
-	function scheduleClose() {
-		setTimeout(() => onClose(), 0);
+	const EXTERNAL_LINK_RE = /^(https?:\/\/|mailto:|tel:|#)/i;
+	let navigating = $state(false);
+
+	function normalizeTarget(url: string) {
+		const raw = url?.trim();
+		if (!raw) return '';
+		if (EXTERNAL_LINK_RE.test(raw)) return raw;
+		return raw.startsWith('/') ? raw : `/${raw}`;
+	}
+
+	function navigateHard(url: string) {
+		const target = normalizeTarget(url);
+		if (!target || navigating || !browser) return;
+
+		navigating = true;
+		onClose();
+		window.location.assign(target);
+	}
+
+	function handleNavActivate(event: Event, url: string) {
+		event.preventDefault();
+		event.stopPropagation();
+		navigateHard(url);
 	}
 
 	async function selectLanguage(lang: LanguageCode) {
@@ -31,45 +53,46 @@
 </script>
 
 <div
-	class="fixed inset-x-0 bottom-0 top-[var(--header-height)] bg-background-light dark:bg-background-dark text-primary dark:text-white z-[var(--z-modal)] border-t border-primary/5 dark:border-white/5 overflow-y-auto"
+	class="fixed inset-x-0 bottom-0 top-[var(--header-height)] bg-background-light dark:bg-background-dark text-primary dark:text-white z-[90] border-t border-primary/5 dark:border-white/5 overflow-y-auto pointer-events-auto"
 	role="dialog"
 	aria-modal="true"
 	transition:fly={{ y: -10, duration: 300, easing: cubicOut }}
 >
 	<nav
 		class="flex flex-col p-6 text-[11px] font-sans uppercase tracking-[0.15em] min-h-full bg-background-light dark:bg-background-dark touch-manipulation"
+		style="-webkit-overflow-scrolling: touch;"
 	>
 		{#if navItems && navItems.length > 0}
 			{#each navItems as link (link.url)}
-				<a
-					href={link.url}
-					data-sveltekit-preload-data="hover"
-					onclick={scheduleClose}
+				<button
+					type="button"
+					onpointerup={(event) => handleNavActivate(event, link.url)}
+					onclick={(event) => handleNavActivate(event, link.url)}
 					class="block py-3 hover:text-primary/70 text-left w-full"
 				>
 					{i18n.tx(link.label)}
-				</a>
+				</button>
 			{/each}
 		{/if}
 
 		<div class="h-px bg-primary/5 dark:bg-white/5 my-2"></div>
 
-		<a
-			href="/wishlist"
-			data-sveltekit-preload-data="hover"
-			onclick={scheduleClose}
+		<button
+			type="button"
+			onpointerup={(event) => handleNavActivate(event, '/wishlist')}
+			onclick={(event) => handleNavActivate(event, '/wishlist')}
 			class="block py-3 hover:text-primary/70 text-left w-full"
 		>
 			{i18n.tx('Wishlist')}
-		</a>
-		<a
-			href="/account"
-			data-sveltekit-preload-data="hover"
-			onclick={scheduleClose}
+		</button>
+		<button
+			type="button"
+			onpointerup={(event) => handleNavActivate(event, '/account')}
+			onclick={(event) => handleNavActivate(event, '/account')}
 			class="block py-3 hover:text-primary/70 text-left w-full"
 		>
 			{i18n.tx('Account')}
-		</a>
+		</button>
 		<button
 			onclick={onSearchClick}
 			class="text-left uppercase tracking-[0.15em] cursor-pointer py-3 w-full hover:text-primary/70"

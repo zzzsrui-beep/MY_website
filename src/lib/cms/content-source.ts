@@ -304,7 +304,49 @@ function readRelationshipId(value: unknown) {
 	return '';
 }
 
-function readMediaUrl(value: unknown) {
+type ReadMediaUrlOptions = {
+	preferredSizes?: string[];
+	avoidMimeTypes?: string[];
+};
+
+function readPreferredMediaSizeUrl(record: UnknownRecord, options?: ReadMediaUrlOptions) {
+	const preferredSizes = options?.preferredSizes || [];
+	if (!preferredSizes.length) return '';
+
+	const sizesRecord = asRecord(record.sizes);
+	if (!sizesRecord) return '';
+
+	const avoidedMimeTypes = new Set(
+		(options?.avoidMimeTypes || []).map((mimeType) => mimeType.toLowerCase())
+	);
+
+	const pickSizeUrl = (strictMimeCheck: boolean) => {
+		for (const sizeName of preferredSizes) {
+			const sizeRecord = asRecord(sizesRecord[sizeName]);
+			if (!sizeRecord) continue;
+			const candidateUrl = asString(sizeRecord.url);
+			if (!candidateUrl) continue;
+
+			const candidateMime = asString(sizeRecord.mimeType).toLowerCase();
+			if (strictMimeCheck && candidateMime && avoidedMimeTypes.has(candidateMime)) {
+				continue;
+			}
+
+			return resolveAssetUrl(candidateUrl);
+		}
+
+		return '';
+	};
+
+	if (avoidedMimeTypes.size > 0) {
+		const safeUrl = pickSizeUrl(true);
+		if (safeUrl) return safeUrl;
+	}
+
+	return pickSizeUrl(false);
+}
+
+function readMediaUrl(value: unknown, options?: ReadMediaUrlOptions) {
 	if (typeof value === 'string') {
 		const raw = value.trim();
 		if (!raw) return '';
@@ -318,6 +360,8 @@ function readMediaUrl(value: unknown) {
 	}
 	const record = asRecord(value);
 	if (!record) return '';
+	const preferredSizeUrl = readPreferredMediaSizeUrl(record, options);
+	if (preferredSizeUrl) return preferredSizeUrl;
 	const direct =
 		asString(record.url, asString(record.image, asString(record.thumbnailURL))) ||
 		buildMediaPathFromFilename(asString(record.filename));
@@ -513,7 +557,16 @@ function mapPayloadPage(input: UnknownRecord): Page {
 		input.ogImage,
 		asString(input.og_image, readMediaUrl(meta?.image) || CONTENT_IMAGES.OG_DEFAULT)
 	);
-	const rawHeroImage = asString(input.heroImage, asString(input.hero_image, readMediaUrl(hero?.media)));
+	const rawHeroImage = asString(
+		input.heroImage,
+		asString(
+			input.hero_image,
+			readMediaUrl(hero?.media, {
+				preferredSizes: ['xlarge', 'large', 'medium', 'small', 'og', 'square', 'thumbnail'],
+				avoidMimeTypes: ['image/avif']
+			})
+		)
+	);
 
 	return {
 		id: asString(input.id),
@@ -533,7 +586,10 @@ function mapPayloadSection(input: UnknownRecord, index: number): UISection {
 	const settings = asRecord(input.settings) ?? {};
 	const imageArray = parseUrlArray(input.image);
 	const videoArray = parseUrlArray(input.video);
-	const singleImage = readMediaUrl(input.image);
+	const singleImage = readMediaUrl(input.image, {
+		preferredSizes: ['xlarge', 'large', 'medium', 'small', 'og', 'square', 'thumbnail'],
+		avoidMimeTypes: ['image/avif']
+	});
 	const singleVideo = readMediaUrl(input.video);
 	const normalizedImageGallery = imageArray.length ? imageArray : singleImage ? [singleImage] : [];
 	const normalizedVideoGallery = videoArray.length ? videoArray : singleVideo ? [singleVideo] : [];
@@ -679,7 +735,11 @@ function mapPayloadCollectionPanel(input: UnknownRecord, index: number): Collect
 	return {
 		id: asString(input.id, `collection-panel-${index + 1}`),
 		position: asString(input.position, index === 0 ? 'left' : 'right'),
-		image: readMediaUrl(input.image) || asString(input.imageUrl, asString(input.image_url)),
+		image:
+			readMediaUrl(input.image, {
+				preferredSizes: ['xlarge', 'large', 'medium', 'small', 'og', 'square', 'thumbnail'],
+				avoidMimeTypes: ['image/avif']
+			}) || asString(input.imageUrl, asString(input.image_url)),
 		link: asString(input.link, '/shop'),
 		title: asString(input.title),
 		order: asNumber(input.order, index + 1),

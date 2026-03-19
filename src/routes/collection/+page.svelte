@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ProductListGrid from '$lib/components/shop/ProductListGrid.svelte';
 	import RemoteImage from '$lib/components/ui/RemoteImage.svelte';
-	import { CONTENT_IMAGES, IMAGE_THUMBS } from '$lib/constants';
+	import { CONTENT_IMAGES, FALLBACK_IMAGE_FILES_COMPAT, IMAGE_THUMBS } from '$lib/constants';
 	import { resolveAssetUrl } from '$lib/utils/image';
 	import { i18n } from '$lib/stores/i18n.svelte';
 	import logo from '$lib/assets/logo.svg';
@@ -11,6 +11,7 @@
 	type CollectionImageRecord = {
 		position: string;
 		image: string;
+		imageFallback?: string;
 		id: string;
 		link?: string;
 		title?: string;
@@ -23,9 +24,9 @@
 		data.collectionImages?.find((img: CollectionImageRecord) => img.position === 'right')
 	);
 
-	const getImageUrl = (record: CollectionImageRecord | undefined) => {
-		if (!record || !record.image) return '';
-		const raw = record.image.trim();
+	const getImageUrl = (rawInput?: string) => {
+		if (!rawInput) return '';
+		const raw = rawInput.trim();
 		if (!raw) return '';
 		if (raw.startsWith('/fallback/')) return raw;
 		if (!raw.includes('/') && !/^https?:\/\//i.test(raw) && !/\.[a-z0-9]{2,5}$/i.test(raw)) {
@@ -34,8 +35,19 @@
 		return resolveAssetUrl(raw);
 	};
 
-	let heroImageLeft = $derived(getImageUrl(leftRecord) || CONTENT_IMAGES.HOME_HERO);
-	let heroImageRight = $derived(getImageUrl(rightRecord) || CONTENT_IMAGES.HOME_STORY);
+	const getRecordFallbackImage = (record: CollectionImageRecord | undefined) => {
+		if (!record) return '';
+		return typeof record.imageFallback === 'string' ? record.imageFallback : '';
+	};
+
+	let heroImageLeft = $derived(getImageUrl(leftRecord?.image) || CONTENT_IMAGES.HOME_HERO);
+	let heroImageRight = $derived(getImageUrl(rightRecord?.image) || CONTENT_IMAGES.HOME_STORY);
+	let heroImageFallbackLeft = $derived(
+		getImageUrl(getRecordFallbackImage(leftRecord)) || FALLBACK_IMAGE_FILES_COMPAT.HERO
+	);
+	let heroImageFallbackRight = $derived(
+		getImageUrl(getRecordFallbackImage(rightRecord)) || FALLBACK_IMAGE_FILES_COMPAT.SECTION
+	);
 
 	let leftLink = $derived(leftRecord?.link || '/shop?category=plush-toys');
 	let rightLink = $derived(rightRecord?.link || '/shop?category=art-pieces');
@@ -46,13 +58,15 @@
 			id: 'left',
 			link: leftLink,
 			title: leftTitle,
-			image: heroImageLeft
+			image: heroImageLeft,
+			imageFallback: heroImageFallbackLeft
 		},
 		{
 			id: 'right',
 			link: rightLink,
 			title: rightTitle,
-			image: heroImageRight
+			image: heroImageRight,
+			imageFallback: heroImageFallbackRight
 		}
 	]);
 
@@ -88,7 +102,7 @@
 			<a href={panel.link} class="flex-1 block bg-black overflow-hidden">
 				<RemoteImage
 					src={panel.image}
-					fallbackSrc={panel.id === 'left' ? CONTENT_IMAGES.HOME_HERO : CONTENT_IMAGES.HOME_STORY}
+					fallbackSrc={panel.imageFallback}
 					alt={panel.title}
 					className="w-full h-full"
 					priority={panelIndex === 0}

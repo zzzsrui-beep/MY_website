@@ -150,6 +150,12 @@ export const FALLBACK_IMAGE_FILES = {
 	CARD: '/fallback/card-3x4.webp'
 } as const;
 
+export const FALLBACK_IMAGE_FILES_COMPAT = {
+	HERO: '/fallback/hero-16x9.jpg',
+	SECTION: '/fallback/section-4x3.jpg',
+	CARD: '/fallback/card-3x4.jpg'
+} as const;
+
 // =============================================================================
 // CONTENT IMAGES - 统一的图片 Fallback (实际由 CMS assets/settings 管理)
 // =============================================================================

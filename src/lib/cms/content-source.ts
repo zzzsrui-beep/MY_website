@@ -31,6 +31,7 @@ type CollectionImageRecord = {
 	id: string;
 	position: string;
 	image: string;
+	imageFallback?: string;
 	link?: string;
 	title?: string;
 	order?: number;
@@ -732,14 +733,23 @@ function mapPayloadProduct(
 }
 
 function mapPayloadCollectionPanel(input: UnknownRecord, index: number): CollectionImageRecord {
+	const panelImage =
+		readMediaUrl(input.image, {
+			preferredSizes: ['xlarge', 'large', 'medium', 'small', 'compat', 'og', 'square', 'thumbnail'],
+			avoidMimeTypes: ['image/avif']
+		}) || asString(input.imageUrl, asString(input.image_url));
+
+	const panelFallback =
+		readMediaUrl(input.image, {
+			preferredSizes: ['compat', 'og', 'large', 'medium', 'small', 'thumbnail'],
+			avoidMimeTypes: ['image/avif', 'image/webp']
+		}) || undefined;
+
 	return {
 		id: asString(input.id, `collection-panel-${index + 1}`),
 		position: asString(input.position, index === 0 ? 'left' : 'right'),
-		image:
-			readMediaUrl(input.image, {
-				preferredSizes: ['xlarge', 'large', 'medium', 'small', 'og', 'square', 'thumbnail'],
-				avoidMimeTypes: ['image/avif']
-			}) || asString(input.imageUrl, asString(input.image_url)),
+		image: panelImage || panelFallback || '',
+		imageFallback: panelFallback,
 		link: asString(input.link, '/shop'),
 		title: asString(input.title),
 		order: asNumber(input.order, index + 1),

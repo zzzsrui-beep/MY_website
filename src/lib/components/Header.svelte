@@ -160,6 +160,17 @@
 	function checkLinkActive(linkHref: string) {
 		return isLinkActive(linkHref, $page.url.pathname, $page.url.search);
 	}
+
+	function handleLogoActivate(event: Event) {
+		if (!browser) return;
+		const isMobileViewport = window.matchMedia('(max-width: 767px)').matches;
+		if (!isMobileViewport) return;
+		if ($page.url.pathname === '/' && !$page.url.search && !$page.url.hash) return;
+
+		event.preventDefault();
+		event.stopPropagation();
+		window.location.assign('/');
+	}
 </script>
 
 <svelte:window onscroll={handleScroll} />
@@ -236,8 +247,14 @@
 			{/if}
 		</button>
 
-		<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-			<a href="/" class="block whitespace-nowrap" aria-label={`${siteName} Home`}>
+		<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] pointer-events-auto">
+			<a
+				href="/"
+				onpointerup={handleLogoActivate}
+				onclick={handleLogoActivate}
+				class="block whitespace-nowrap touch-manipulation"
+				aria-label={`${siteName} Home`}
+			>
 				<img
 					src={logo}
 					alt={siteName}

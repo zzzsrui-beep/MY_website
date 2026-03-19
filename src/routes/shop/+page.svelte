@@ -241,7 +241,7 @@
 					class="inline-flex h-11 min-w-[150px] items-center justify-center border px-4 text-center text-[10px] md:text-[11px] leading-tight tracking-[0.12em] uppercase transition-colors {activeCategory ===
 					category.slug
 						? 'bg-primary text-white border-primary dark:bg-white dark:text-black dark:border-white'
-						: 'text-primary border-primary/70 hover:border-primary hover:bg-primary/5 dark:text-white dark:border-white/70 dark:hover:border-white dark:hover:bg-white/10'} touch-manipulation"
+						: 'text-primary border-primary/70 hover:border-primary hover:bg-primary/5 dark:text-white dark:border-white/70 dark:hover:border-white dark:hover:bg-white/10'} rounded-full touch-manipulation"
 				>
 					{category.name}
 				</a>

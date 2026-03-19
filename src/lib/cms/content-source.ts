@@ -893,18 +893,17 @@ export async function getCategoriesFromCms(fetcher: FetchLike, options?: LocaleO
 	const config = getConfig();
 	try {
 		const locale = resolveLocale(options?.locale);
-		const [docs, productProbe] = await Promise.all([
-			fetchPayloadCollection<UnknownRecord>(fetcher, config.categoryCollection, withLocaleQuery({
-				limit: '500',
-				depth: '1'
-			}, locale)),
-			fetchPayloadCollection<UnknownRecord>(fetcher, config.productCollection, withLocaleQuery({
-				limit: '1'
-			}, locale))
-		]);
-		if (productProbe.length === 0) {
-			return frontendCategories;
-		}
+		const docs = await fetchPayloadCollection<UnknownRecord>(
+			fetcher,
+			config.categoryCollection,
+			withLocaleQuery(
+				{
+					limit: '500',
+					depth: '1'
+				},
+				locale
+			)
+		);
 
 		const mapped = docs
 			.map((doc, index) => mapPayloadCategory(doc, index, locale))
@@ -929,7 +928,7 @@ export async function getProductsPageFromCms(fetcher: FetchLike, options?: Produ
 	const config = getConfig();
 	try {
 		const locale = resolveLocale(options?.locale);
-		const categories = await getCategoriesFromCms(fetcher, { locale });
+		const categories = options?.categorySlug ? await getCategoriesFromCms(fetcher, { locale }) : [];
 		const categoryById = new Map(categories.map((category) => [category.id, category]));
 
 		const query: Record<string, string | undefined> = {
@@ -985,12 +984,22 @@ export async function getProductsFromCms(fetcher: FetchLike, options?: ProductQu
 	const config = getConfig();
 	try {
 		const locale = resolveLocale(options?.locale);
+		const categoriesPromise = options?.categorySlug
+			? getCategoriesFromCms(fetcher, { locale })
+			: Promise.resolve<Category[]>([]);
 		const [categories, docs] = await Promise.all([
-			getCategoriesFromCms(fetcher, { locale }),
-			fetchPayloadCollection<UnknownRecord>(fetcher, config.productCollection, withLocaleQuery({
-				limit: '1000',
-				depth: '1'
-			}, locale))
+			categoriesPromise,
+			fetchPayloadCollection<UnknownRecord>(
+				fetcher,
+				config.productCollection,
+				withLocaleQuery(
+					{
+						limit: '1000',
+						depth: '1'
+					},
+					locale
+				)
+			)
 		]);
 		const categoryById = new Map(categories.map((category) => [category.id, category]));
 		const mapped = docs

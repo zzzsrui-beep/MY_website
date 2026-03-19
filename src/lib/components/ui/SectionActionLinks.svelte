@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { smartNavigate } from '$lib/utils/smart-navigate';
 	import type { UISectionAction } from '$lib/types';
 	import { i18n } from '$lib/stores/i18n.svelte';
 
@@ -29,20 +30,28 @@
 		return raw.startsWith('/') ? raw : `/${raw}`;
 	}
 
-	function shouldUseHardNavigation() {
+	function shouldInterceptNavigation() {
 		if (navigationMode === 'hard') return true;
 		if (navigationMode !== 'auto' || !browser) return false;
 		return window.matchMedia('(max-width: 767px)').matches;
 	}
 
-	function handleActionActivate(event: Event, link?: string) {
-		if (!shouldUseHardNavigation() || isNavigating || !browser) return;
+	async function handleActionActivate(event: Event, link?: string) {
+		if (!shouldInterceptNavigation() || isNavigating || !browser) return;
 		const target = normalizeActionLink(link);
 		if (!target) return;
 		event.preventDefault();
 		event.stopPropagation();
 		isNavigating = true;
-		window.location.assign(target);
+		try {
+			await smartNavigate(target, {
+				forceHard: navigationMode === 'hard',
+				fallbackTimeoutMs: 900,
+				keepFocus: true
+			});
+		} finally {
+			isNavigating = false;
+		}
 	}
 </script>
 

@@ -3,6 +3,7 @@
 	import Drawer from '$lib/components/ui/Drawer.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import { parsePrice } from '$lib/utils/price';
+	import { smartNavigate } from '$lib/utils/smart-navigate';
 	import SectionRenderer from '$lib/components/SectionRenderer.svelte';
 	import { fade } from 'svelte/transition';
 	import { page } from '$app/stores';
@@ -50,7 +51,7 @@
 		return `${url.pathname}${url.search}${url.hash}`;
 	}
 
-	function handleCategoryActivate(event: Event, slug: string) {
+	async function handleCategoryActivate(event: Event, slug: string) {
 		if (!browser || isCategoryNavigating) return;
 
 		const isMobileViewport = window.matchMedia('(max-width: 767px)').matches;
@@ -59,7 +60,15 @@
 		event.preventDefault();
 		event.stopPropagation();
 		isCategoryNavigating = true;
-		window.location.assign(getCategoryHref(slug));
+		try {
+			await smartNavigate(getCategoryHref(slug), {
+				noScroll: true,
+				keepFocus: true,
+				fallbackTimeoutMs: 900
+			});
+		} finally {
+			isCategoryNavigating = false;
+		}
 	}
 
 	type FilterState = {

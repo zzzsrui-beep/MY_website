@@ -6,6 +6,7 @@
 	import { isLinkActive } from '$lib/utils/core';
 	import { browser } from '$app/environment';
 	import { i18n, type LanguageCode } from '$lib/stores/i18n.svelte';
+	import { smartNavigate } from '$lib/utils/smart-navigate';
 	import HeaderSearch from './header/HeaderSearch.svelte';
 	import logo from '$lib/assets/logo.svg';
 
@@ -161,7 +162,7 @@
 		return isLinkActive(linkHref, $page.url.pathname, $page.url.search);
 	}
 
-	function handleLogoActivate(event: Event) {
+	async function handleLogoActivate(event: Event) {
 		if (!browser) return;
 		const isMobileViewport = window.matchMedia('(max-width: 767px)').matches;
 		if (!isMobileViewport) return;
@@ -169,7 +170,10 @@
 
 		event.preventDefault();
 		event.stopPropagation();
-		window.location.assign('/');
+		await smartNavigate('/', {
+			keepFocus: true,
+			fallbackTimeoutMs: 900
+		});
 	}
 </script>
 

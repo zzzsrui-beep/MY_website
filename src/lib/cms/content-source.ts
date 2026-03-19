@@ -896,7 +896,6 @@ export async function getCategoriesFromCms(fetcher: FetchLike, options?: LocaleO
 		const [docs, productProbe] = await Promise.all([
 			fetchPayloadCollection<UnknownRecord>(fetcher, config.categoryCollection, withLocaleQuery({
 				limit: '500',
-				sort: 'sortOrder',
 				depth: '1'
 			}, locale)),
 			fetchPayloadCollection<UnknownRecord>(fetcher, config.productCollection, withLocaleQuery({

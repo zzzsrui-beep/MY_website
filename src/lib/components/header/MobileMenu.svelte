@@ -6,6 +6,7 @@
 	import { i18n, type LanguageCode } from '$lib/stores/i18n.svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { browser } from '$app/environment';
+	import { smartNavigate } from '$lib/utils/smart-navigate';
 
 	const cart = useCart();
 
@@ -18,29 +19,26 @@
 
 	let { navItems, onClose, onSearchClick, onCartClick }: Props = $props();
 
-	const EXTERNAL_LINK_RE = /^(https?:\/\/|mailto:|tel:|#)/i;
 	let navigating = $state(false);
 
-	function normalizeTarget(url: string) {
-		const raw = url?.trim();
-		if (!raw) return '';
-		if (EXTERNAL_LINK_RE.test(raw)) return raw;
-		return raw.startsWith('/') ? raw : `/${raw}`;
-	}
-
-	function navigateHard(url: string) {
-		const target = normalizeTarget(url);
-		if (!target || navigating || !browser) return;
-
+	async function navigate(url: string) {
+		if (!url || navigating || !browser) return;
 		navigating = true;
 		onClose();
-		window.location.assign(target);
+		try {
+			await smartNavigate(url, {
+				fallbackTimeoutMs: 900,
+				keepFocus: true
+			});
+		} finally {
+			navigating = false;
+		}
 	}
 
 	function handleNavActivate(event: Event, url: string) {
 		event.preventDefault();
 		event.stopPropagation();
-		navigateHard(url);
+		void navigate(url);
 	}
 
 	async function selectLanguage(lang: LanguageCode) {
@@ -64,35 +62,38 @@
 	>
 		{#if navItems && navItems.length > 0}
 			{#each navItems as link (link.url)}
-				<button
-					type="button"
+				<a
+					href={link.url}
+					data-sveltekit-preload-data="tap"
 					onpointerup={(event) => handleNavActivate(event, link.url)}
 					onclick={(event) => handleNavActivate(event, link.url)}
 					class="block py-3 hover:text-primary/70 text-left w-full"
 				>
 					{i18n.tx(link.label)}
-				</button>
+				</a>
 			{/each}
 		{/if}
 
 		<div class="h-px bg-primary/5 dark:bg-white/5 my-2"></div>
 
-		<button
-			type="button"
+		<a
+			href="/wishlist"
+			data-sveltekit-preload-data="tap"
 			onpointerup={(event) => handleNavActivate(event, '/wishlist')}
 			onclick={(event) => handleNavActivate(event, '/wishlist')}
 			class="block py-3 hover:text-primary/70 text-left w-full"
 		>
 			{i18n.tx('Wishlist')}
-		</button>
-		<button
-			type="button"
+		</a>
+		<a
+			href="/account"
+			data-sveltekit-preload-data="tap"
 			onpointerup={(event) => handleNavActivate(event, '/account')}
 			onclick={(event) => handleNavActivate(event, '/account')}
 			class="block py-3 hover:text-primary/70 text-left w-full"
 		>
 			{i18n.tx('Account')}
-		</button>
+		</a>
 		<button
 			onclick={onSearchClick}
 			class="text-left uppercase tracking-[0.15em] cursor-pointer py-3 w-full hover:text-primary/70"
